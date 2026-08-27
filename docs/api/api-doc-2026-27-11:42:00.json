@@ -1,0 +1,1181 @@
+{
+  "info": {
+    "_postman_id": "c00k1e70-0000-4000-a000-000000000001",
+    "name": "Cookiepot API — v1",
+    "description": "Cookiepot backend API.\n\n## Getting started\n\n1. Start MongoDB and the server:\n   ```bash\n   mongod --dbpath ~/data/mongodb --logpath ~/data/mongolog/mongod.log --fork\n   cd backend && pnpm install && pnpm seed && pnpm dev\n   ```\n2. Pick the **Cookiepot — Local** environment (or keep the collection defaults).\n3. Run **Auth → Login (super_admin)**. Tokens are captured into collection variables automatically by a test script, so every authenticated request below just works.\n\n## Seed accounts\n\nAll use password `Pass123!word`.\n\n| Email | Role | Status |\n|---|---|---|\n| root@test.test | super_admin | active |\n| admin@test.test | admin | active |\n| mod@test.test | moderator | active |\n| active@test.test | user | active |\n| pending@test.test | user | pending |\n| suspended@test.test | user | suspended |\n| banned@test.test | user | banned |\n\n## Response envelope\n\nSuccess: `{ \"data\": T, \"meta\"?: { next_cursor, has_more } }`\n\nError:\n```json\n{\n  \"error\": {\n    \"code\": \"account_suspended\",\n    \"message\": \"Your account is suspended, so that action is unavailable.\",\n    \"severity\": 40,\n    \"field_errors\": { \"email\": [\"Enter a valid email address\"] },\n    \"rejection_reason\": \"status_suspended_blocked\"\n  }\n}\n```\n\n- **`code`** — branch on this and only this. It is the contract.\n- **`message`** — display verbatim. Free to change, so never branch on it.\n- **`severity`** — dashboards only. Clients ignore it.\n- **`field_errors`** — validation failures only; **all** invalid fields, not just the first.\n- **`rejection_reason`** — operator diagnostic. **Not contract** — never branch on it.\n\nSeverity bands: 10 body-validation · 20 suspicious-validation · 30 auth · 40 forbidden · 50 not-found · 60 conflict · 70 business-rule · 80 rate-limited · 90 upstream · 100 server-fault.\n\n## Permissions — two independent axes\n\nRole and status gate separately, deliberately: a suspended admin is still an admin and must still be refused.\n\n| Status | Holds a session | Reads own profile | Writes |\n|---|---|---|---|\n| pending | yes | yes | no — `account_pending_verification` |\n| active | yes | yes | yes |\n| suspended | yes | yes | no — `account_suspended` |\n| banned | no — refused at login | — | — |\n| deleted | no — refused at login | — | — |\n\n## Rate limiting\n\nToken bucket. Every response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`; a 429 also carries a real `Retry-After` in seconds. Login is limited by IP **and** by email. Storage is in-memory and per-process, so restarting the server resets every bucket.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string",
+      "description": "Server origin, no trailing slash."
+    },
+    {
+      "key": "api_v1",
+      "value": "{{base_url}}/api/v1",
+      "type": "string",
+      "description": "Versioned API prefix. Health probes are unversioned and sit on base_url."
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string",
+      "description": "Captured automatically by the login/register/refresh test scripts."
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string",
+      "description": "Captured automatically. Rotated on every refresh — a token is good exactly once."
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string",
+      "description": "Id of the currently signed-in user."
+    },
+    {
+      "key": "target_user_id",
+      "value": "",
+      "type": "string",
+      "description": "Id used by the admin user-management requests. Populated by List users."
+    },
+    {
+      "key": "default_password",
+      "value": "Pass123!word",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Collection-wide sanity checks. Every response must be JSON in the",
+          "// standard envelope, and must never leak a secret back to the client.",
+          "const ct = pm.response.headers.get('Content-Type') || '';",
+          "",
+          "if (pm.response.code !== 204 && ct.includes('application/json')) {",
+          "  const body = pm.response.json();",
+          "  pm.test('response uses the { data } / { error } envelope', function () {",
+          "    pm.expect(body).to.satisfy(function (b) {",
+          "      return Object.prototype.hasOwnProperty.call(b, 'data') ||",
+          "             Object.prototype.hasOwnProperty.call(b, 'error');",
+          "    });",
+          "  });",
+          "",
+          "  if (body.error) {",
+          "    pm.test('error carries code, message and severity', function () {",
+          "      pm.expect(body.error).to.have.property('code').that.is.a('string');",
+          "      pm.expect(body.error).to.have.property('message').that.is.a('string');",
+          "      pm.expect(body.error).to.have.property('severity').that.is.a('number');",
+          "    });",
+          "  }",
+          "}",
+          "",
+          "pm.test('X-Request-Id echoed for log correlation', function () {",
+          "  pm.expect(pm.response.headers.get('X-Request-Id')).to.be.a('string');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "description": "Infrastructure probes. Deliberately unversioned — they are not API surface and must not move when the API version does.",
+      "item": [
+        {
+          "name": "Liveness",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Is the process up?\n\nChecks nothing external on purpose. A liveness probe that fails when the database is down gets the container killed and restarted — which does not fix a database, and does drop in-flight requests.\n\n**200** `{ data: { status, message, uptime_seconds, database } }`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"status\": \"ok\",\n    \"message\": \"Service is healthy.\",\n    \"uptime_seconds\": 7,\n    \"database\": \"connected\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Readiness",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/ready",
+              "host": ["{{base_url}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Should this instance receive traffic?\n\nThis one **does** ping the database: an instance that cannot reach it can serve nothing useful and should be pulled from the load balancer.\n\n**200** ready · **503** `upstream_failure` with `Retry-After: 5`"
+          },
+          "response": [
+            {
+              "name": "200 Ready",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/health/ready", "host": ["{{base_url}}"], "path": ["health", "ready"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"status\": \"ready\",\n    \"database\": \"connected\"\n  }\n}"
+            },
+            {
+              "name": "503 Database unreachable",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/health/ready", "host": ["{{base_url}}"], "path": ["health", "ready"] }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+                { "key": "Retry-After", "value": "5" }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"upstream_failure\",\n    \"message\": \"A service we depend on is unavailable right now.\",\n    \"severity\": 90,\n    \"rejection_reason\": \"database_unreachable\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Registration, sessions, and password change.\n\nAccess JWT (15 min) plus an opaque refresh token (30 days) that is **rotated on every use** — a refresh token is good exactly once. Replaying one that was already rotated means two parties hold it, so every session for that user is revoked.\n\nRefresh tokens are stored hashed (SHA-256): a database dump yields no usable sessions.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', d.user.id);",
+                  "",
+                  "  pm.test('new accounts start pending, not active', function () {",
+                  "    pm.expect(d.user.status).to.eql('pending');",
+                  "  });",
+                  "  pm.test('email is normalised to lowercase', function () {",
+                  "    pm.expect(d.user.email).to.eql(d.user.email.toLowerCase());",
+                  "  });",
+                  "  pm.test('password is never echoed back', function () {",
+                  "    pm.expect(JSON.stringify(d)).to.not.include(pm.collectionVariables.get('default_password'));",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@test.test\",\n  \"password\": \"Pass123!word\",\n  \"name\": \"New User\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/auth/register",
+              "host": ["{{api_v1}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Create an account and open a session.\n\nThe new account is **`pending`**, not active — it can read its own profile but cannot write until an admin activates it (email verification is not built yet; see the QA handoff).\n\n**Password policy:** min 8 chars, at least one lowercase, one uppercase, one digit.\n\n**Rate limit:** 5/hour per IP — registration is cheap to abuse and expensive to serve (argon2 + an email).\n\n**201** session · **409** `email_exists` · **422** `validation_error` · **429** `rate_limited`\n\nThe email is lowercased and trimmed at the boundary so the unique index is genuinely case-insensitive."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newuser@test.test\",\n  \"password\": \"Pass123!word\",\n  \"name\": \"New User\"\n}"
+                },
+                "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"u_01m101cpcz1dawsdrtdjvhd1kh\",\n      \"email\": \"newuser@test.test\",\n      \"name\": \"New User\",\n      \"role\": \"user\",\n      \"status\": \"pending\",\n      \"email_verified_at\": null,\n      \"last_login_at\": null,\n      \"created_at\": \"2026-08-27T04:24:24.345Z\",\n      \"updated_at\": \"2026-08-27T04:24:24.345Z\"\n    },\n    \"tokens\": {\n      \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n      \"refresh_token\": \"6k-lX0nu3dM83qgJQoF6jHggP9HXPjlAZSB20dxwRdfiHQPpo3xiwZ7_DXMGCxfs\",\n      \"token_type\": \"Bearer\",\n      \"expires_in\": 900\n    }\n  }\n}"
+            },
+            {
+              "name": "409 Email already exists",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"root@test.test\",\n  \"password\": \"Pass123!word\",\n  \"name\": \"Dup\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"email_exists\",\n    \"message\": \"An account with that email already exists.\",\n    \"severity\": 60,\n    \"field_errors\": {\n      \"email\": [\"An account with that email already exists\"]\n    }\n  }\n}"
+            },
+            {
+              "name": "422 Validation error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"nope\",\n  \"password\": \"abc\",\n  \"name\": \"\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"validation_error\",\n    \"message\": \"Some of the details you sent are not valid.\",\n    \"severity\": 10,\n    \"field_errors\": {\n      \"email\": [\"Enter a valid email address\"],\n      \"password\": [\n        \"Password must be at least 8 characters\",\n        \"Password must contain an uppercase letter\",\n        \"Password must contain a digit\"\n      ],\n      \"name\": [\"Name is required\"]\n    },\n    \"rejection_reason\": \"invalid_body\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login (super_admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', d.user.id);",
+                  "",
+                  "  pm.test('issues a bearer token', function () {",
+                  "    pm.expect(d.tokens.token_type).to.eql('Bearer');",
+                  "    pm.expect(d.tokens.access_token).to.be.a('string').and.have.length.above(100);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"root@test.test\",\n  \"password\": \"{{default_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/auth/login",
+              "host": ["{{api_v1}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "**Run this first.** Captures the tokens into collection variables, so every authenticated request below works without copy-pasting.\n\nEmail matching is case-insensitive.\n\n**Rate limit:** 10 per 15 min per IP **and** 10 per 15 min per email. The two are separate buckets — IP rotation alone should not buy unlimited guesses against one account.\n\n**Account lockout:** 5 consecutive failures locks the account for 15 minutes, and the correct password is refused during the lock (`account_locked`, 429, with `Retry-After`). That counter lives on the user record, not the limiter, so it survives a restart.\n\nAn unknown email and a wrong password return the **same** `invalid_credentials` — distinguishing them turns the endpoint into an account-existence oracle. A `banned` or `deleted` account is refused outright.\n\n**200** session · **401** `invalid_credentials` · **403** `account_banned` · **429** `account_locked` / `rate_limited`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"root@test.test\",\n  \"password\": \"Pass123!word\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+                { "key": "X-RateLimit-Limit", "value": "10" },
+                { "key": "X-RateLimit-Remaining", "value": "9" }
+              ],
+              "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"u_01m101enr6m84ce3s0f5kjsphd\",\n      \"email\": \"root@test.test\",\n      \"name\": \"Root\",\n      \"role\": \"super_admin\",\n      \"status\": \"active\",\n      \"email_verified_at\": \"2026-08-27T04:03:49.754Z\",\n      \"last_login_at\": \"2026-08-27T04:08:02.026Z\",\n      \"created_at\": \"2026-08-27T04:01:06.569Z\",\n      \"updated_at\": \"2026-08-27T04:08:02.026Z\"\n    },\n    \"tokens\": {\n      \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n      \"refresh_token\": \"oIJg9PvF2rDP3RdhtWA2VSXHQLdFER9vJhGZw-fcAZdzj97NFzCCy9VSAEccK6dv\",\n      \"token_type\": \"Bearer\",\n      \"expires_in\": 900\n    }\n  }\n}"
+            },
+            {
+              "name": "401 Invalid credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"root@test.test\",\n  \"password\": \"WrongPass1\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"invalid_credentials\",\n    \"message\": \"That email or password is not right.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"email_or_password_mismatch\"\n  }\n}"
+            },
+            {
+              "name": "403 Account banned",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"banned@test.test\",\n  \"password\": \"Pass123!word\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"account_banned\",\n    \"message\": \"Your account has been banned.\",\n    \"severity\": 40,\n    \"rejection_reason\": \"login_blocked_status_banned\"\n  }\n}"
+            },
+            {
+              "name": "429 Account locked",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"active@test.test\",\n  \"password\": \"Pass123!word\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+                { "key": "Retry-After", "value": "900" }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"account_locked\",\n    \"message\": \"Too many failed sign-in attempts. Try again in a few minutes.\",\n    \"severity\": 70,\n    \"rejection_reason\": \"failed_login_lockout\"\n  }\n}"
+            },
+            {
+              "name": "429 Rate limited",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"someone@test.test\",\n  \"password\": \"WrongPass1\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "_postman_previewlanguage": "json",
+              "header": [
+                { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+                { "key": "Retry-After", "value": "90" },
+                { "key": "X-RateLimit-Remaining", "value": "0" }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"rate_limited\",\n    \"message\": \"Too many requests. Please slow down.\",\n    \"severity\": 80,\n    \"rejection_reason\": \"policy_login\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', d.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.test\",\n  \"password\": \"{{default_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] },
+            "description": "Sign in as `admin`. Can list and read users, and change statuses — but **cannot** change roles (super_admin only). Use this to see the role gate refuse a role change."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (plain user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', d.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"active@test.test\",\n  \"password\": \"{{default_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] },
+            "description": "Sign in as a plain `active` user. Use this to watch the **role** gate refuse the admin endpoints with `insufficient_role`."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (suspended user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', d.user.id);",
+                  "",
+                  "  pm.test('a suspended account may still hold a session', function () {",
+                  "    pm.expect(d.user.status).to.eql('suspended');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"suspended@test.test\",\n  \"password\": \"{{default_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] },
+            "description": "A `suspended` account **can** sign in and read its own profile, but every write is refused with `account_suspended`.\n\nUse this to watch the **status** gate — the axis a role check cannot cover. Sign in here, then run *Users → Update my profile* and see the 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  const previous = pm.collectionVariables.get('refresh_token');",
+                  "",
+                  "  pm.test('refresh token is rotated — the old one is now dead', function () {",
+                  "    pm.expect(d.tokens.refresh_token).to.not.eql(previous);",
+                  "  });",
+                  "",
+                  "  pm.collectionVariables.set('access_token', d.tokens.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/auth/refresh",
+              "host": ["{{api_v1}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Exchange a refresh token for a new pair. The presented token is revoked in the same step — **a refresh token is good exactly once.**\n\n**Reuse detection.** Presenting a token that was already rotated away means two parties hold it, and there is no way to tell which one is asking. Every session for that user is revoked and the response is `session_revoked`. Run this request twice in a row to see it.\n\nA logout or password change revokes with a *reason*, so an ordinary sign-out reports `token_invalid` and is **not** treated as theft — otherwise signing out on one device would sign you out everywhere.\n\nRefresh is also where a mid-session ban takes effect: access-token claims are stale by design, and this is where they are re-checked against the database.\n\n| What happened | `code` |\n|---|---|\n| rotated, then replayed | `session_revoked` |\n| sibling session killed by that incident | `session_revoked` |\n| logged out normally | `token_invalid` |\n| password changed | `token_invalid` |\n| banned mid-session | `account_banned` |\n\n**Rate limit:** 60 per 15 min per IP.\n\n**200** new session · **401** `token_invalid` / `token_expired` / `session_revoked` · **403** `account_banned`"
+          },
+          "response": [
+            {
+              "name": "200 Rotated",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"oIJg9PvF2rDP3Rdh...\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/refresh", "host": ["{{api_v1}}"], "path": ["auth", "refresh"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"u_01m101enr6m84ce3s0f5kjsphd\",\n      \"email\": \"root@test.test\",\n      \"name\": \"Root\",\n      \"role\": \"super_admin\",\n      \"status\": \"active\",\n      \"email_verified_at\": \"2026-08-27T04:03:49.754Z\",\n      \"last_login_at\": \"2026-08-27T04:08:02.026Z\",\n      \"created_at\": \"2026-08-27T04:01:06.569Z\",\n      \"updated_at\": \"2026-08-27T04:08:02.026Z\"\n    },\n    \"tokens\": {\n      \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n      \"refresh_token\": \"NEW-oDqeu8GmOzI2rDP3RdhtWA2VSXHQLdFER9vJhGZw-fcAZdz\",\n      \"token_type\": \"Bearer\",\n      \"expires_in\": 900\n    }\n  }\n}"
+            },
+            {
+              "name": "401 Reuse detected — all sessions revoked",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"<a token that was already rotated away>\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/refresh", "host": ["{{api_v1}}"], "path": ["auth", "refresh"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"session_revoked\",\n    \"message\": \"This session was ended for your security. Please sign in again.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"refresh_token_reuse_detected\"\n  }\n}"
+            },
+            {
+              "name": "401 Token invalid (after logout)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"<a token ended by logout>\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/refresh", "host": ["{{api_v1}}"], "path": ["auth", "refresh"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"token_invalid\",\n    \"message\": \"That session token is not valid. Please sign in again.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"refresh_token_logout\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('logout returns 204 with no body', function () {",
+                  "  pm.expect(pm.response.code).to.eql(204);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 204) {",
+                  "  pm.collectionVariables.set('access_token', '');",
+                  "  pm.collectionVariables.set('refresh_token', '');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/auth/logout",
+              "host": ["{{api_v1}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "End the session that owns this refresh token.\n\nTakes the refresh token in the body rather than requiring a valid access token — a client whose access token has already expired must still be able to sign out.\n\n**Idempotent.** An unknown or already-revoked token still means \"you are signed out\", so it returns 204 either way. Reporting an error here only confuses a client that is retrying.\n\n**204** — no body at all. Do not call `.json()` on this response.\n\nOnly this session is revoked; other devices stay signed in. That is the whole reason logout carries a distinct revocation reason internally."
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"oIJg9PvF2rDP3Rdh...\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/logout", "host": ["{{api_v1}}"], "path": ["auth", "logout"] }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"{{default_password}}\",\n  \"new_password\": \"NewPass456!word\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/auth/change-password",
+              "host": ["{{api_v1}}"],
+              "path": ["auth", "change-password"]
+            },
+            "description": "Change the signed-in user's password.\n\n**Every session is revoked**, including the one making this call — that is the point of changing a password after a suspected compromise. Sign in again afterwards.\n\nA confirmation email is sent (logged rather than sent when `RESEND_API_KEY` is empty).\n\n**Status gate:** `active` **or** `pending`. An unverified user must not be locked out of their own credentials.\n\n**Rate limit:** 5/hour per user.\n\n**204** changed · **401** `invalid_credentials` (wrong current password) · **422** `validation_error` (new password fails policy)\n\n⚠️ Running this invalidates the collection's captured tokens and changes the seed password for that account. Re-run `pnpm seed` to restore it."
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"current_password\": \"Pass123!word\",\n  \"new_password\": \"NewPass456!word\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/change-password", "host": ["{{api_v1}}"], "path": ["auth", "change-password"] }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "body": ""
+            },
+            {
+              "name": "401 Wrong current password",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"current_password\": \"NotMyPassword1\",\n  \"new_password\": \"NewPass456!word\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/change-password", "host": ["{{api_v1}}"], "path": ["auth", "change-password"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"invalid_credentials\",\n    \"message\": \"That email or password is not right.\",\n    \"severity\": 30,\n    \"field_errors\": {\n      \"current_password\": [\"That is not your current password\"]\n    },\n    \"rejection_reason\": \"current_password_mismatch\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users — me",
+      "description": "The signed-in user's own profile.\n\nThese two endpoints are the clearest demonstration of the status gate: reading is open to `pending` and `suspended`, writing is `active` only.\n\n**Route order is load-bearing.** `/users/me` is registered *before* `/users/:userId`, or Express matches the parameterised route first and \"me\" arrives as a literal user id — a 404 on the most-used endpoint in the app.",
+      "item": [
+        {
+          "name": "Get my profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.collectionVariables.set('user_id', d.id);",
+                  "",
+                  "  pm.test('the password hash never crosses the wire', function () {",
+                  "    pm.expect(d).to.not.have.property('passwordHash');",
+                  "    pm.expect(d).to.not.have.property('password_hash');",
+                  "  });",
+                  "  pm.test('timestamps are ISO-8601 UTC', function () {",
+                  "    pm.expect(d.created_at).to.match(/^\\d{4}-\\d{2}-\\d{2}T.*Z$/);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": ["{{api_v1}}"],
+              "path": ["users", "me"]
+            },
+            "description": "The signed-in user's profile.\n\n**Status gate:** `active`, `pending`, **or** `suspended` — a suspended user can still see their own account, which is how they learn why they cannot act.\n\n**Rate limit:** 120/min.\n\n**200** user · **401** `unauthenticated` / `token_invalid` / `token_expired`\n\nThe response comes from a single mapper, which is deliberately the only path from a document to a response — a field added to the model is never published by accident, and `passwordHash` cannot leak through it."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"id\": \"u_01m101enr9xk32bjzd16arp3zg\",\n    \"email\": \"admin@test.test\",\n    \"name\": \"Admin\",\n    \"role\": \"admin\",\n    \"status\": \"active\",\n    \"email_verified_at\": \"2026-08-27T04:03:49.760Z\",\n    \"last_login_at\": \"2026-08-27T04:03:50.856Z\",\n    \"created_at\": \"2026-08-27T04:01:06.569Z\",\n    \"updated_at\": \"2026-08-27T04:03:50.856Z\"\n  }\n}"
+            },
+            {
+              "name": "401 No token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"unauthenticated\",\n    \"message\": \"You need to be signed in to do that.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"missing_authorization_header\"\n  }\n}"
+            },
+            {
+              "name": "401 Token expired",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"token_expired\",\n    \"message\": \"Your session has expired. Please sign in again.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"token_expired\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update my profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed User\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": ["{{api_v1}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Update the signed-in user's own profile. Only `name` is editable today.\n\n**Status gate: `active` only.** This is the gate doing work a role check cannot — a suspended user keeps their role and still cannot change anything.\n\nTo see it fire, run *Auth → Login (suspended user)* and then this request: **403 `account_suspended`**. A freshly registered (`pending`) account gets **403 `account_pending_verification`**.\n\n**Rate limit:** 30/min.\n\n**200** updated user · **403** `account_suspended` / `account_pending_verification` · **422** `validation_error`"
+          },
+          "response": [
+            {
+              "name": "200 Updated",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Renamed User\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"id\": \"u_01m101enrbha6pqzjse33cg90e\",\n    \"email\": \"active@test.test\",\n    \"name\": \"Renamed User\",\n    \"role\": \"user\",\n    \"status\": \"active\",\n    \"email_verified_at\": \"2026-08-27T04:01:06.571Z\",\n    \"last_login_at\": \"2026-08-27T04:03:33.614Z\",\n    \"created_at\": \"2026-08-27T04:01:06.571Z\",\n    \"updated_at\": \"2026-08-27T04:05:12.004Z\"\n  }\n}"
+            },
+            {
+              "name": "403 Suspended — status gate blocks the write",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Renamed User\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"account_suspended\",\n    \"message\": \"Your account is suspended, so that action is unavailable.\",\n    \"severity\": 40,\n    \"rejection_reason\": \"status_suspended_blocked\"\n  }\n}"
+            },
+            {
+              "name": "403 Pending — email not verified",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Renamed User\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"account_pending_verification\",\n    \"message\": \"Please verify your email before doing that.\",\n    \"severity\": 40,\n    \"rejection_reason\": \"status_pending_blocked\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users — administration",
+      "description": "Admin surface. Registered **after** `/users/me` so the literal path is not swallowed by `/users/:userId`.\n\nPrivilege is tiered deliberately:\n\n| Action | Minimum role |\n|---|---|\n| list / read users | `admin` |\n| change a status | `moderator` |\n| change a **role** | `super_admin` |\n\nGranting privilege is strictly super-admin: an admin who can mint admins is an admin who can escalate anyone, including a compromised account.\n\nAll of these also require the **caller** to be `active`.",
+      "item": [
+        {
+          "name": "List users (cursor paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "",
+                  "  pm.test('carries cursor pagination meta', function () {",
+                  "    pm.expect(body.meta).to.have.property('has_more');",
+                  "    pm.expect(body.meta).to.have.property('next_cursor');",
+                  "  });",
+                  "",
+                  "  if (body.data.length > 0) {",
+                  "    pm.collectionVariables.set('target_user_id', body.data[0].id);",
+                  "  }",
+                  "  if (body.meta.next_cursor) {",
+                  "    pm.collectionVariables.set('next_cursor', body.meta.next_cursor);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users?limit=20",
+              "host": ["{{api_v1}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "limit", "value": "20", "description": "1–100. Defaults to 20. Clamped server-side — a client-sent limit is never trusted." },
+                { "key": "cursor", "value": "", "description": "Opaque cursor from a previous response's meta.next_cursor. Never parse it. A malformed cursor falls back to the first page rather than erroring.", "disabled": true },
+                { "key": "role", "value": "user", "description": "Filter: user | moderator | admin | super_admin", "disabled": true },
+                { "key": "status", "value": "active", "description": "Filter: pending | active | suspended | banned | deleted", "disabled": true }
+              ]
+            },
+            "description": "List users, newest first.\n\n**Cursor pagination only** — offset is banned. `skip(n)` re-scans n documents per page, and a concurrent insert shifts every later page, so a user scrolling a live list silently sees an item twice or misses it entirely.\n\nThe cursor encodes the last item's sort key **and** its id; the id breaks ties when two records share a timestamp, without which pagination stalls or skips.\n\nSets `{{target_user_id}}` from the first result, so the requests below work immediately.\n\n**Role:** `admin` or above. **Rate limit:** 200/min.\n\n**200** `{ data: User[], meta: { next_cursor, has_more } }` · **403** `insufficient_role`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{api_v1}}/users?limit=2",
+                  "host": ["{{api_v1}}"],
+                  "path": ["users"],
+                  "query": [{ "key": "limit", "value": "2" }]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"u_01m101enrde3s0f5kjsphd2aw\",\n      \"email\": \"banned@test.test\",\n      \"name\": \"Banned User\",\n      \"role\": \"user\",\n      \"status\": \"banned\",\n      \"email_verified_at\": null,\n      \"last_login_at\": null,\n      \"created_at\": \"2026-08-27T04:01:06.572Z\",\n      \"updated_at\": \"2026-08-27T04:01:06.572Z\"\n    },\n    {\n      \"id\": \"u_01m101enrbha6pqzjse33cg90e\",\n      \"email\": \"suspended@test.test\",\n      \"name\": \"Suspended User\",\n      \"role\": \"user\",\n      \"status\": \"suspended\",\n      \"email_verified_at\": null,\n      \"last_login_at\": null,\n      \"created_at\": \"2026-08-27T04:01:06.571Z\",\n      \"updated_at\": \"2026-08-27T04:01:06.571Z\"\n    }\n  ],\n  \"meta\": {\n    \"next_cursor\": \"eyJsYXN0X2lkIjoidV8wMW0xMDFlbnJiaGE2cHF6anNlMzNjZzkwZSIsImxhc3Rfc29ydF9rZXkiOiIyMDI2LTA4LTI3VDA0OjAxOjA2LjU3MVoifQ\",\n    \"has_more\": true\n  }\n}"
+            },
+            {
+              "name": "403 Insufficient role",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users", "host": ["{{api_v1}}"], "path": ["users"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"insufficient_role\",\n    \"message\": \"Your account role does not allow that action.\",\n    \"severity\": 20,\n    \"rejection_reason\": \"role_below_admin\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "List users — next page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users?limit=20&cursor={{next_cursor}}",
+              "host": ["{{api_v1}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "cursor", "value": "{{next_cursor}}" }
+              ]
+            },
+            "description": "Follow the cursor from the previous request. Run *List users* first to populate `{{next_cursor}}`.\n\nPages are disjoint — no id appears on two pages, which is exactly the property offset pagination loses under concurrent inserts."
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}",
+              "host": ["{{api_v1}}"],
+              "path": ["users", "{{target_user_id}}"],
+              "variable": [
+                { "key": "userId", "value": "{{target_user_id}}", "description": "Prefixed ULID, e.g. u_01m101enr9xk32bjzd16arp3zg. Opaque — never parse it." }
+              ]
+            },
+            "description": "Fetch one user.\n\nIds are resource-prefixed ULIDs (`u_…`): self-describing in a log line, and monotonically sortable, which is what lets them serve as a pagination tiebreak. Clients treat them as opaque strings.\n\n**Role:** `admin` or above. **Rate limit:** 200/min.\n\n**200** user · **403** `insufficient_role` · **404** `not_found`"
+          },
+          "response": [
+            {
+              "name": "404 Not found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users/u_doesnotexist", "host": ["{{api_v1}}"], "path": ["users", "u_doesnotexist"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"That user does not exist.\",\n    \"severity\": 50\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update user status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"suspended\",\n  \"reason\": \"Repeated policy violations\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}/status",
+              "host": ["{{api_v1}}"],
+              "path": ["users", "{{target_user_id}}", "status"]
+            },
+            "description": "Move a user between lifecycle statuses. `status` is one of `pending | active | suspended | banned | deleted`; `reason` is optional and shown in admin tooling.\n\n**The transition must be legal.** The application owns the transition map — the schema only constrains the *value*, not the *move* — and a client-sent status is untrusted until checked against it:\n\n| From | May go to |\n|---|---|\n| pending | active, banned, deleted |\n| active | suspended, banned, deleted |\n| suspended | active, banned, deleted |\n| banned | active, deleted |\n| deleted | — (terminal) |\n\n**Moving a user out of a session-eligible status revokes their sessions immediately** — otherwise a banned user keeps acting until their access token expires. A notification email is sent.\n\nSetting the status to its current value is a no-op that returns 200.\n\n**Role:** `moderator` or above. **Rate limit:** 200/min.\n\n**200** updated · **403** `insufficient_role` · **404** `not_found` · **422** `validation_error` (illegal transition)"
+          },
+          "response": [
+            {
+              "name": "200 Updated",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\",\n  \"reason\": \"verified by QA\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/u_01m101enrbc66m5a95k104p628/status", "host": ["{{api_v1}}"], "path": ["users", "u_01m101enrbc66m5a95k104p628", "status"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"id\": \"u_01m101enrbc66m5a95k104p628\",\n    \"email\": \"pending@test.test\",\n    \"name\": \"Pending User\",\n    \"role\": \"user\",\n    \"status\": \"active\",\n    \"email_verified_at\": null,\n    \"last_login_at\": null,\n    \"created_at\": \"2026-08-27T04:01:06.571Z\",\n    \"updated_at\": \"2026-08-27T04:03:33.901Z\"\n  }\n}"
+            },
+            {
+              "name": "422 Illegal transition",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"suspended\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/u_01m101enrbc66m5a95k104p628/status", "host": ["{{api_v1}}"], "path": ["users", "u_01m101enrbc66m5a95k104p628", "status"] }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"validation_error\",\n    \"message\": \"Some of the details you sent are not valid.\",\n    \"severity\": 10,\n    \"field_errors\": {\n      \"status\": [\"Cannot move an account from deleted to suspended\"]\n    },\n    \"rejection_reason\": \"illegal_transition_deleted_to_suspended\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update user role",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"moderator\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}/role",
+              "host": ["{{api_v1}}"],
+              "path": ["users", "{{target_user_id}}", "role"]
+            },
+            "description": "Change a user's role. One of `user | moderator | admin | super_admin`.\n\n**Super admin only.** An admin who can mint admins is an admin who can escalate anyone, including a compromised account. Sign in as `admin@test.test` and run this to see **403 `insufficient_role`** with `rejection_reason: role_below_super_admin`.\n\n**You cannot change your own role.** Self-demotion is how an organisation locks itself out of its own admin tooling; another super admin must do it. Returns **403 `forbidden`** with the message \"You cannot change your own role.\"\n\nThe target's sessions are revoked so their next sign-in mints a token with the correct claims — the old access token still carries the old role until it expires.\n\n**Rate limit:** 200/min.\n\n**200** updated · **403** `insufficient_role` / `forbidden` (self) · **404** `not_found` · **422** `validation_error`"
+          },
+          "response": [
+            {
+              "name": "200 Updated",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"role\": \"moderator\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/u_01m101enrbc66m5a95k104p628/role", "host": ["{{api_v1}}"], "path": ["users", "u_01m101enrbc66m5a95k104p628", "role"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"data\": {\n    \"id\": \"u_01m101enrbc66m5a95k104p628\",\n    \"email\": \"pending@test.test\",\n    \"name\": \"Pending User\",\n    \"role\": \"moderator\",\n    \"status\": \"active\",\n    \"email_verified_at\": null,\n    \"last_login_at\": null,\n    \"created_at\": \"2026-08-27T04:01:06.571Z\",\n    \"updated_at\": \"2026-08-27T04:03:33.926Z\"\n  }\n}"
+            },
+            {
+              "name": "403 Not super_admin",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"role\": \"admin\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/u_01m101enrbc66m5a95k104p628/role", "host": ["{{api_v1}}"], "path": ["users", "u_01m101enrbc66m5a95k104p628", "role"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"insufficient_role\",\n    \"message\": \"Your account role does not allow that action.\",\n    \"severity\": 20,\n    \"rejection_reason\": \"role_below_super_admin\"\n  }\n}"
+            },
+            {
+              "name": "403 Cannot change own role",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"role\": \"user\"\n}" },
+                "url": { "raw": "{{api_v1}}/users/{{user_id}}/role", "host": ["{{api_v1}}"], "path": ["users", "{{user_id}}", "role"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"forbidden\",\n    \"message\": \"You cannot change your own role.\",\n    \"severity\": 40,\n    \"rejection_reason\": \"self_role_change\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error envelope — worked examples",
+      "description": "Requests that deliberately fail, so the envelope can be inspected without hunting for a way to break something.\n\nRun these to see the four error shapes a client must handle.",
+      "item": [
+        {
+          "name": "Malformed JSON → 400",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\": broken", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] },
+            "description": "An unparseable body is a **client** error, not a server one.\n\nExpress's body parser throws a `SyntaxError`; left to fall through it renders as a 500 and inflates the error-rate alarm for what is squarely a client mistake. It is caught explicitly and returned as **400 `malformed_json`**."
+          },
+          "response": [
+            {
+              "name": "400 Malformed JSON",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\"email\": broken" },
+                "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"malformed_json\",\n    \"message\": \"The request body is not valid JSON.\",\n    \"severity\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unknown route → 404",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{api_v1}}/does-not-exist", "host": ["{{api_v1}}"], "path": ["does-not-exist"] },
+            "description": "An unmatched path returns the standard envelope, not Express's HTML error page.\n\nNote it is a **404**, not a 401 — `authenticate` is attached per route rather than via `router.use()`, which would run for unmatched paths too and tell an anonymous caller to \"sign in\" about a route that does not exist."
+          },
+          "response": [
+            {
+              "name": "404 Not found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/does-not-exist", "host": ["{{api_v1}}"], "path": ["does-not-exist"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"That resource does not exist.\",\n    \"severity\": 50\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Invalid token → 401",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "not-a-real-token", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] },
+            "description": "A garbage bearer token returns **`token_invalid`**.\n\nAn *expired* one returns **`token_expired`** instead — the client needs to tell them apart, because one is resolved by refreshing and the other by signing in again."
+          },
+          "response": [
+            {
+              "name": "401 Token invalid",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"token_invalid\",\n    \"message\": \"That session token is not valid. Please sign in again.\",\n    \"severity\": 30,\n    \"rejection_reason\": \"token_invalid\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validation error → 422 (all fields)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"abc\",\n  \"name\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] },
+            "description": "**Policy: all invalid fields are returned, not just the first.**\n\nThat is a product decision, and it is applied identically in the validation middleware and the error handler — splitting it between the two is how a form shows one error on submit and five on re-render.\n\nUnknown keys are stripped by the schema, so a client cannot smuggle an extra field through to a service."
+          },
+          "response": [
+            {
+              "name": "422 Validation error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"abc\",\n  \"name\": \"\"\n}" },
+                "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n  \"error\": {\n    \"code\": \"validation_error\",\n    \"message\": \"Some of the details you sent are not valid.\",\n    \"severity\": 10,\n    \"field_errors\": {\n      \"email\": [\"Enter a valid email address\"],\n      \"password\": [\n        \"Password must be at least 8 characters\",\n        \"Password must contain an uppercase letter\",\n        \"Password must contain a digit\"\n      ],\n      \"name\": [\"Name is required\"]\n    },\n    \"rejection_reason\": \"invalid_body\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

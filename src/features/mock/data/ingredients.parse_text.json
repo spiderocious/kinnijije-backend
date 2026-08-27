@@ -1,0 +1,8 @@
+{
+  "promptId": "ingredients.parse_text",
+  "description": "Free text split into a clean ingredient list.",
+  "default": ["Tomatoes", "Rice", "Chicken", "Eggs"],
+  "scenarios": {
+    "messy": ["Tomatoes", "Onions", "Scotch bonnet", "Palm oil", "Beans"]
+  }
+}

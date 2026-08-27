@@ -1,0 +1,17 @@
+{
+  "promptId": "ingredients.extract_photo",
+  "description": "What a shelf/fridge photo reads back as. The default is used when no scenario matches.",
+  "default": [
+    "Tomatoes", "Red onions", "Scotch bonnet", "Chicken", "Long-grain rice",
+    "Palm oil", "Eggs", "Spinach", "Plantain"
+  ],
+  "scenarios": {
+    "empty_shelf": [],
+    "sparse": ["Rice", "Palm oil"],
+    "full_fridge": [
+      "Tomatoes", "Red onions", "Scotch bonnet", "Chicken", "Beef", "Eggs",
+      "Spinach", "Ugu leaves", "Plantain", "Yam", "Palm oil", "Groundnut oil",
+      "Long-grain rice", "Beans", "Crayfish", "Stock cubes"
+    ]
+  }
+}
