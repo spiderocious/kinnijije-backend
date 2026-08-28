@@ -9,6 +9,7 @@ import { register as registerExtraction } from '@features/extraction/index.js';
 import { register as registerFiles } from '@features/files/index.js';
 import { register as registerHealth } from '@features/health/index.js';
 import { register as registerChat } from '@features/chat/index.js';
+import { register as registerConfig } from '@features/config/index.js';
 import { register as registerInsights } from '@features/insights/index.js';
 import { register as registerJobs } from '@features/jobs/index.js';
 import { register as registerMarket } from '@features/market/index.js';
@@ -72,6 +73,7 @@ export function buildApp(): Express {
 
   // Probes first: they must answer even when something below is unhealthy.
   registerHealth(app);
+  registerConfig(app);
 
   // Feature registration order. Both mount under /api/v1 with non-overlapping
   // path prefixes (/auth/* and /users/*), so the order between them is not

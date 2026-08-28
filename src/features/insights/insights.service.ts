@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isoOrNull } from '@lib/dates.js';
 
 import { CookedMealModel } from '@features/meals/meals.model.js';
 import { StockMovementModel } from '@features/stock/stock.model.js';
@@ -58,11 +59,11 @@ export class InsightsService {
     const days: WeekSummary['days'] = [];
     for (let i = 6; i >= 0; i -= 1) {
       const day = new Date(Date.now() - i * DAY_MS);
-      const key = day.toISOString().slice(0, 10);
+      const key = isoOrNull(day).slice(0, 10);
       days.push({
         date: key,
         label: day.toLocaleDateString('en', { weekday: 'short' }),
-        meals: cooked.filter((c) => c.cookedAt.toISOString().slice(0, 10) === key).map((c) => c.mealName),
+        meals: cooked.filter((c) => isoOrNull(c.cookedAt).slice(0, 10) === key).map((c) => c.mealName),
       });
     }
 
@@ -96,7 +97,7 @@ export class InsightsService {
         .map(([name, times]) => ({ name, times })),
       too_early: cooked.length < MIN_MEALS_FOR_INSIGHT,
       reading: cached?.payload ?? null,
-      reading_computed_at: cached?.computedAt.toISOString() ?? null,
+      reading_computed_at: isoOrNull(cached?.computedAt),
     });
   }
 
@@ -114,7 +115,7 @@ export class InsightsService {
       StockMovementModel.countDocuments({ ownerId, createdAt: { $gte: since } }),
     ]);
 
-    const material = cooked.map((c) => `${c.mealName}@${c.cookedAt.toISOString()}`).join('|');
+    const material = cooked.map((c) => `${c.mealName}@${isoOrNull(c.cookedAt)}`).join('|');
     return createHash('sha256').update(`${material}::${String(moves)}`).digest('hex').slice(0, 32);
   }
 

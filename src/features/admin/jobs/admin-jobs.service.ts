@@ -1,4 +1,5 @@
 import { JOB_STATUSES, JobModel } from '@lib/jobs/jobs.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
@@ -55,9 +56,9 @@ export class AdminJobsService {
         attempts: job.attempts,
         max_attempts: job.maxAttempts,
         error: job.error,
-        created_at: job.createdAt.toISOString(),
-        started_at: job.startedAt?.toISOString() ?? null,
-        finished_at: job.finishedAt?.toISOString() ?? null,
+        created_at: isoOrNull(job.createdAt),
+        started_at: isoOrNull(job.startedAt),
+        finished_at: isoOrNull(job.finishedAt),
       })),
       total,
     });
@@ -81,11 +82,11 @@ export class AdminJobsService {
       payload: job.payload,
       result: job.result,
       error: job.error,
-      cancel_requested_at: job.cancelRequestedAt?.toISOString() ?? null,
-      lease_expires_at: job.leaseExpiresAt?.toISOString() ?? null,
-      created_at: job.createdAt.toISOString(),
-      started_at: job.startedAt?.toISOString() ?? null,
-      finished_at: job.finishedAt?.toISOString() ?? null,
+      cancel_requested_at: isoOrNull(job.cancelRequestedAt),
+      lease_expires_at: isoOrNull(job.leaseExpiresAt),
+      created_at: isoOrNull(job.createdAt),
+      started_at: isoOrNull(job.startedAt),
+      finished_at: isoOrNull(job.finishedAt),
     });
   }
 

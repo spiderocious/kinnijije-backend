@@ -1,4 +1,5 @@
 import { ChatMessageModel } from '@features/chat/chat.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { FileModel } from '@features/files/files.model.js';
 import { MarketItemModel } from '@features/market/market.model.js';
 import { CookedMealModel, FavouriteModel } from '@features/meals/meals.model.js';
@@ -60,7 +61,7 @@ export class AdminUsersService {
         status: user.status,
         has_onboarded: user.onboardingCompletedAt !== null,
         email_verified: user.emailVerifiedAt !== null,
-        created_at: user.createdAt.toISOString(),
+        created_at: isoOrNull(user.createdAt),
       })),
       total,
     });
@@ -104,9 +105,9 @@ export class AdminUsersService {
         role: user.role,
         status: user.status,
         has_onboarded: user.onboardingCompletedAt !== null,
-        email_verified_at: user.emailVerifiedAt?.toISOString() ?? null,
-        created_at: user.createdAt.toISOString(),
-        updated_at: user.updatedAt.toISOString(),
+        email_verified_at: isoOrNull(user.emailVerifiedAt),
+        created_at: isoOrNull(user.createdAt),
+        updated_at: isoOrNull(user.updatedAt),
       },
       totals: {
         stock_items: stock.length,
@@ -125,7 +126,7 @@ export class AdminUsersService {
         catalogue_id: item.catalogueId,
         quantity: item.quantity,
         unit: item.unit,
-        updated_at: item.updatedAt.toISOString(),
+        updated_at: isoOrNull(item.updatedAt),
       })),
       market: market.map((item) => ({
         id: item._id,
@@ -133,18 +134,18 @@ export class AdminUsersService {
         quantity: item.quantity,
         unit: item.unit,
         bought: item.boughtAt !== null,
-        created_at: item.createdAt.toISOString(),
+        created_at: isoOrNull(item.createdAt),
       })),
       cooked: cooked.map((row) => ({
         meal_id: row.mealId,
         meal_name: row.mealName,
-        cooked_at: row.cookedAt.toISOString(),
+        cooked_at: isoOrNull(row.cookedAt),
       })),
       jobs: jobs.map((job) => ({
         id: job._id,
         type: job.type,
         status: job.status,
-        created_at: job.createdAt.toISOString(),
+        created_at: isoOrNull(job.createdAt),
       })),
     });
   }

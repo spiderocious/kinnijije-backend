@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 
+import { FEATURE_FLAGS, flagsService, type FeatureFlag } from '@lib/flags/index.js';
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
+import { ERROR_CODES } from '@shared/constants/error-codes.js';
+import { HTTP_STATUS } from '@shared/constants/http-status.js';
+import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
 
 import { adminAiService } from './ai/admin-ai.service.js';
@@ -157,6 +161,32 @@ export const adminController = {
     const result = await adminAiService.promptIds();
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
+  },
+
+  // ── Features ───────────────────────────────────────────────────────
+  featureFlags: async (_req: Request, res: Response): Promise<void> => {
+    ResponseUtil.ok(res, await flagsService.listForConsole());
+  },
+
+  setFeatureFlag: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { flag } = req.params as { flag: string };
+    const { enabled, reason } = req.body as { enabled: boolean; reason?: string };
+
+    // The key is checked against the KNOWN flags — an unknown one would write a
+    // row nothing ever reads, which looks switched off and is not.
+    if (!(Object.values(FEATURE_FLAGS) as string[]).includes(flag)) {
+      return bail({
+        success: false,
+        code: ERROR_CODES.NOT_FOUND,
+        messageKey: MESSAGE_KEYS.common.NOT_FOUND,
+        httpStatus: HTTP_STATUS.NOT_FOUND,
+        rejectionReason: 'unknown_feature_flag',
+      });
+    }
+
+    await flagsService.set(flag as FeatureFlag, enabled, actor.userId, reason);
+    ResponseUtil.noContent(res);
   },
 
   // ── Email ──────────────────────────────────────────────────────────

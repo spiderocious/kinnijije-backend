@@ -1,4 +1,5 @@
 import type { FilterQuery } from 'mongoose';
+import { isoOrNull } from '@lib/dates.js';
 
 import { decodeCursor, encodeCursor } from '@lib/pagination.js';
 
@@ -74,7 +75,7 @@ export class FilesRepository {
       hasMore,
       nextCursor:
         hasMore && last !== undefined
-          ? encodeCursor({ last_id: last._id, last_sort_key: last.createdAt.toISOString() })
+          ? encodeCursor({ last_id: last._id, last_sort_key: isoOrNull(last.createdAt) })
           : null,
     };
   }

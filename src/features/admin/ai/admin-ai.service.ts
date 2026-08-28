@@ -1,4 +1,5 @@
 import { AiLogModel } from '@lib/ai/ai-log.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
@@ -61,7 +62,7 @@ export class AdminAiService {
         total_tokens: row.totalTokens,
         duration_ms: row.durationMs,
         metrics: row.metrics,
-        created_at: row.createdAt.toISOString(),
+        created_at: isoOrNull(row.createdAt),
       })),
       total,
     });
@@ -93,7 +94,7 @@ export class AdminAiService {
       duration_ms: row.durationMs,
       ok: row.ok,
       error: row.error,
-      created_at: row.createdAt.toISOString(),
+      created_at: isoOrNull(row.createdAt),
     });
   }
 

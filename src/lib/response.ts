@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+import { isoOrNull } from '@lib/dates.js';
 
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import type { ApiErrorBody, ApiMeta } from '@shared/types/envelope.types.js';
@@ -51,7 +52,7 @@ function serialise(value: unknown): unknown {
       : value.toString();
   }
 
-  if (value instanceof Date) return value.toISOString();
+  if (value instanceof Date) return isoOrNull(value);
   if (Array.isArray(value)) return value.map(serialise);
 
   if (value !== null && typeof value === 'object') {

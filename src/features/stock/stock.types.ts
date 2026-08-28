@@ -1,4 +1,5 @@
 import { byId, GROUPS, illustrationFor, type CatalogueItem } from '@shared/catalogue/index.js';
+import { isoOrNull } from '@lib/dates.js';
 
 import type { StockItemDocument } from './stock.model.js';
 
@@ -53,7 +54,7 @@ export function toStockItemView(doc: StockItemDocument): StockItemView {
     days_left: daysLeft,
     freshness:
       daysLeft === null ? 'unknown' : daysLeft < 0 ? 'past' : daysLeft <= SOON_THRESHOLD_DAYS ? 'soon' : 'fresh',
-    added_at: doc.addedAt.toISOString(),
-    last_moved_at: doc.lastMovedAt.toISOString(),
+    added_at: isoOrNull(doc.addedAt),
+    last_moved_at: isoOrNull(doc.lastMovedAt),
   };
 }

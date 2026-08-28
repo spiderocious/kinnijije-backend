@@ -1,4 +1,5 @@
 import { UserModel } from '@features/users/users.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { logger } from '@lib/logger/index.js';
 import {
   adminBroadcastEmail,
@@ -161,7 +162,7 @@ export class AdminEmailsService {
         error: row.error,
         sent_by: row.sentBy,
         resend_of: row.resendOf,
-        created_at: row.createdAt.toISOString(),
+        created_at: isoOrNull(row.createdAt),
       })),
       total,
     });
@@ -187,7 +188,7 @@ export class AdminEmailsService {
       error: row.error,
       sent_by: row.sentBy,
       resend_of: row.resendOf,
-      created_at: row.createdAt.toISOString(),
+      created_at: isoOrNull(row.createdAt),
     });
   }
 
@@ -236,7 +237,7 @@ export class AdminEmailsService {
           enabled: row?.enabled !== false,
           updated_by: row?.updatedBy ?? null,
           reason: row?.reason ?? null,
-          updated_at: row?.updatedAt?.toISOString() ?? null,
+          updated_at: isoOrNull(row?.updatedAt),
         };
       }),
     );

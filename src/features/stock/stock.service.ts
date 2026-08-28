@@ -1,4 +1,5 @@
 import { logger } from '@lib/logger/index.js';
+import { isoOrNull } from '@lib/dates.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import {
   byId,
@@ -237,7 +238,7 @@ export class StockService {
         quantity_after: m.quantityAfter,
         source: m.source,
         reference: m.reference,
-        at: m.createdAt.toISOString(),
+        at: isoOrNull(m.createdAt),
       })),
     );
   }

@@ -21,6 +21,7 @@ import {
   PreviewAudienceSchema,
   RetryJobSchema,
   SetEmailKindSchema,
+  SetFeatureFlagSchema,
   SetRecipeStatusSchema,
   SetUserRoleSchema,
   SetUserStatusSchema,
@@ -87,6 +88,15 @@ router.patch(
 router.get('/admin/ai/prompt-ids', ...guard, asyncHandler(adminController.aiPromptIds));
 router.get('/admin/ai', ...guard, validate(ListAiLogsSchema, 'query'), asyncHandler(adminController.listAiLogs));
 router.get('/admin/ai/:logId', ...guard, asyncHandler(adminController.aiLogDetail));
+
+// Features
+router.get('/admin/features', ...guard, asyncHandler(adminController.featureFlags));
+router.patch(
+  '/admin/features/:flag',
+  ...guard,
+  validate(SetFeatureFlagSchema),
+  asyncHandler(adminController.setFeatureFlag),
+);
 
 // Email — literals first, then the parameter.
 router.get('/admin/emails/kinds', ...guard, asyncHandler(adminController.emailKinds));

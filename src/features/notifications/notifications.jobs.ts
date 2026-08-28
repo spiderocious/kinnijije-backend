@@ -1,4 +1,5 @@
 import { mealsService } from '@features/meals/meals.service.js';
+import { isoOrNull } from '@lib/dates.js';
 import { insightsService } from '@features/insights/insights.service.js';
 import { stockService } from '@features/stock/stock.service.js';
 import { UserModel } from '@features/users/users.model.js';
@@ -270,7 +271,7 @@ async function scheduleSweep(type: string, runAt: Date): Promise<void> {
   if (pending > 0) return;
 
   await jobQueue.enqueue({ type, ownerId: 'system', payload: {}, runAt, maxAttempts: 1 });
-  logger.info('notification sweep scheduled', { type, run_at: runAt.toISOString() });
+  logger.info('notification sweep scheduled', { type, run_at: isoOrNull(runAt) });
 }
 
 export async function scheduleDailySweep(): Promise<void> {

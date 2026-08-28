@@ -1,4 +1,5 @@
 import type { JobDocument, JobStatus } from './jobs.model.js';
+import { isoOrNull } from '@lib/dates.js';
 
 /**
  * What a handler gets. Deliberately narrow: a handler should not be able to
@@ -46,7 +47,7 @@ export interface JobView {
   max_attempts: number;
   /** True while a person could still usefully wait on it. */
   is_terminal: boolean;
-  created_at: string;
+  created_at: string | null;
   started_at: string | null;
   finished_at: string | null;
 }
@@ -62,7 +63,7 @@ export const toJobView = (doc: JobDocument): JobView => ({
   attempts: doc.attempts,
   max_attempts: doc.maxAttempts,
   is_terminal: ['succeeded', 'failed', 'cancelled'].includes(doc.status),
-  created_at: doc.createdAt.toISOString(),
-  started_at: doc.startedAt?.toISOString() ?? null,
-  finished_at: doc.finishedAt?.toISOString() ?? null,
+  created_at: isoOrNull(doc.createdAt),
+  started_at: isoOrNull(doc.startedAt),
+  finished_at: isoOrNull(doc.finishedAt),
 });

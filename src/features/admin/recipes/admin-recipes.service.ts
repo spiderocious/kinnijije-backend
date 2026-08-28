@@ -1,4 +1,5 @@
 import { MealModel } from '@features/meals/meals.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { resolve as resolveIngredient } from '@shared/catalogue/lookup.js';
@@ -79,7 +80,7 @@ export class AdminRecipesService {
         ingredient_count: meal.ingredients.length,
         matched_ingredients: meal.ingredientKeys.length,
         step_count: meal.steps.length,
-        created_at: meal.createdAt.toISOString(),
+        created_at: isoOrNull(meal.createdAt),
       })),
       total,
     });
@@ -116,8 +117,8 @@ export class AdminRecipesService {
       steps: meal.steps,
       ingredient_keys: meal.ingredientKeys,
       created_by: meal.createdBy,
-      created_at: meal.createdAt.toISOString(),
-      updated_at: meal.updatedAt.toISOString(),
+      created_at: isoOrNull(meal.createdAt),
+      updated_at: isoOrNull(meal.updatedAt),
     });
   }
 

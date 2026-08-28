@@ -117,3 +117,9 @@ export const SetEmailKindSchema = z.object({
   /** Why it was switched. Optional, but the console asks for one. */
   reason: z.string().max(300).optional(),
 });
+
+export const SetFeatureFlagSchema = z.object({
+  enabled: z.boolean(),
+  /** Why it was switched. Optional, but the console asks for one. */
+  reason: z.string().max(300).optional(),
+});

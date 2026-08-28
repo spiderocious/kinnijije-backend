@@ -1,4 +1,5 @@
 import { MealModel } from '@features/meals/meals.model.js';
+import { isoOrNull } from '@lib/dates.js';
 import { aiService, ChatReplySchema, PROMPT_IDS } from '@lib/ai/index.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
@@ -37,7 +38,7 @@ export interface ChatReplyView {
   notes: unknown;
   /** What was actually carried out, for the interface to show as receipts. */
   tool_results: ToolResult[];
-  created_at: string;
+  created_at: string | null;
 }
 
 export class ChatService {
@@ -62,7 +63,7 @@ export class ChatService {
         text: m.text,
         payload: m.payload,
         mocked: m.mocked,
-        created_at: m.createdAt.toISOString(),
+        created_at: isoOrNull(m.createdAt),
       })),
     );
   }
@@ -183,7 +184,7 @@ export class ChatService {
       citations: reply.citations,
       notes: reply.notes,
       tool_results: toolResults,
-      created_at: stored.createdAt.toISOString(),
+      created_at: isoOrNull(stored.createdAt),
     });
   }
 

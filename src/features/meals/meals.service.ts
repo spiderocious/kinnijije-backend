@@ -1,4 +1,5 @@
 import { aiService, GeneratedRecipeSchema, PROMPT_IDS } from '@lib/ai/index.js';
+import { isoOrNull } from '@lib/dates.js';
 import { resolve as resolveIngredient } from '@shared/catalogue/lookup.js';
 import { notifyStockDropped } from '@features/notifications/notifications.jobs.js';
 import { StockItemModel } from '@features/stock/stock.model.js';
@@ -111,7 +112,7 @@ export class MealsService {
       ...suggestion,
       history: {
         times_cooked_recently: timesCooked,
-        last_cooked_at: recent.find((r) => r.mealId === mealId)?.cookedAt.toISOString() ?? null,
+        last_cooked_at: isoOrNull(recent.find((r) => r.mealId === mealId)?.cookedAt),
         // Why this suits after the last thing they cooked. Deliberately plain
         // and honest — it is an observation, not a claim of insight.
         why_now:

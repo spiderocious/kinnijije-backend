@@ -1,4 +1,5 @@
 import { presignDownload, isStorageConfigured } from '@lib/storage/s3.js';
+import { isoOrNull } from '@lib/dates.js';
 
 import type { FileDocument, FilePurpose, FileStatus } from './files.model.js';
 
@@ -46,8 +47,8 @@ export async function toFileView(doc: FileDocument, downloadTtlSeconds: number):
     original_filename: doc.originalFilename,
     url,
     url_expires_in: downloadTtlSeconds,
-    uploaded_at: doc.uploadedAt?.toISOString() ?? null,
-    created_at: doc.createdAt.toISOString(),
+    uploaded_at: isoOrNull(doc.uploadedAt),
+    created_at: isoOrNull(doc.createdAt),
   };
 }
 

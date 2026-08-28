@@ -1,4 +1,5 @@
 import type { Difficulty } from '@shared/constants/roles.js';
+import { isoOrNull } from '@lib/dates.js';
 
 import type { UserDocument } from '@features/users/users.model.js';
 
@@ -24,7 +25,7 @@ export const toOnboardingView = (
   availableCuisines: readonly string[],
 ): OnboardingView => ({
   completed: doc.onboardingCompletedAt !== null,
-  completed_at: doc.onboardingCompletedAt?.toISOString() ?? null,
+  completed_at: isoOrNull(doc.onboardingCompletedAt),
   cuisines: doc.prefs?.cuisines ?? [],
   difficulty: doc.prefs?.difficulty ?? 'anything',
   measurement: doc.prefs?.measurement ?? 'metric',

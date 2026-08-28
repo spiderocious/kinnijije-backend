@@ -1,4 +1,5 @@
 import type { Difficulty, UserRole, UserStatus } from '@shared/constants/roles.js';
+import { isoOrNull } from '@lib/dates.js';
 
 import type { UserDocument } from './users.model.js';
 
@@ -38,8 +39,8 @@ export interface UserView {
     daily_digest: boolean;
     weekly_summary: boolean;
   };
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const toUserView = (doc: UserDocument): UserView => ({
@@ -50,9 +51,9 @@ export const toUserView = (doc: UserDocument): UserView => ({
   status: doc.status,
   // Dates cross the wire as ISO-8601 UTC, always. The conversion belongs here,
   // in the mapper, not at each callsite.
-  email_verified_at: doc.emailVerifiedAt?.toISOString() ?? null,
-  last_login_at: doc.lastLoginAt?.toISOString() ?? null,
-  onboarding_completed_at: doc.onboardingCompletedAt?.toISOString() ?? null,
+  email_verified_at: isoOrNull(doc.emailVerifiedAt),
+  last_login_at: isoOrNull(doc.lastLoginAt),
+  onboarding_completed_at: isoOrNull(doc.onboardingCompletedAt),
   has_onboarded: doc.onboardingCompletedAt !== null,
   prefs: {
     cuisines: doc.prefs?.cuisines ?? [],
@@ -68,6 +69,6 @@ export const toUserView = (doc: UserDocument): UserView => ({
     daily_digest: doc.notifications?.dailyDigest ?? false,
     weekly_summary: doc.notifications?.weeklySummary ?? false,
   },
-  created_at: doc.createdAt.toISOString(),
-  updated_at: doc.updatedAt.toISOString(),
+  created_at: isoOrNull(doc.createdAt),
+  updated_at: isoOrNull(doc.updatedAt),
 });
