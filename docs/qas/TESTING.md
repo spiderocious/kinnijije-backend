@@ -484,6 +484,31 @@ locally without sending real mail. `/admin/emails` shows them either way.
   Onboarding wins; `next` is dropped, because the page it points at would only
   bounce them back.
 
+## 20 · The redirect crash, and error states
+
+**The crash.** Visiting a guarded page signed-out made Chrome show "Aw, Snap".
+The guard navigated to `/login?next=/meals/x`, then — because `pathname` was a
+dependency of the same effect — fired again ON the login page and built
+`?next=/login?next=/login?…`, growing the url until the tab ran out of memory.
+
+- Sign out, then open `/stock`, `/market`, `/meals/anything` directly. Each
+  should land on login once, with a clean `?next=`.
+- Watch the url on the login page. It must not grow.
+- `next` can never be an auth page — `?next=/login` is ignored, and you land on
+  the kitchen after signing in.
+- Start at `/stock` signed out, click through to Register from the login page.
+  `next` follows across, and finishing signup lands you on `/stock`.
+
+**Error states.** `/meals/does-not-exist` used to sit on a skeleton forever,
+because the screens waited on `data === undefined` and never looked at `error`.
+
+Try a bad id on: a meal, cook mode, the week, market, saved, and suggestions.
+Every one should show the server's own message with a Retry, not a skeleton.
+
+**Skeletons** were `--paper-2` (#EEF4F8) on an #F7FAFC page — about four percent
+of contrast, and the opacity animation took it lower. They have their own
+`--skeleton` token now. 111 fills across 53 files.
+
 ## Things I know are not done
 
 Stated plainly rather than left for you to find:

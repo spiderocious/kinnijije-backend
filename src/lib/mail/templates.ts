@@ -61,22 +61,22 @@ export const welcomeEmail = (name: string | null): EmailContent => {
     subject: `Welcome to KinniJije, ${who}`,
     html: shell(
       `${h(`Welcome, ${esc(who)}`)}
-       ${p(`Hello ${esc(who)}, I am Feranmi — I build KinniJije, and I wanted to say hello properly rather than send you a form letter.`)}
-       ${p('KinniJije works the other way round from a recipe site. You do not start with a dish and go shopping. You tell me what is already in your kitchen, and I tell you what you can cook tonight.')}
-       ${p('It takes about a minute to set up. Type a few things — <b>rice</b>, <b>atarodo</b>, <b>ugwu</b> — or photograph a shelf and let me read it. You do not have to be exhaustive, and you never have to count anything.')}
+       ${p('I am Feranmi — I build KinniJije, and I wanted to introduce myself properly.')}
+       ${p('Here is how it works. You tell me what is already in your kitchen, and I tell you what you can cook tonight. No shopping list you did not ask for, and no counting.')}
+       ${p('It takes about a minute to set up. Type a few things — <b>rice</b>, <b>atarodo</b>, <b>ugwu</b> — or photograph a shelf and let me read it. A rough idea is plenty.')}
        <div style="margin:22px 0">${button('Show me what I can cook', app('/stock/add'))}</div>
-       ${p('After that I will send you a short rundown each morning — what is in, what wants using, and what to make of it. You can turn that off any time, and I will not take it personally.', { muted: true })}
+       ${p('After that I will send you a short rundown each morning — what is in, what wants using, and what to make of it. You can turn that off any time.', { muted: true })}
        ${p('If anything is confusing or broken, reply to this email. It comes to me.', { muted: true })}
        ${signOff('Glad to have you,')}`,
       MANAGE,
     ),
     text: `Welcome, ${who}.
 
-Hello ${who}, I am Feranmi — I build KinniJije, and I wanted to say hello properly rather than send you a form letter.
+I am Feranmi — I build KinniJije, and I wanted to introduce myself properly.
 
-KinniJije works the other way round from a recipe site. You do not start with a dish and go shopping. You tell me what is already in your kitchen, and I tell you what you can cook tonight.
+Here is how it works. You tell me what is already in your kitchen, and I tell you what you can cook tonight. No shopping list you did not ask for, and no counting.
 
-It takes about a minute. Type a few things — rice, atarodo, ugwu — or photograph a shelf and let me read it.
+It takes about a minute to set up. Type a few things — rice, atarodo, ugwu — or photograph a shelf and let me read it. A rough idea is plenty.
 
 Start here: ${app('/stock/add')}
 
@@ -103,9 +103,9 @@ export const passwordResetEmail = (name: string | null, token: string): EmailCon
     html: shell(
       `${h('Setting a new password')}
        ${p(`Hello ${esc(who)},`)}
-       ${p('Somebody asked to reset the password on this account. If that was you, the button below will let you choose a new one.')}
+       ${p('Somebody asked to reset the password on this account. If that was you, the button below sets a new one.')}
        <div style="margin:22px 0">${button('Choose a new password', href)}</div>
-       ${p('The link works once and stops working after an hour. Using it signs out everything you are currently signed in on, which is the point — if somebody else has got in, that puts them out.')}
+       ${p('The link works once and stops working after an hour. Using it signs out everything you are currently signed in on, which puts out anybody who should not be there.')}
        ${p('If this was not you, nothing has changed and you can ignore this. Nobody can get in with the old password either way.', { muted: true })}
        ${signOff('Kind regards,')}`,
     ),
@@ -117,7 +117,7 @@ Somebody asked to reset the password on this account. If that was you, open this
 
 ${href}
 
-It works once and stops working after an hour. Using it signs out everything you are currently signed in on — if somebody else has got in, that puts them out.
+It works once and stops working after an hour. Using it signs out everything you are currently signed in on, which puts out anybody who should not be there.
 
 If this was not you, nothing has changed and you can ignore this.
 
@@ -214,7 +214,7 @@ export const lowStockEmail = (
     html: shell(
       `${h('Worth picking up')}
        ${p(`Hello ${esc(who)},`)}
-       ${p('I noticed a few things in your kitchen have run down. Nothing urgent — but they are the ones actually standing between you and something you cook.')}
+       ${p('I noticed a few things in your kitchen have run down. These are the ones standing between you and something you cook.')}
        ${list(items.map((item) => `<b>${esc(item.name)}</b> — ${esc(item.reason)}`))}
        ${
          blocking.length > 0
@@ -225,7 +225,7 @@ export const lowStockEmail = (
              )
            : ''
        }
-       ${p('I have not added anything to your list — that is your call. One tap and they are on it.')}
+       ${p('One tap puts them on your list.')}
        <div style="margin:22px 0">${button('Put them on my list', app('/market'))}</div>
        ${p('When you get back from the market, tick them off and they land in your kitchen on their own. You never have to count anything.', { muted: true })}
        ${signOff('Bye for now,')}`,
@@ -240,7 +240,7 @@ I noticed a few things in your kitchen have run down:
 ${items.map((item) => `  • ${item.name} — ${item.reason}`).join('\n')}
 ${blocking.length > 0 ? `\nBetween them, they are what is stopping ${blocking.join(' and ')}.` : ''}
 
-I have not added anything to your list — that is your call:
+One tap puts them on your list:
 ${app('/market')}
 
 When you get back, tick them off and they land in your kitchen on their own.
@@ -278,7 +278,7 @@ export const useItUpEmail = (
     html: shell(
       `${h('These want using first')}
        ${p(`Hello ${esc(who)},`)}
-       ${p('Nothing dramatic — but a few things in your kitchen are near the end of their good days, and I would rather tell you while there is still something to do about it.')}
+       ${p('A few things in your kitchen are near the end of their good days, and there is still something good to do with them.')}
        ${list(
          items.map(
            (item) =>
@@ -414,7 +414,7 @@ export const dailyRundownEmail = (
       : `${p(
           data.expiringToday.length === 1
             ? `One thing wants using today — the <b>${esc(data.expiringToday[0]?.name ?? '')}</b>. I have kept that in mind below.`
-            : `A few things want using today: ${data.expiringToday
+            : `a few things worth using today: ${data.expiringToday
                 .map((item) => `<b>${esc(item.name)}</b>`)
                 .join(', ')}. I have kept those in mind below.`,
         )}`;
@@ -431,7 +431,7 @@ export const dailyRundownEmail = (
        ${p(
          total === 0
            ? 'I could not find much to suggest from what is in your kitchen this morning — add a few more things and this fills out fast.'
-           : `I have put together <b>${String(total)}</b> suggestion${total === 1 ? '' : 's'} across the day, picked from what is <em>actually</em> in your kitchen right now. Nothing here needs a shop unless it says so. Tap any of them to see how it is made.`,
+           : `I have put together <b>${String(total)}</b> suggestion${total === 1 ? '' : 's'} across the day, picked from what is <em>actually</em> in your kitchen right now. Anything needing a shop says so. Tap any of them to see how it is made.`,
        )}
 
        ${slot('For breakfast', data.breakfast)}
@@ -439,7 +439,7 @@ export const dailyRundownEmail = (
        ${slot('For dinner', data.dinner)}
 
        ${data.closing === null ? '' : p(esc(data.closing))}
-       ${p('If none of it appeals, open the app and ask me for something else — I will work from the same kitchen.', { muted: true })}
+       ${p('If none of it appeals, open the app and ask me for something else.', { muted: true })}
        <div style="margin:22px 0">${button('Open my kitchen', app('/kitchen'))}</div>
        ${signOff('Have a good one,')}`,
       MANAGE,
@@ -498,16 +498,16 @@ export const weeklySummaryEmail = (
          data.cooked > 0
            ? `${p(`You cooked <b>${String(data.cooked)}</b> time${data.cooked === 1 ? '' : 's'} this week. Here is what came out of your kitchen:`)}
               ${data.meals.length > 0 ? list(data.meals.map((meal) => esc(meal))) : ''}`
-           : p('Nothing was cooked through the app this week — which is only what I can see from here, not what you actually ate. No judgement either way.')
+           : p('Nothing was cooked through the app this week — which is only what I can see from here. No judgement either way.')
        }
        ${data.reading === null ? '' : p(esc(data.reading))}
        ${
          data.spent === null
            ? ''
-           : p(`Roughly ₦${data.spent.toLocaleString()} went through the market list, give or take — those are estimates, not receipts.`, { muted: true })
+           : p(`Roughly ₦${data.spent.toLocaleString()} went through the market list, give or take — those are estimates.`, { muted: true })
        }
        <div style="margin:22px 0">${button('See the whole week', app('/week'))}</div>
-       ${p('No streak to keep, nothing to catch up on. This is a note, not a scorecard.', { muted: true })}
+       ${p('No streak to keep, nothing to catch up on. This is just a note.', { muted: true })}
        ${signOff('Bye for now,')}`,
       MANAGE,
     ),
@@ -515,10 +515,10 @@ export const weeklySummaryEmail = (
 
 Hello ${who},
 
-${data.cooked > 0 ? `You cooked ${String(data.cooked)} times this week:\n${data.meals.map((m) => `  • ${m}`).join('\n')}` : 'Nothing was cooked through the app this week — which is only what I can see from here, not what you actually ate.'}
+${data.cooked > 0 ? `You cooked ${String(data.cooked)} times this week:\n${data.meals.map((m) => `  • ${m}`).join('\n')}` : 'Nothing was cooked through the app this week — which is only what I can see from here.'}
 
 ${data.reading ?? ''}
-${data.spent === null ? '' : `Roughly ₦${data.spent.toLocaleString()} went through the market list — estimates, not receipts.`}
+${data.spent === null ? '' : `Roughly ₦${data.spent.toLocaleString()} went through the market list — estimates.`}
 
 ${app('/week')}
 
