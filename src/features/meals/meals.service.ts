@@ -1,5 +1,6 @@
 import { aiService, GeneratedRecipeSchema, PROMPT_IDS } from '@lib/ai/index.js';
 import { resolve as resolveIngredient } from '@shared/catalogue/lookup.js';
+import { notifyStockDropped } from '@features/notifications/notifications.jobs.js';
 import { StockItemModel } from '@features/stock/stock.model.js';
 import { stockService } from '@features/stock/stock.service.js';
 import { logger } from '@lib/logger/index.js';
@@ -263,6 +264,17 @@ export class MealsService {
     );
 
     logger.info('meal cooked', { user_id: ownerId, meal_id: mealId });
+
+    // Cooking is the most common way something runs out, and the moment it
+    // happens is when the reminder is worth having. Queued, not sent: the job
+    // owns every gate, and cooking must not wait on an email.
+    void notifyStockDropped(ownerId).catch((error: unknown) => {
+      logger.error('could not queue the low-stock check', {
+        user_id: ownerId,
+        error: error instanceof Error ? error : String(error),
+      });
+    });
+
     return ok(null);
   }
 }

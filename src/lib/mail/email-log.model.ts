@@ -28,7 +28,12 @@ export interface EmailLogAttributes {
   /** Stored so the console can show exactly what was sent, not a guess. */
   html: string;
   text: string;
-  status: 'sent' | 'failed' | 'suppressed';
+  /**
+   * `suppressed` — no mail key configured, a development state.
+   * `blocked`    — an operator switched this kind off.
+   * Neither is a failure, and calling them one would hide a real outage.
+   */
+  status: 'sent' | 'failed' | 'suppressed' | 'blocked';
   /** Resend's id, when it accepted the message. */
   providerId: string | null;
   error: string | null;
@@ -48,7 +53,12 @@ const emailLogSchema = new Schema<EmailLogAttributes>(
     subject: { type: String, required: true },
     html: { type: String, required: true },
     text: { type: String, required: true },
-    status: { type: String, required: true, enum: ['sent', 'failed', 'suppressed'], index: true },
+    status: {
+      type: String,
+      required: true,
+      enum: ['sent', 'failed', 'suppressed', 'blocked'],
+      index: true,
+    },
     providerId: { type: String, default: null },
     error: { type: String, default: null },
     sentBy: { type: String, default: null },

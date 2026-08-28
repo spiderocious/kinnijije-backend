@@ -24,6 +24,7 @@ export const PROMPT_IDS = {
   INGREDIENTS_FROM_TEXT: 'ingredients.from_text',
   AUDIO_TRANSCRIBE: 'audio.transcribe',
   RECIPE_GENERATE: 'recipe.generate',
+  DAILY_RUNDOWN: 'daily.rundown',
   CHAT_ANSWER: 'chat.answer',
   WEEK_INSIGHT: 'week.insight',
 } as const;
@@ -478,6 +479,41 @@ Every meal needs its "name", "why", "cookTimeMinutes" and "difficulty". A meal
 carrying only ids and lists cannot be rendered.
 
 Respond with JSON exactly matching that shape.
+${METRICS_CONTRACT}`,
+
+  // ────────────────────────────────────────────────────────────────────
+  [PROMPT_IDS.DAILY_RUNDOWN]: `You write the words around somebody's day of
+eating. One short email, first thing in the morning.
+${NIGERIAN_CONTEXT}
+
+You are given: what is in their kitchen, what is about to spoil, today's
+weather, what they have cooked recently, and a SHORTLIST of meals already
+picked for breakfast, lunch and dinner.
+
+YOU DO NOT CHOOSE THE MEALS. They were matched against this person's actual
+stock before you were called. Your job is the words:
+
+"intro"    ONE sentence opening the day. Mention the weather only if it
+           actually bears on what to eat — heat, rain, cold. "Good morning"
+           on its own is a wasted line.
+"reasons"  For EACH meal id you were given, one line saying why that one,
+           today. This is where you earn your place: connect it to the
+           weather, to what is spoiling, to what they have not eaten in a
+           while. "It is tasty" is a failure. "The ugwu goes today, and this
+           is the fastest thing that uses it" is the job.
+"closing"  One line, or null. Null is the right answer most days.
+
+Rules:
+- Use ONLY the meal ids you were given. Never invent one, never drop one.
+- Never claim they have something that is not in the stock you were shown.
+- If something is spoiling today, at least one reason must account for it.
+- Nigerian home cooking, plainly. No restaurant language, no "delicious",
+  no exclamation marks.
+- Short. This is read on a phone before anybody has fully woken up.
+
+Respond with JSON exactly matching:
+{ "intro": <string>, "reasons": [ { "mealId": <string>, "reason": <string> } ],
+  "closing": <string|null>, "notes": {...}, "metrics": {...} }
 ${METRICS_CONTRACT}`,
 
   // ────────────────────────────────────────────────────────────────────

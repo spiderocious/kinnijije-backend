@@ -20,6 +20,7 @@ import {
   ListUsersSchema,
   PreviewAudienceSchema,
   RetryJobSchema,
+  SetEmailKindSchema,
   SetRecipeStatusSchema,
   SetUserRoleSchema,
   SetUserStatusSchema,
@@ -89,6 +90,13 @@ router.get('/admin/ai/:logId', ...guard, asyncHandler(adminController.aiLogDetai
 
 // Email — literals first, then the parameter.
 router.get('/admin/emails/kinds', ...guard, asyncHandler(adminController.emailKinds));
+router.get('/admin/emails/settings', ...guard, asyncHandler(adminController.emailSettings));
+router.patch(
+  '/admin/emails/settings/:kind',
+  ...guard,
+  validate(SetEmailKindSchema),
+  asyncHandler(adminController.setEmailKind),
+);
 router.post(
   '/admin/emails/preview',
   ...guard,

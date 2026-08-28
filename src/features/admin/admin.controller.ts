@@ -221,6 +221,26 @@ export const adminController = {
     ResponseUtil.ok(res, result.data);
   },
 
+  emailSettings: async (_req: Request, res: Response): Promise<void> => {
+    const result = await adminEmailsService.settings();
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  setEmailKind: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { kind } = req.params as { kind: string };
+    const { enabled, reason } = req.body as { enabled: boolean; reason?: string };
+    const result = await adminEmailsService.setKindEnabled(
+      kind as never,
+      enabled,
+      actor.userId,
+      reason,
+    );
+    if (!result.success) return bail(result);
+    ResponseUtil.noContent(res);
+  },
+
   emailKinds: async (_req: Request, res: Response): Promise<void> => {
     const result = await adminEmailsService.kinds();
     if (!result.success) return bail(result);

@@ -142,6 +142,32 @@ export const GeneratedRecipeSchema = withEnvelope({
     .max(30),
 });
 
+// ── The daily rundown ──
+
+/**
+ * The words around a day's meal plan.
+ *
+ * The MEALS are chosen by our matcher, not by the model — it never sees a meal
+ * we do not have, and it cannot invent one. All it writes is the framing and
+ * one line per meal saying why that one, today.
+ */
+export const DailyRundownSchema = withEnvelope({
+  /** One sentence opening the day. Warm, short, not a greeting card. */
+  intro: z.string().min(1).max(300),
+  /** Why each meal, keyed by the meal id we gave it. One line each. */
+  reasons: z
+    .array(
+      z.object({
+        mealId: z.string().min(1).max(60),
+        /** "Light enough for the heat, and the yam needs using." */
+        reason: z.string().min(1).max(160),
+      }),
+    )
+    .max(12),
+  /** A closing line, or null when there is nothing worth adding. */
+  closing: z.string().max(200).nullable(),
+});
+
 // ── Chat ──
 
 /**

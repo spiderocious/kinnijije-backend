@@ -16,7 +16,7 @@ CSS variables, no flexbox, nothing that animates or depends on an image.
 | Password reset | 384 shell | Asking for a reset link | none — transactional |
 | Password changed | 384 shell | Reset or change completes | none — transactional |
 | Account status | 384 shell | Admin suspends or bans | none — transactional |
-| Good morning | **383** shape | Daily sweep, 07:00 | `daily_digest` |
+| The daily rundown | **383** shape | Daily sweep, 07:00 | `daily_digest` |
 | Your week | **382** | Weekly sweep, Sunday 18:00 | `weekly_summary` |
 | Running low | **380** | Daily sweep | `running_low`, ≤ once a week |
 | Use it up | **383** | *built, not yet swept* | `use_it_up` |
@@ -27,6 +27,32 @@ The two marked *built, not yet swept* have templates and preferences but no
 sweep calling them — deliberate, because both need a judgement the daily sweep
 does not yet make (383 must have a meal that uses the expiring thing; 381 must
 know how long "quiet" has been).
+
+## The switch
+
+`/admin/emails` carries a switch per kind. **Everything is on by default** — a
+row in `email_settings` exists only once somebody has touched that kind, so a
+new template ships enabled without a migration.
+
+Turning one off changes nothing upstream. The app keeps triggering exactly as it
+did; the send is refused at the one place email leaves, recorded as `blocked`
+with the reason, and still visible in the log. "Why did nobody get that?" is
+answerable either way.
+
+## The daily rundown
+
+Built by `rundown.service.ts` — a mix, deliberately:
+
+- **The meals are chosen by code.** The matcher already knows what somebody can
+  actually cook. A model asked to pick would invent dishes and ignore the stock.
+  They are split across breakfast / lunch / dinner by cook time.
+- **The words are written by a model.** It sees the shortlist, the weather, and
+  what is spoiling, and writes one line per meal saying why *that one, today*.
+  It cannot add a meal, drop one, or reference an id it was not given.
+- If the model fails, the email still sends with our own plainer lines.
+
+Every meal is a link straight into its recipe — the whole card is an anchor,
+since an email has no JavaScript to catch a click on a div.
 
 ## Rules that live in the service, not the template
 
@@ -57,6 +83,11 @@ five digests.
 row is in the log and an operator can resend it from the console, but nothing
 retries on its own. That is a stated limit, not an oversight — see
 `lib/mail/email.service.ts`.
+
+**Deliverability.** Every non-transactional send carries `List-Unsubscribe` and
+`List-Unsubscribe-Post` headers, and a real `Reply-To`. The welcome email was
+landing in spam without them — filters read a bulk-shaped message with no way
+out as exactly that, whatever we think it is.
 
 **There is no email verification.** Accounts are created `pending` and stay
 there. Nothing gates on it except the routes that already required `ACTIVE`.

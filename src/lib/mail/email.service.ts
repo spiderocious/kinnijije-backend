@@ -1,6 +1,8 @@
+import { env } from '@app/env.js';
 import { logger } from '@lib/logger/index.js';
 
 import { EmailLogModel, type EmailKind } from './email-log.model.js';
+import { EmailSettingModel } from './email-settings.model.js';
 import { mailer } from './mailer.js';
 import type { EmailContent } from './templates.js';
 
@@ -34,8 +36,51 @@ export class EmailService {
     return EmailService.instance;
   }
 
+  /**
+   * Whether this kind is switched on.
+   *
+   * Absent row means ON. A new template ships enabled without a migration, and
+   * turning one off is an explicit act with a row behind it.
+   */
+  async isKindEnabled(kind: EmailKind): Promise<boolean> {
+    const setting = await EmailSettingModel.findById(kind).exec();
+    return setting?.enabled !== false;
+  }
+
   async send(input: SendInput): Promise<{ id: string; delivered: boolean }> {
-    const result = await mailer.send({ to: input.to, content: input.content });
+    // The kill switch, checked HERE rather than at each callsite — this is the
+    // only way an email leaves, so this is the only place it can be stopped.
+    // The attempt is still recorded, because "why did nobody get that?" is
+    // exactly the question a blocked send has to be able to answer.
+    if (!(await this.isKindEnabled(input.kind))) {
+      const blocked = await EmailLogModel.create({
+        kind: input.kind,
+        to: input.to,
+        ownerId: input.ownerId,
+        subject: input.content.subject,
+        html: input.content.html,
+        text: input.content.text,
+        status: 'blocked',
+        providerId: null,
+        error: 'This kind of email is switched off in the console.',
+        sentBy: input.sentBy ?? null,
+        resendOf: input.resendOf ?? null,
+      });
+
+      logger.info('email blocked by an operator switch', { kind: input.kind, to: input.to });
+      return { id: blocked._id, delivered: false };
+    }
+
+    const result = await mailer.send({
+      to: input.to,
+      content: input.content,
+      // Everything except a password reset gets the header. A reset is a
+      // response to a request somebody just made, and offering to unsubscribe
+      // from it makes no sense.
+      ...(input.kind !== 'password_reset' && {
+        unsubscribeUrl: `${env.APP_URL.replace(/\/+$/, '')}/settings`,
+      }),
+    });
 
     // `suppressed` is its own status, not a failure: no key configured is a
     // development state, and calling it "failed" would make a dev log look

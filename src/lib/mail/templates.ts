@@ -1,6 +1,21 @@
 import { env } from '@app/env.js';
 
-import { button, card, CAUTION, esc, h, list, p, shell, SKY, SUCCESS } from './components.js';
+import {
+  button,
+  card,
+  CAUTION,
+  esc,
+  FONT_STACK,
+  h,
+  INK,
+  INK_2,
+  INK_3,
+  list,
+  p,
+  shell,
+  SKY,
+  SUCCESS,
+} from './components.js';
 
 /**
  * Email copy lives here, beside the message registry in spirit: not inline at
@@ -16,7 +31,14 @@ export interface EmailContent {
   text: string;
 }
 
-const app = (path: string): string => `${env.APP_URL}${path}`;
+/**
+ * A link into the web app.
+ *
+ * The trailing slash is stripped because APP_URL is written by hand and
+ * "https://kinnijije.xyz/" is at least as natural to type as the bare form —
+ * without this every link in every email would be a double slash.
+ */
+const app = (path: string): string => `${env.APP_URL.replace(/\/+$/, '')}${path}`;
 const MANAGE = app('/settings');
 
 /** A name we can address somebody by, without "Hi null". */
@@ -42,6 +64,9 @@ export const welcomeEmail = (name: string | null): EmailContent => {
        ${p('It takes about a minute. Type a few things — <b>rice</b>, <b>atarodo</b>, <b>ugwu</b> — or photograph a shelf and let us read it.')}
        <div style="margin:22px 0">${button('Show me what I can cook', app('/stock/add'))}</div>
        ${p('You do not have to be exhaustive, and you never have to count anything. The kitchen fills itself as you cook and shop.', { muted: true })}`,
+      // The footer link matters here: a welcome email with no way out reads as
+      // bulk to a filter, whatever we think it is.
+      MANAGE,
     ),
     text: `Welcome, ${who}.
 
@@ -228,73 +253,126 @@ ${app('/suggestions')}`,
   };
 };
 
-// ── The daily one ────────────────────────────────────────────────────
+/** One meal in the rundown — a clickable card with its reason underneath. */
+interface RundownMealView {
+  id: string;
+  name: string;
+  minutes: number;
+  reason: string;
+  missing: number;
+}
+
+function mealBlock(meal: RundownMealView): string {
+  const href = app(`/meals/${meal.id}`);
+  const meta =
+    meal.missing === 0
+      ? `${String(meal.minutes)} min · you have everything`
+      : `${String(meal.minutes)} min · ${String(meal.missing)} to get`;
+
+  // The whole card is the link. In an email a tappable card has to be an
+  // anchor — there is no JavaScript to catch a click on a div.
+  return `<a href="${href}" style="display:block;text-decoration:none;margin:0 0 10px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px solid ${INK};border-radius:18px 5px 18px 5px;overflow:hidden">
+      <tr><td style="background:${meal.missing === 0 ? SUCCESS : SKY};height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+      <tr><td style="padding:13px 15px;font-family:${FONT_STACK}">
+        <p style="margin:0;font-weight:800;font-size:16px;color:${INK}">${esc(meal.name)}</p>
+        <p style="margin:4px 0 0;font-size:14px;line-height:1.5;color:${INK_2}">${esc(meal.reason)}</p>
+        <p style="margin:6px 0 0;font-size:12px;color:${INK_3}">${meta}</p>
+      </td></tr>
+    </table>
+  </a>`;
+}
+
+/** The plain-text half of a slot. Empty string when the slot has nothing. */
+function textSlot(title: string, meals: readonly RundownMealView[]): string {
+  if (meals.length === 0) return '';
+  const lines = meals
+    .map(
+      (meal) =>
+        `  • ${meal.name} (${String(meal.minutes)} min) — ${meal.reason}\n    ${app(`/meals/${meal.id}`)}`,
+    )
+    .join('\n');
+  return `\n${title}:\n${lines}\n`;
+}
+
+function slot(title: string, meals: readonly RundownMealView[]): string {
+  if (meals.length === 0) return '';
+  return `<p style="margin:18px 0 8px;font-family:${FONT_STACK};font-weight:800;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:${INK_3}">${esc(title)}</p>
+    ${meals.map(mealBlock).join('')}`;
+}
+
 /**
- * Built on the 383 shape — a morning note rather than a warning.
+ * The daily rundown.
  *
- * It carries what is in, what to cook, and what is turning, so it earns its
- * daily place. If there is nothing to say, the caller does not send it.
+ * What is going off today, what the day looks like outside, and what to eat at
+ * each of the three times — every meal a link straight into its recipe.
+ *
+ * The meals were chosen by the matcher; the reasons were written by a model
+ * that could only see the shortlist. See `rundown.service.ts`.
  */
-export const dailyDigestEmail = (
+export const dailyRundownEmail = (
   name: string | null,
   data: {
-    readonly thingsIn: number;
-    readonly meals: readonly { id: string; name: string; missing: number }[];
-    readonly expiring: readonly ExpiringItem[];
-    readonly runningLow: readonly string[];
+    readonly intro: string;
+    readonly closing: string | null;
+    readonly weather: { summary: string; high: number | null; low: number | null; rain: boolean } | null;
+    readonly expiringToday: readonly { name: string; daysLeft: number }[];
+    readonly breakfast: readonly RundownMealView[];
+    readonly lunch: readonly RundownMealView[];
+    readonly dinner: readonly RundownMealView[];
   },
 ): EmailContent => {
   const who = firstName(name);
-  const top = data.meals[0];
+  const first = data.dinner[0] ?? data.lunch[0] ?? data.breakfast[0];
+
+  const weatherLine =
+    data.weather === null
+      ? ''
+      : p(
+          `<b>${esc(data.weather.summary)}</b>${
+            data.weather.high === null
+              ? ''
+              : ` — up to ${String(data.weather.high)}°, down to ${String(data.weather.low ?? 0)}°${data.weather.rain ? ', with rain about' : ''}`
+          }.`,
+        );
+
+  const expiring =
+    data.expiringToday.length === 0
+      ? ''
+      : `${p('<b>Going off today</b>')}
+         ${list(
+           data.expiringToday.map(
+             (item) =>
+               `${esc(item.name)}${item.daysLeft <= 0 ? ' — already past its day' : ''}`,
+           ),
+         )}`;
 
   return {
-    subject: top === undefined ? 'Your kitchen this morning' : `Today you could make ${top.name}`,
+    subject: first === undefined ? 'Your day' : `Today: ${first.name}`,
     html: shell(
-      `${h('Good morning')}
-       ${p(`Hi ${esc(who)} — you have <b>${String(data.thingsIn)}</b> thing${data.thingsIn === 1 ? '' : 's'} in your kitchen this morning. Here is what they add up to.`)}
-       ${
-         data.meals.length > 0
-           ? `${p('<b>What you could cook today</b>')}
-              ${data.meals
-                .map((meal) =>
-                  card({
-                    title: meal.name,
-                    body:
-                      meal.missing === 0
-                        ? 'You have everything for this one.'
-                        : `You are ${String(meal.missing)} thing${meal.missing === 1 ? '' : 's'} short.`,
-                    accent: meal.missing === 0 ? SUCCESS : SKY,
-                  }),
-                )
-                .join('')}`
-           : p('Nothing is quite cookable yet — add a few more things and this fills out fast.')
-       }
-       ${
-         data.expiring.length > 0
-           ? `${p('<b>Use these first</b>')}
-              ${list(
-                data.expiring.map(
-                  (item) =>
-                    `${esc(item.name)} — ${item.daysLeft <= 0 ? 'today' : `${String(item.daysLeft)} day${item.daysLeft === 1 ? '' : 's'} left`}`,
-                ),
-              )}`
-           : ''
-       }
-       ${
-         data.runningLow.length > 0
-           ? p(`Running low: ${data.runningLow.map((item) => esc(item)).join(', ')}.`, { muted: true })
-           : ''
-       }
+      `${h(`Morning, ${esc(who)}`)}
+       ${p(esc(data.intro))}
+       ${weatherLine}
+       ${expiring}
+       ${slot('Breakfast', data.breakfast)}
+       ${slot('Lunch', data.lunch)}
+       ${slot('Dinner', data.dinner)}
+       ${data.closing === null ? '' : p(esc(data.closing), { muted: true })}
        <div style="margin:22px 0">${button('Open my kitchen', app('/kitchen'))}</div>`,
       MANAGE,
     ),
-    text: `Good morning ${who}. You have ${String(data.thingsIn)} things in your kitchen.
+    text: `Morning ${who}.
 
-${data.meals.length > 0 ? `What you could cook today:\n${data.meals.map((m) => `• ${m.name} — ${m.missing === 0 ? 'you have everything' : `${String(m.missing)} short`}`).join('\n')}` : 'Nothing is quite cookable yet — add a few more things.'}
+${data.intro}
+${data.weather === null ? '' : `\n${data.weather.summary}.`}
+${
+  data.expiringToday.length > 0
+    ? `\nGoing off today: ${data.expiringToday.map((item) => item.name).join(', ')}`
+    : ''
+}
 
-${data.expiring.length > 0 ? `Use first:\n${data.expiring.map((i) => `• ${i.name} — ${i.daysLeft <= 0 ? 'today' : `${String(i.daysLeft)} days left`}`).join('\n')}` : ''}
-${data.runningLow.length > 0 ? `\nRunning low: ${data.runningLow.join(', ')}.` : ''}
-
+${textSlot('Breakfast', data.breakfast)}${textSlot('Lunch', data.lunch)}${textSlot('Dinner', data.dinner)}
+${data.closing ?? ''}
 ${app('/kitchen')}`,
   };
 };

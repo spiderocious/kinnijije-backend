@@ -5,6 +5,8 @@ import {
   EMAIL_KINDS,
   EmailLogModel,
   emailService,
+  EmailSettingModel,
+  type EmailKind,
 } from '@lib/mail/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
@@ -213,6 +215,60 @@ export class AdminEmailsService {
 
     logger.info('email resent', { original: emailId, by: actorId, delivered: result.delivered });
     return ok(result);
+  }
+
+  /**
+   * Every kind, whether it is on, and who last touched it.
+   *
+   * Built from the FULL list of kinds rather than from the rows, because a kind
+   * nobody has ever switched has no row — and it still has to appear, switched
+   * on, or the console would only list the ones somebody had disabled.
+   */
+  async settings(): Promise<ServiceResult<unknown[]>> {
+    const rows = await EmailSettingModel.find().exec();
+    const byKind = new Map(rows.map((row) => [row._id, row]));
+
+    return ok(
+      Object.values(EMAIL_KINDS).map((kind) => {
+        const row = byKind.get(kind);
+        return {
+          kind,
+          enabled: row?.enabled !== false,
+          updated_by: row?.updatedBy ?? null,
+          reason: row?.reason ?? null,
+          updated_at: row?.updatedAt?.toISOString() ?? null,
+        };
+      }),
+    );
+  }
+
+  /**
+   * Turn one kind on or off, for everybody.
+   *
+   * The app keeps triggering as it always did — the switch is enforced at the
+   * one place email leaves, so a blocked send is still recorded and still
+   * visible. Nothing upstream has to know.
+   */
+  async setKindEnabled(
+    kind: EmailKind,
+    enabled: boolean,
+    actorId: string,
+    reason?: string,
+  ): Promise<ServiceResult<null>> {
+    await EmailSettingModel.findByIdAndUpdate(
+      kind,
+      {
+        $set: {
+          enabled,
+          updatedBy: actorId,
+          reason: reason ?? null,
+        },
+      },
+      { upsert: true },
+    ).exec();
+
+    logger.info('email kind switched', { kind, enabled, by: actorId, reason });
+    return ok(null);
   }
 
   /** The kinds that have actually been sent, for the filter rail. */

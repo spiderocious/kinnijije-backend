@@ -16,6 +16,7 @@
     "seed": "tsx scripts/seed.ts",
     "copy:assets": "mkdir -p dist/lib/ai/mock-data && cp src/lib/ai/mock-data/*.json dist/lib/ai/mock-data/",
     "seed:meals": "tsx scripts/seed-meals.ts",
+    "email:samples": "tsx scripts/send-sample-emails.ts",
     "seed:all": "pnpm seed && pnpm seed:meals"
   },
   "dependencies": {

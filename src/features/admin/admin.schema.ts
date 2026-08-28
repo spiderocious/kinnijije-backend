@@ -133,3 +133,11 @@ export const ListEmailsSchema = z.object({
     ...pagination,
   }),
 });
+
+export const SetEmailKindSchema = z.object({
+  body: z.object({
+    enabled: z.boolean(),
+    /** Why it was switched. Optional, but the console asks for one. */
+    reason: z.string().max(300).optional(),
+  }),
+});

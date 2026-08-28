@@ -8,6 +8,14 @@ import type { EmailContent } from './templates.js';
 export interface SendEmailInput {
   to: string;
   content: EmailContent;
+  /**
+   * Where "unsubscribe" points for THIS message.
+   *
+   * Set for anything a person opted into. Filters look for the header, not
+   * just a link in the body, and its absence is one of the strongest bulk-mail
+   * signals there is.
+   */
+  unsubscribeUrl?: string;
 }
 
 export type SendEmailResult =
@@ -44,7 +52,7 @@ export class Mailer {
     return this.client !== null;
   }
 
-  async send({ to, content }: SendEmailInput): Promise<SendEmailResult> {
+  async send({ to, content, unsubscribeUrl }: SendEmailInput): Promise<SendEmailResult> {
     if (this.client === null) {
       logger.info('email suppressed (no RESEND_API_KEY configured)', {
         to,
@@ -61,6 +69,16 @@ export class Mailer {
         subject: content.subject,
         html: content.html,
         text: content.text,
+        // A real address a person can write to. Mail from an unattended box
+        // that cannot be replied to reads as bulk, to filters and to people.
+        replyTo: env.MAIL_REPLY_TO,
+        headers: {
+          ...(unsubscribeUrl !== undefined && {
+            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            // Says the link is safe to fetch, so a client can offer one-click.
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          }),
+        },
       });
 
       if (error !== null) {

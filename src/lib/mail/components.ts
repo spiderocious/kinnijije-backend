@@ -25,7 +25,9 @@ export const CAUTION = '#E0834E';
 export const SUCCESS = '#2C6B45';
 export const CRITICAL = '#8E3560';
 
-const FONT = 'Nunito,Helvetica,Arial,sans-serif';
+/** Exported so templates building their own markup match the components. */
+export const FONT_STACK = 'Nunito,Helvetica,Arial,sans-serif';
+const FONT = FONT_STACK;
 
 /** Escapes anything interpolated into an email — names, meal titles, reasons. */
 export function esc(value: string): string {

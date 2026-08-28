@@ -76,6 +76,8 @@ const EnvSchema = z.object({
    * password-reset link that points at the API is a dead end.
    */
   APP_URL: z.string().url().default('http://localhost:5173'),
+  /** A box a person can actually reply to. Never a no-reply address. */
+  MAIL_REPLY_TO: z.string().default('chef@kinnijije.xyz'),
 
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 });

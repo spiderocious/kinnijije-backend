@@ -447,6 +447,43 @@ locally without sending real mail. `/admin/emails` shows them either way.
   stored HTML rather than re-rendering — a template rebuilt today would produce
   something different from what was actually sent.
 
+## 19 · The email switch, and the rundown
+
+**The switch.** `/admin/emails` has one per kind, all on by default.
+
+- Turn `welcome` off, register an account. Nothing arrives — but a row appears
+  in the log marked `blocked`, with the reason. That is the point: the app still
+  triggered, the send was refused, and it is still answerable.
+- Turn it back on. A row exists now saying enabled, which is fine — absence and
+  `enabled: true` mean the same thing.
+- `password_reset` can be switched off too. It should not be, and the console
+  says so, but nothing stops you — an operator who needs to stop all mail during
+  an incident should not be fighting the tool.
+
+**The rundown** replaces the old morning digest.
+
+- Have a kitchen with something expiring and run the sweep. The email should
+  name what is going off, the weather, and two or three meals per sitting.
+- Click any meal in it. Straight to that recipe.
+- Empty the kitchen entirely and run it. Nothing sends.
+- Break the AI (bad key) and run it. It still sends, with our plainer reasons
+  instead of the model's — the meals were never the model's job.
+- Check the reasons actually connect to something. "It is tasty" means the
+  prompt is not landing; "the ugwu goes today and this is the fastest thing that
+  uses it" is the bar.
+
+**Post-login redirect.**
+
+- Sign out, visit `/stock` directly. You land on login with `?next=/stock`, and
+  after signing in you arrive at `/stock`, not the kitchen.
+- Try `?next=//evil.com`, `?next=https://evil.com`, `?next=/\evil.com`. Every
+  one must be ignored and you land on the kitchen — a login page that redirects
+  anywhere it is told is an open redirect, which is a phishing link that starts
+  on our real domain.
+- Sign out, visit `/stock`, then sign in with an account that has NOT onboarded.
+  Onboarding wins; `next` is dropped, because the page it points at would only
+  bounce them back.
+
 ## Things I know are not done
 
 Stated plainly rather than left for you to find:
