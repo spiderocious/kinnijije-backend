@@ -102,6 +102,9 @@ export class AuthService {
         // New accounts start unverified. Status gating is what makes that
         // mean something: PENDING can read, but not act.
         status: USER_STATUSES.PENDING,
+        // Only when they gave one — an empty string would look like an answer
+        // and break the weather lookup.
+        ...(input.city !== undefined && input.city.length > 0 && { city: input.city }),
       });
     } catch (error) {
       // The unique index is the real guard. The check above is a nicety that

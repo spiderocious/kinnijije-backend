@@ -102,6 +102,21 @@ export function list(items: readonly string[]): string {
 }
 
 /**
+ * The sign-off.
+ *
+ * Every email is FROM somebody. A product that writes "the KinniJije team" is
+ * a product nobody replies to — and replies are the cheapest research there is.
+ * This is a real name, and MAIL_REPLY_TO is a real box.
+ */
+export function signOff(line = 'Bye for now,'): string {
+  return `<p style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.6;color:${INK_2}">
+    ${esc(line)}<br />
+    <b style="color:${INK}">Feranmi</b><br />
+    <span style="font-size:13px;color:${INK_3}">KinniJije</span>
+  </p>`;
+}
+
+/**
  * The footer, and the unsubscribe line.
  *
  * `manageHref` is REQUIRED for anything opt-in: an email somebody cannot turn

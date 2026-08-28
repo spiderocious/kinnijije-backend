@@ -59,8 +59,8 @@ const SAMPLES = [
     content: () =>
       dailyRundownEmail(NAME, {
         intro:
-          'Warm one today, and the ugwu is on its last day — worth building the afternoon around it.',
-        closing: null,
+          'I went through your kitchen this morning and there is plenty to work with — though the ugwu is on its last day, so I have built the afternoon around it.',
+        closing: 'If none of it appeals, ask me in the app and I will find something else.',
         weather: { summary: '31°C in Lagos', high: 33, low: 26, rain: false },
         expiringToday: [
           { name: 'Ugwu', daysLeft: 0 },

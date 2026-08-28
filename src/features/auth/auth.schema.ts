@@ -24,6 +24,11 @@ export const RegisterSchema = z.object({
   email,
   password,
   name: z.string().min(1, 'Name is required').max(120, 'Name is too long').trim(),
+  /**
+   * Optional, and asked for at signup because it is what makes the weather in
+   * the daily email real. Asking later means most people never answer.
+   */
+  city: z.string().max(80, 'That is a long city name').trim().optional(),
 });
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 
