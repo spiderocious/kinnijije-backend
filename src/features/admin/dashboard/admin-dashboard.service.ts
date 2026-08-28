@@ -117,7 +117,10 @@ export class AdminDashboardService {
       ChatMessageModel.countDocuments({ mocked: true }).exec(),
       StockItemModel.countDocuments().exec(),
       MarketItemModel.countDocuments().exec(),
-      MarketItemModel.countDocuments({ bought: false }).exec(),
+      // The model stores a DATE, not a boolean — `bought: false` is not a
+      // path that exists, and strictQuery turns that into a 500 rather than
+      // silently counting nothing.
+      MarketItemModel.countDocuments({ boughtAt: null }).exec(),
       FileModel.countDocuments().exec(),
       JobModel.countDocuments().exec(),
       countBy(JobModel, 'status'),

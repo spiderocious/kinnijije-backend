@@ -357,6 +357,37 @@ canned answer can never be mistaken later for a real one.
 
 ## 16 · The console
 
+**Every admin list endpoint used to 422, and the dashboard 500'd.** Two separate
+mistakes, both in the first build:
+
+1. `validate(schema)` takes a SOURCE and defaults to `'body'` — it validates
+   `req[source]` directly. The admin schemas were written wrapped as
+   `z.object({ query: … })`, a shape the middleware never looks at, and the
+   query routes never passed `'query'`. Every list endpoint failed with
+   `field_errors: { query: ["Required"] }`.
+2. The dashboard counted `{ bought: false }` on market items. The model stores
+   `boughtAt: Date | null` — there is no `bought` path, and `strictQuery` turns
+   that into a 500 rather than silently counting zero.
+
+Both are fixed, and all fifteen admin GETs were verified against a running
+server. If you touch these, the check worth repeating is: hit every list
+endpoint bare AND with a filter, since a wrapped schema fails the same way for
+both.
+
+**The console had NO route guard.** Every screen rendered for anybody who typed
+the url — the requests behind them all 403'd so no data leaked, but showing the
+shell of a console to a stranger advertises what exists and looks like a way in.
+There is now an `AdminGuard` on 13 of the 15 routes; setup and login stay open
+because you cannot sign in to create the first login.
+
+- Sign out and open `/admin`. You should land on the console sign-in, with
+  `?next=/admin`, and arrive back at `/admin` after signing in.
+- Sign in as an ORDINARY user and open `/admin`. You should be told the account
+  has no console access, with a way back — not silently bounced, which reads as
+  a bug when you know you are signed in.
+- The server still checks the role on all twenty-one admin endpoints. The guard
+  is convenience; that is the thing actually protecting the data.
+
 `/admin/setup` first — it creates the one administrator and shows its password
 ONCE. Copy it before leaving the page; nothing is emailed and only a hash is
 stored. Running setup twice is refused, not repeated: a second unauthenticated
@@ -508,6 +539,22 @@ Every one should show the server's own message with a Retry, not a skeleton.
 **Skeletons** were `--paper-2` (#EEF4F8) on an #F7FAFC page — about four percent
 of contrast, and the opacity animation took it lower. They have their own
 `--skeleton` token now. 111 fills across 53 files.
+
+## 21 · Onboarding is four steps
+
+The kitchen step is gone. It asked somebody to list ingredients before they had
+seen what the product does with them, and blocked the button until they did.
+Filling a kitchen lives on the Stock page, where it can be done by photo or
+receipt and revisited.
+
+- Register and walk through: three explainer slides, then taste, then straight
+  into the kitchen. No ingredient prompt anywhere.
+- On the taste step, press Skip. It should still COMPLETE onboarding with the
+  defaults, not drop you somewhere half-finished.
+- Try `?step=5` by hand. There is no fifth step, so it should clamp rather than
+  render a blank screen.
+- Back through every step, then forward again. Your answers should still be
+  there.
 
 ## Things I know are not done
 

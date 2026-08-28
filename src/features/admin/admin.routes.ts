@@ -55,7 +55,7 @@ const guard = [
 router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 
 // Recipes
-router.get('/admin/recipes', ...guard, validate(ListRecipesSchema), asyncHandler(adminController.listRecipes));
+router.get('/admin/recipes', ...guard, validate(ListRecipesSchema, 'query'), asyncHandler(adminController.listRecipes));
 router.post('/admin/recipes/bulk', ...guard, validate(BulkRecipesSchema), asyncHandler(adminController.bulkRecipes));
 router.post('/admin/recipes', ...guard, validate(CreateRecipeSchema), asyncHandler(adminController.createRecipe));
 router.get('/admin/recipes/:mealId', ...guard, asyncHandler(adminController.recipeDetail));
@@ -68,7 +68,7 @@ router.patch(
 router.delete('/admin/recipes/:mealId', ...guard, asyncHandler(adminController.deleteRecipe));
 
 // Users
-router.get('/admin/users', ...guard, validate(ListUsersSchema), asyncHandler(adminController.listUsers));
+router.get('/admin/users', ...guard, validate(ListUsersSchema, 'query'), asyncHandler(adminController.listUsers));
 router.get('/admin/users/:userId', ...guard, asyncHandler(adminController.userDetail));
 router.patch(
   '/admin/users/:userId/status',
@@ -85,7 +85,7 @@ router.patch(
 
 // AI audit — the literal first.
 router.get('/admin/ai/prompt-ids', ...guard, asyncHandler(adminController.aiPromptIds));
-router.get('/admin/ai', ...guard, validate(ListAiLogsSchema), asyncHandler(adminController.listAiLogs));
+router.get('/admin/ai', ...guard, validate(ListAiLogsSchema, 'query'), asyncHandler(adminController.listAiLogs));
 router.get('/admin/ai/:logId', ...guard, asyncHandler(adminController.aiLogDetail));
 
 // Email — literals first, then the parameter.
@@ -109,13 +109,13 @@ router.post(
   validate(ComposeEmailSchema),
   asyncHandler(adminController.sendEmail),
 );
-router.get('/admin/emails', ...guard, validate(ListEmailsSchema), asyncHandler(adminController.listEmails));
+router.get('/admin/emails', ...guard, validate(ListEmailsSchema, 'query'), asyncHandler(adminController.listEmails));
 router.post('/admin/emails/:emailId/resend', ...guard, asyncHandler(adminController.resendEmail));
 router.get('/admin/emails/:emailId', ...guard, asyncHandler(adminController.emailDetail));
 
 // Jobs — the literal first, then the sub-paths, then the bare parameter.
 router.get('/admin/jobs/types', ...guard, asyncHandler(adminController.jobTypes));
-router.get('/admin/jobs', ...guard, validate(ListJobsSchema), asyncHandler(adminController.listJobs));
+router.get('/admin/jobs', ...guard, validate(ListJobsSchema, 'query'), asyncHandler(adminController.listJobs));
 router.post(
   '/admin/jobs/:jobId/retry',
   ...guard,
