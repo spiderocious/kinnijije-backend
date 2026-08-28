@@ -105,3 +105,31 @@ export const RetryJobSchema = z.object({
     force: z.boolean().optional(),
   }),
 });
+
+const AUDIENCES = ['selected', 'all', 'active', 'pending', 'onboarded', 'not_onboarded'] as const;
+
+export const ComposeEmailSchema = z.object({
+  body: z.object({
+    audience: z.enum(AUDIENCES),
+    /** Only read when audience is 'selected'. */
+    user_ids: z.array(z.string().max(60)).max(2000).optional(),
+    subject: z.string().min(1, 'An email needs a subject').max(160),
+    body: z.string().min(1, 'An email needs something in it').max(20000),
+  }),
+});
+
+export const PreviewAudienceSchema = z.object({
+  body: z.object({
+    audience: z.enum(AUDIENCES),
+    user_ids: z.array(z.string().max(60)).max(2000).optional(),
+  }),
+});
+
+export const ListEmailsSchema = z.object({
+  query: z.object({
+    kind: z.string().max(60).optional(),
+    status: z.enum(['sent', 'failed', 'suppressed']).optional(),
+    to: z.string().max(160).optional(),
+    ...pagination,
+  }),
+});

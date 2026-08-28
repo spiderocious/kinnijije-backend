@@ -399,6 +399,54 @@ writes the full recipe, saves it, and replaces the url with the real id.
 - Ask again afterwards. The meal is now one of ours, so it can be suggested and
   the assistant can cite its real id.
 
+## 18 · Email
+
+Nothing was ever sent before this — three templates existed and two were wired,
+but there was no log, no schedule, and no way to see what happened. See
+`docs/EMAIL.md` for the full map.
+
+Without `RESEND_API_KEY` set, every send is recorded as **suppressed** rather
+than failed, and the body is still stored — so the whole thing is testable
+locally without sending real mail. `/admin/emails` shows them either way.
+
+**Forgot password, end to end:**
+
+- `/forgot-password` with an address that exists, and one that does not. BOTH
+  must say the same thing — a different message would let somebody discover who
+  has an account.
+- Open the link from the email. Set a password. You should be sent to sign in,
+  not signed in — every session was just revoked, including the one it would
+  have made.
+- Use the same link twice. The second time must be refused.
+- Ask for a link, then ask again, then use the FIRST one. It must be dead; a new
+  request spends every earlier link.
+- Wait an hour, then use one. Expired.
+- Hit `/reset-password` with no token and with a truncated one.
+
+**Scheduled email:**
+
+- Restart the server several times, then check `/admin/jobs` filtered to queued.
+  There must be exactly ONE `notify-daily` and one `notify-weekly`, never a pile.
+- Force one early: set its `runAt` back in the database and watch it run, then
+  check it left a successor behind.
+- Turn every notification off in settings and run the sweep. Nothing sends.
+- Turn on the morning one with an EMPTY kitchen. Nothing sends — an email saying
+  "you have 0 things and can cook nothing" is worse than silence.
+- Turn on "when something runs out" and run the sweep twice in a day. The second
+  must not send: the cap is one a week.
+
+**Admin email:**
+
+- `/admin/emails/new`. Change the audience and watch the count update before you
+  can send. Sending is two steps on purpose — there is no recalling an email.
+- Send to "pick people" with nobody picked. Refused.
+- Open a sent email. The body renders in a sandboxed iframe, so an email's own
+  CSS cannot restyle the console — worth confirming the console still looks like
+  itself.
+- Resend one. It creates a NEW row pointing at the original, and reuses the
+  stored HTML rather than re-rendering — a template rebuilt today would produce
+  something different from what was actually sent.
+
 ## Things I know are not done
 
 Stated plainly rather than left for you to find:

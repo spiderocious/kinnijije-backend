@@ -7,6 +7,7 @@ import { requireActor } from '@shared/middleware/authenticate.middleware.js';
 import { adminAiService } from './ai/admin-ai.service.js';
 import { adminAuthService } from './auth/admin-auth.service.js';
 import { adminDashboardService } from './dashboard/admin-dashboard.service.js';
+import { adminEmailsService, type ComposeInput } from './emails/admin-emails.service.js';
 import { adminJobsService } from './jobs/admin-jobs.service.js';
 import { adminRecipesService, type RecipeInput } from './recipes/admin-recipes.service.js';
 import { adminUsersService } from './users/admin-users.service.js';
@@ -154,6 +155,74 @@ export const adminController = {
 
   aiPromptIds: async (_req: Request, res: Response): Promise<void> => {
     const result = await adminAiService.promptIds();
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  // ── Email ──────────────────────────────────────────────────────────
+  previewAudience: async (req: Request, res: Response): Promise<void> => {
+    const { audience, user_ids: userIds } = req.body as {
+      audience: ComposeInput['audience'];
+      user_ids?: string[];
+    };
+    const result = await adminEmailsService.preview({
+      audience,
+      ...(userIds !== undefined && { userIds }),
+    });
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  sendEmail: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const body = req.body as {
+      audience: ComposeInput['audience'];
+      user_ids?: string[];
+      subject: string;
+      body: string;
+    };
+    const result = await adminEmailsService.send(
+      {
+        audience: body.audience,
+        ...(body.user_ids !== undefined && { userIds: body.user_ids }),
+        subject: body.subject,
+        body: body.body,
+      },
+      actor.userId,
+    );
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  listEmails: async (req: Request, res: Response): Promise<void> => {
+    const query = req.query as { kind?: string; status?: string; to?: string };
+    const result = await adminEmailsService.list({
+      ...(query.kind !== undefined && { kind: query.kind }),
+      ...(query.status !== undefined && { status: query.status }),
+      ...(query.to !== undefined && { to: query.to }),
+      ...paging(req),
+    });
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  emailDetail: async (req: Request, res: Response): Promise<void> => {
+    const { emailId } = req.params as { emailId: string };
+    const result = await adminEmailsService.detail(emailId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  resendEmail: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { emailId } = req.params as { emailId: string };
+    const result = await adminEmailsService.resend(emailId, actor.userId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  emailKinds: async (_req: Request, res: Response): Promise<void> => {
+    const result = await adminEmailsService.kinds();
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },

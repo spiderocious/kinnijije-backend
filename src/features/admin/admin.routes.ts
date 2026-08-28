@@ -11,11 +11,14 @@ import { validate } from '@shared/middleware/validate.middleware.js';
 import { adminController } from './admin.controller.js';
 import {
   BulkRecipesSchema,
+  ComposeEmailSchema,
   CreateRecipeSchema,
   ListAiLogsSchema,
+  ListEmailsSchema,
   ListJobsSchema,
   ListRecipesSchema,
   ListUsersSchema,
+  PreviewAudienceSchema,
   RetryJobSchema,
   SetRecipeStatusSchema,
   SetUserRoleSchema,
@@ -83,6 +86,24 @@ router.patch(
 router.get('/admin/ai/prompt-ids', ...guard, asyncHandler(adminController.aiPromptIds));
 router.get('/admin/ai', ...guard, validate(ListAiLogsSchema), asyncHandler(adminController.listAiLogs));
 router.get('/admin/ai/:logId', ...guard, asyncHandler(adminController.aiLogDetail));
+
+// Email — literals first, then the parameter.
+router.get('/admin/emails/kinds', ...guard, asyncHandler(adminController.emailKinds));
+router.post(
+  '/admin/emails/preview',
+  ...guard,
+  validate(PreviewAudienceSchema),
+  asyncHandler(adminController.previewAudience),
+);
+router.post(
+  '/admin/emails/send',
+  ...guard,
+  validate(ComposeEmailSchema),
+  asyncHandler(adminController.sendEmail),
+);
+router.get('/admin/emails', ...guard, validate(ListEmailsSchema), asyncHandler(adminController.listEmails));
+router.post('/admin/emails/:emailId/resend', ...guard, asyncHandler(adminController.resendEmail));
+router.get('/admin/emails/:emailId', ...guard, asyncHandler(adminController.emailDetail));
 
 // Jobs — the literal first, then the sub-paths, then the bare parameter.
 router.get('/admin/jobs/types', ...guard, asyncHandler(adminController.jobTypes));

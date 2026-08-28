@@ -3,6 +3,10 @@ import type { Server } from 'node:http';
 import { buildApp } from '@app/app.js';
 import { env, IS_PRODUCTION } from '@app/env.js';
 import { connectDatabase, disconnectDatabase } from '@lib/db/connection.js';
+import {
+  scheduleDailySweep,
+  scheduleWeeklySweep,
+} from '@features/notifications/notifications.jobs.js';
 import { registerJobHandlers } from '@lib/jobs/handlers.js';
 import { jobQueue } from '@lib/jobs/jobs.queue.js';
 import { logger } from '@lib/logger/index.js';
@@ -39,6 +43,12 @@ async function main(): Promise<void> {
   // it has no way to run.
   registerJobHandlers();
   jobQueue.start();
+
+  // The recurring email sweeps. Each one re-queues its successor when it runs,
+  // so this only has to plant the first — and it is a no-op when one is
+  // already waiting, which is what makes restarting the server harmless.
+  await scheduleDailySweep();
+  await scheduleWeeklySweep();
 
   const app = buildApp();
   const server: Server = app.listen(env.PORT, () => {

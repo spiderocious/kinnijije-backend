@@ -1,5 +1,6 @@
 import { registerExtractionHandlers } from '@features/extraction/extraction.jobs.js';
 import { registerInsightHandlers } from '@features/insights/insights.jobs.js';
+import { registerNotificationHandlers } from '@features/notifications/notifications.jobs.js';
 
 /**
  * The one place job handlers are registered.
@@ -14,4 +15,5 @@ import { registerInsightHandlers } from '@features/insights/insights.jobs.js';
 export function registerJobHandlers(): void {
   registerExtractionHandlers();
   registerInsightHandlers();
+  registerNotificationHandlers();
 }
