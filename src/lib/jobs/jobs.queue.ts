@@ -74,6 +74,7 @@ class JobQueue {
       ownerId: options.ownerId,
       payload: options.payload,
       maxAttempts: options.maxAttempts ?? 3,
+      runAt: options.runAt ?? new Date(),
     });
 
     logger.info('job enqueued', { job_id: job._id, type: job.type });
@@ -130,7 +131,9 @@ class JobQueue {
     if (types.length === 0) return null;
 
     return JobModel.findOneAndUpdate(
-      { status: JOB_STATUSES.QUEUED, type: { $in: types } },
+      // `runAt` in the past means due. Scheduled work simply is not visible to
+      // the claim until its moment arrives.
+      { status: JOB_STATUSES.QUEUED, type: { $in: types }, runAt: { $lte: new Date() } },
       {
         $set: {
           status: JOB_STATUSES.RUNNING,

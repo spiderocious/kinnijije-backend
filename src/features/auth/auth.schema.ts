@@ -51,3 +51,23 @@ export const ChangePasswordSchema = z.object({
   new_password: password,
 });
 export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
+
+/**
+ * Asking for a reset link.
+ *
+ * Only the address, and the response never says whether it exists — see the
+ * service for why.
+ */
+export const RequestPasswordResetSchema = z.object({
+  body: z.object({
+    email: z.string().email('That does not look like an email address').toLowerCase().trim(),
+  }),
+});
+
+/** Spending a reset link. The token comes from the emailed URL. */
+export const ResetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(20, 'That link looks incomplete'),
+    new_password: password,
+  }),
+});

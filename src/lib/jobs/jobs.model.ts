@@ -61,6 +61,15 @@ export interface JobAttributes {
    * "running".
    */
   leaseExpiresAt: Date | null;
+  /**
+   * Not eligible to run before this.
+   *
+   * Defaults to now, so ordinary work is claimed immediately and nothing had
+   * to change at existing callsites. Scheduled work — a daily digest, a weekly
+   * summary — sets it forward, which is the whole reason the queue can carry
+   * recurring email without a second moving part.
+   */
+  runAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,6 +87,7 @@ const jobSchema = new Schema<JobAttributes>(
     error: { type: String, default: null },
     attempts: { type: Number, required: true, default: 0 },
     maxAttempts: { type: Number, required: true, default: 3 },
+    runAt: { type: Date, required: true, default: () => new Date() },
     cancelRequestedAt: { type: Date, default: null },
     startedAt: { type: Date, default: null },
     finishedAt: { type: Date, default: null },
@@ -87,7 +97,9 @@ const jobSchema = new Schema<JobAttributes>(
 );
 
 // The claim query: oldest queued job first.
-jobSchema.index({ status: 1, createdAt: 1 });
+// The claim query filters on status AND runAt, so both belong in the index —
+// without runAt it scans every queued job to find the due ones.
+jobSchema.index({ status: 1, runAt: 1 });
 // A person's job list, newest first.
 jobSchema.index({ ownerId: 1, createdAt: -1 });
 

@@ -30,6 +30,8 @@ export interface EnqueueOptions {
   readonly ownerId: string;
   readonly payload: unknown;
   readonly maxAttempts?: number;
+  /** Hold it until this moment. Omit to run as soon as a worker is free. */
+  readonly runAt?: Date;
 }
 
 export interface JobView {

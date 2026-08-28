@@ -122,7 +122,15 @@ const userSchema = new Schema(
     notifications: {
       type: new Schema(
         {
-          lowStockNudges: { type: Boolean, default: false },
+          // Split from one `lowStockNudges` flag, because these three ask
+          // very different things of a person. "You are out of rice" is
+          // useful; "have you eaten?" is personal, and lumping them together
+          // meant turning off the first also turned off the third — or worse,
+          // kept it on.
+          runningLow: { type: Boolean, default: false },
+          useItUp: { type: Boolean, default: false },
+          haveYouEaten: { type: Boolean, default: false },
+          dailyDigest: { type: Boolean, default: false },
           weeklySummary: { type: Boolean, default: false },
         },
         { _id: false },
@@ -172,7 +180,13 @@ export interface UserAttributes {
   recentIngredients: string[];
   city: string | null;
   country: string | null;
-  notifications: { lowStockNudges: boolean; weeklySummary: boolean };
+  notifications: {
+    runningLow: boolean;
+    useItUp: boolean;
+    haveYouEaten: boolean;
+    dailyDigest: boolean;
+    weeklySummary: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

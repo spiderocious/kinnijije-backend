@@ -355,6 +355,50 @@ Things to try:
 Old mock-era chats were cleared, and every chat turn now records `mocked` so a
 canned answer can never be mistaken later for a real one.
 
+## 16 · The console
+
+`/admin/setup` first — it creates the one administrator and shows its password
+ONCE. Copy it before leaving the page; nothing is emailed and only a hash is
+stored. Running setup twice is refused, not repeated: a second unauthenticated
+way to mint an admin would be a hole.
+
+Then `/admin/login`, and the console is at `/admin`.
+
+Worth trying to break:
+
+- Hit `/admin/setup` again after setting up. It should refuse and point at sign in.
+- Sign in as an ordinary user and open `/admin`. The screens load but every
+  request 403s — guarding is the SERVER's job, and a hidden route is not a
+  permission.
+- Import recipes at `/admin/recipes/new`. Paste one object or an array. Feed it
+  malformed JSON, a missing `difficulty`, an empty `steps` — one bad row in forty
+  must not discard the other thirty-nine, and the result panel says which failed.
+- After importing, open the recipe. Any ingredient we could not match to the
+  catalogue is flagged — those are invisible to suggestions, which is why the
+  count is shown on the list too.
+- On `/admin/ai`, filter to "rejected only". Each row opens to show the system
+  prompt, what we sent, and the model's raw answer. This is the screen that
+  proves whether a bad answer was the model or our schema.
+- On `/admin/jobs`, open a failed job and retry it. Open a SUCCEEDED one — the
+  button reads "Run it again" and passes `force`, because re-running good work
+  should never be something that happens by accident.
+- Change somebody's status to suspended on their detail page, then try to use the
+  app as them.
+
+## 17 · Meals the assistant invented
+
+Ask the assistant what to cook. EVERY meal card now opens — ours goes straight to
+its page, an invented one goes to `/meals/generated-meal?meal=<name>`, which
+writes the full recipe, saves it, and replaces the url with the real id.
+
+- Open an invented meal. It should land on a normal recipe page, labelled `ai`.
+- Press Back from there. It should leave the meal entirely, NOT return to a page
+  that regenerates itself.
+- Open the same invented meal twice. The second time is instant and gives the
+  same id — no second copy of the same dish.
+- Ask again afterwards. The meal is now one of ours, so it can be suggested and
+  the assistant can cite its real id.
+
 ## Things I know are not done
 
 Stated plainly rather than left for you to find:

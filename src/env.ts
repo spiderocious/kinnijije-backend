@@ -70,7 +70,12 @@ const EnvSchema = z.object({
   AI_PROVIDER: z.enum(['auto', 'mock', 'openai']).default('auto'),
 
   RESEND_API_KEY: z.string().default(''),
-  MAIL_FROM: z.string().default('Cookiepot <onboarding@resend.dev>'),
+  MAIL_FROM: z.string().default('KinniJije <onboarding@resend.dev>'),
+  /**
+   * Where the web app lives. Every link in an email is built from this — a
+   * password-reset link that points at the API is a dead end.
+   */
+  APP_URL: z.string().url().default('http://localhost:5173'),
 
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 });

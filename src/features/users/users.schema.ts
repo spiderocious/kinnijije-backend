@@ -11,7 +11,10 @@ export const UpdateSettingsSchema = z
     measurement: z.enum(['metric', 'imperial']).optional(),
     city: z.string().max(80).trim().optional(),
     country: z.string().max(80).trim().optional(),
-    low_stock_nudges: z.boolean().optional(),
+    running_low: z.boolean().optional(),
+    use_it_up: z.boolean().optional(),
+    have_you_eaten: z.boolean().optional(),
+    daily_digest: z.boolean().optional(),
     weekly_summary: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {

@@ -13,6 +13,8 @@ export const ID_PREFIXES = {
   session: 'sess',
   file: 'f',
   job: 'job',
+  email: 'email',
+  reset: 'reset',
   ailog: 'ail',
   stock: 'stk',
   move: 'mv',

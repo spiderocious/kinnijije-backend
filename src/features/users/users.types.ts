@@ -31,7 +31,13 @@ export interface UserView {
   };
   city: string | null;
   country: string | null;
-  notifications: { low_stock_nudges: boolean; weekly_summary: boolean };
+  notifications: {
+    running_low: boolean;
+    use_it_up: boolean;
+    have_you_eaten: boolean;
+    daily_digest: boolean;
+    weekly_summary: boolean;
+  };
   created_at: string;
   updated_at: string;
 }
@@ -56,7 +62,10 @@ export const toUserView = (doc: UserDocument): UserView => ({
   city: doc.city,
   country: doc.country,
   notifications: {
-    low_stock_nudges: doc.notifications?.lowStockNudges ?? false,
+    running_low: doc.notifications?.runningLow ?? false,
+    use_it_up: doc.notifications?.useItUp ?? false,
+    have_you_eaten: doc.notifications?.haveYouEaten ?? false,
+    daily_digest: doc.notifications?.dailyDigest ?? false,
     weekly_summary: doc.notifications?.weeklySummary ?? false,
   },
   created_at: doc.createdAt.toISOString(),

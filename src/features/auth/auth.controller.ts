@@ -46,6 +46,25 @@ export const authController = {
     ResponseUtil.noContent(res);
   },
 
+  requestPasswordReset: async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body as { email: string };
+    // Always 204, whatever happened — the response must not reveal whether an
+    // account exists.
+    const result = await authService.requestPasswordReset(email, req.ip ?? null);
+    if (!result.success) return bail(result);
+    ResponseUtil.noContent(res);
+  },
+
+  resetPassword: async (req: Request, res: Response): Promise<void> => {
+    const { token, new_password: newPassword } = req.body as {
+      token: string;
+      new_password: string;
+    };
+    const result = await authService.resetPassword(token, newPassword);
+    if (!result.success) return bail(result);
+    ResponseUtil.noContent(res);
+  },
+
   changePassword: async (req: Request, res: Response): Promise<void> => {
     const actor = requireActor(req);
     const result = await authService.changePassword(actor.userId, req.body as ChangePasswordInput);

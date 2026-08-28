@@ -15,6 +15,8 @@ import {
   LogoutSchema,
   RefreshSchema,
   RegisterSchema,
+  RequestPasswordResetSchema,
+  ResetPasswordSchema,
 } from './auth.schema.js';
 
 const router = Router();
@@ -63,6 +65,23 @@ router.post(
   rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE, byIp),
   validate(LogoutSchema),
   asyncHandler(authController.logout),
+);
+
+// Unauthenticated by necessity — somebody who cannot sign in is the whole
+// audience. Both sit on the PASSWORD_RESET policy: each one sends a real email
+// or lets somebody take an account, so they stay tight.
+router.post(
+  '/auth/forgot-password',
+  rateLimit(RATE_LIMITS.PASSWORD_RESET, byIp),
+  validate(RequestPasswordResetSchema),
+  asyncHandler(authController.requestPasswordReset),
+);
+
+router.post(
+  '/auth/reset-password',
+  rateLimit(RATE_LIMITS.PASSWORD_RESET, byIp),
+  validate(ResetPasswordSchema),
+  asyncHandler(authController.resetPassword),
 );
 
 router.post(

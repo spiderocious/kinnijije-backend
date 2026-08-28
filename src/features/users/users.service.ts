@@ -76,11 +76,17 @@ export class UsersService {
     if (typeof input['measurement'] === 'string') update['prefs.measurement'] = input['measurement'];
     if (typeof input['city'] === 'string') update['city'] = input['city'];
     if (typeof input['country'] === 'string') update['country'] = input['country'];
-    if (typeof input['low_stock_nudges'] === 'boolean') {
-      update['notifications.lowStockNudges'] = input['low_stock_nudges'];
-    }
-    if (typeof input['weekly_summary'] === 'boolean') {
-      update['notifications.weeklySummary'] = input['weekly_summary'];
+    // Each preference is its own field, so a person can keep the useful
+    // reminders and turn off the personal one.
+    const PREFS: Record<string, string> = {
+      running_low: 'notifications.runningLow',
+      use_it_up: 'notifications.useItUp',
+      have_you_eaten: 'notifications.haveYouEaten',
+      daily_digest: 'notifications.dailyDigest',
+      weekly_summary: 'notifications.weeklySummary',
+    };
+    for (const [wire, path] of Object.entries(PREFS)) {
+      if (typeof input[wire] === 'boolean') update[path] = input[wire];
     }
 
     const updated = await this.repo.updateProfile(userId, update);
