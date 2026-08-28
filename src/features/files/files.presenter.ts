@@ -21,7 +21,7 @@ export interface FileView {
   url: string | null;
   url_expires_in: number;
   uploaded_at: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 /**

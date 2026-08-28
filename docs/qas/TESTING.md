@@ -556,6 +556,36 @@ receipt and revisited.
 - Back through every step, then forward again. Your answers should still be
   there.
 
+## 22 · Dates that are not there
+
+`/admin/users` 500'd in production: `Cannot read properties of undefined
+(reading 'toISOString')`. One account had no `createdAt`, and serialising it
+took down the whole list for everybody.
+
+The cause is a class, not a line. Mongoose declares `createdAt` non-optional, so
+TypeScript is satisfied — but the TYPE is a promise about the schema, not about
+the bytes. A document written before a field existed, inserted by a script, or
+fetched through a `.select()` that omitted it, is `undefined` at runtime.
+
+There were **32 unguarded calls across 16 files**. All now go through
+`isoOrNull()` in `lib/dates.ts`, which returns null for a missing or
+unparseable date. Several view types widened from `string` to `string | null` as
+a result — that is the honest shape; a client assuming otherwise was already
+wrong, it just crashed on the server instead.
+
+To check it holds, plant a document with a missing timestamp:
+
+```js
+db.users.insertOne({ _id: 'u_test', email: 'x@y.z', passwordHash: 'x',
+  name: 'No Timestamps', role: 'user', status: 'pending' })
+```
+
+Then load `/admin/users`. The row should appear with an em dash where the date
+goes. Before the fix, the entire endpoint 500'd.
+
+The web side formats through `formatDate` / `formatDateTime`, which render an em
+dash rather than "Invalid Date".
+
 ## Things I know are not done
 
 Stated plainly rather than left for you to find:

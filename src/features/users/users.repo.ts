@@ -70,7 +70,7 @@ export class UsersRepository {
       hasMore,
       nextCursor:
         hasMore && last !== undefined
-          ? encodeCursor({ last_id: last._id, last_sort_key: isoOrNull(last.createdAt) })
+          ? encodeCursor({ last_id: last._id, last_sort_key: isoOrNull(last.createdAt) ?? new Date(0).toISOString() })
           : null,
     };
   }

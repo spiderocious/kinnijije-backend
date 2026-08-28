@@ -20,6 +20,36 @@ typeahead and matching work the moment the process starts.
 
 Check it landed: `/admin` → the dashboard should read **24 published, 24 seed**.
 
+## 1a. Seeding into production
+
+The seed script is a normal Node program — it reads `MONGODB_URI` and writes.
+It is not dev-only:
+
+```
+MONGODB_URI='mongodb+srv://…prod…' pnpm seed:meals
+```
+
+Run it from the host's shell if there is one, so the production URI never sits
+in a local terminal. It upserts on `slug`, so re-running is safe.
+
+If you would rather move data by hand, the collection is **`meals`** and the
+format is JSON, not CSV — `ingredients[]` and `steps[]` are arrays of objects,
+which CSV cannot carry. `mongodump`/`mongorestore`, or:
+
+```
+mongoexport --uri=… --collection=meals --out=meals.json
+mongoimport --uri=… --collection=meals --file=meals.json --upsertFields=slug
+```
+
+Two fields matter more than the rest, and a hand-built import must set both:
+
+- **`ingredientKeys`** — the denormalised catalogue ids the matcher reads. Empty
+  or wrong means the recipe is never suggested, silently.
+- **`status: "published"`** — a draft is invisible to suggestions.
+
+`/admin/recipes/new` is the third option: paste one recipe or an array, and it
+resolves the ingredients for you and reports what it could not match.
+
 ## 2. Environment
 
 | Variable | Why it matters if wrong |

@@ -59,11 +59,13 @@ export class InsightsService {
     const days: WeekSummary['days'] = [];
     for (let i = 6; i >= 0; i -= 1) {
       const day = new Date(Date.now() - i * DAY_MS);
-      const key = isoOrNull(day).slice(0, 10);
+      const key = day.toISOString().slice(0, 10);
       days.push({
         date: key,
         label: day.toLocaleDateString('en', { weekday: 'short' }),
-        meals: cooked.filter((c) => isoOrNull(c.cookedAt).slice(0, 10) === key).map((c) => c.mealName),
+        meals: cooked
+          .filter((c) => (isoOrNull(c.cookedAt) ?? '').slice(0, 10) === key)
+          .map((c) => c.mealName),
       });
     }
 

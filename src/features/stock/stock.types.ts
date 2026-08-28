@@ -16,8 +16,8 @@ export interface StockItemView {
   days_left: number | null;
   /** fresh · soon · past — drives the freshness dot. */
   freshness: 'fresh' | 'soon' | 'past' | 'unknown';
-  added_at: string;
-  last_moved_at: string;
+  added_at: string | null;
+  last_moved_at: string | null;
 }
 
 /** Anything inside this window is "use these first". */
