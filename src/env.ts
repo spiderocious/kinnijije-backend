@@ -47,9 +47,19 @@ const EnvSchema = z.object({
 
   // ---- AI ----
   OPENAI_API_KEY: z.string().default(''),
-  OPENAI_MODEL: z.string().default('gpt-4o-mini'),
-  OPENAI_VISION_MODEL: z.string().default('gpt-4o-mini'),
-  OPENAI_TRANSCRIBE_MODEL: z.string().default('whisper-1'),
+
+  /**
+   * Model per job, because they differ enormously in cost.
+   *
+   * Named to match what a person would guess when writing a .env by hand —
+   * PARSE, GENERATE, VISION, WHISPER — rather than an internal tiering scheme
+   * nobody outside this file knows about.
+   */
+  OPENAI_GENERATE_MODEL: z.string().default('gpt-4o'),
+  /** The cheap one: parsing, and the gatekeeper that checks a photo is food. */
+  OPENAI_PARSE_MODEL: z.string().default('gpt-4o-mini'),
+  OPENAI_VISION_MODEL: z.string().default('gpt-4o'),
+  OPENAI_WHISPER_MODEL: z.string().default('whisper-1'),
   /**
    * Which AI provider the service uses.
    *   mock   — canned, deterministic answers from src/features/mock/data

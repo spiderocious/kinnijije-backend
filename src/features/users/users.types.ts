@@ -29,6 +29,9 @@ export interface UserView {
     difficulty: Difficulty;
     measurement: 'metric' | 'imperial';
   };
+  city: string | null;
+  country: string | null;
+  notifications: { low_stock_nudges: boolean; weekly_summary: boolean };
   created_at: string;
   updated_at: string;
 }
@@ -49,6 +52,12 @@ export const toUserView = (doc: UserDocument): UserView => ({
     cuisines: doc.prefs?.cuisines ?? [],
     difficulty: doc.prefs?.difficulty ?? 'anything',
     measurement: doc.prefs?.measurement ?? 'metric',
+  },
+  city: doc.city,
+  country: doc.country,
+  notifications: {
+    low_stock_nudges: doc.notifications?.lowStockNudges ?? false,
+    weekly_summary: doc.notifications?.weeklySummary ?? false,
   },
   created_at: doc.createdAt.toISOString(),
   updated_at: doc.updatedAt.toISOString(),

@@ -12,6 +12,15 @@ export const ID_PREFIXES = {
   user: 'u',
   session: 'sess',
   file: 'f',
+  job: 'job',
+  ailog: 'ail',
+  stock: 'stk',
+  move: 'mv',
+  unit: 'un',
+  market: 'mk',
+  meal: 'meal',
+  chat: 'chat',
+  insight: 'ins',
 } as const;
 
 /** Callers name the resource; the prefix itself is an implementation detail. */

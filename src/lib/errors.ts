@@ -21,6 +21,15 @@ export class AppError extends Error {
     readonly rejectionReason?: string,
     /** Seconds, for the Retry-After header on 429. */
     readonly retryAfterSeconds?: number,
+    /**
+     * A specific, human message that should REPLACE the registry default.
+     *
+     * The registry exists so copy is reviewable in one place, and that is still
+     * the rule for every fixed message. But a validation failure knows
+     * something the registry cannot — which field, and why — and burying that
+     * behind "some details are not valid" is what makes an error useless.
+     */
+    readonly overrideMessage?: string,
   ) {
     super(internalMessage);
     this.name = 'AppError';

@@ -12,6 +12,7 @@ import { usersController } from './users.controller.js';
 import {
   ListUsersQuerySchema,
   UpdateProfileSchema,
+  UpdateSettingsSchema,
   UpdateRoleSchema,
   UpdateStatusSchema,
   UserIdParamSchema,
@@ -56,6 +57,25 @@ router.patch(
   rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE),
   validate(UpdateProfileSchema),
   asyncHandler(usersController.updateMe),
+);
+
+router.patch(
+  '/users/me/settings',
+  authenticate,
+  // Settings must reach a pending account: they include the location that
+  // shapes answers and the preferences the suggestion engine reads.
+  requireStatus(USER_STATUSES.ACTIVE, USER_STATUSES.PENDING),
+  rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE),
+  validate(UpdateSettingsSchema),
+  asyncHandler(usersController.updateSettings),
+);
+
+router.delete(
+  '/users/me',
+  authenticate,
+  requireStatus(USER_STATUSES.ACTIVE, USER_STATUSES.PENDING, USER_STATUSES.SUSPENDED),
+  rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE),
+  asyncHandler(usersController.deleteMe),
 );
 
 // --- Admin surface. Registered after /users/me for the reason stated above. ---

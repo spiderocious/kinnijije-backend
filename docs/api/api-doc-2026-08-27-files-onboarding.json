@@ -1,22 +1,58 @@
 {
   "info": {
     "_postman_id": "c00k1e70-0002-4000-a000-000000000002",
-    "name": "Cookiepot API — Files & Onboarding",
-    "description": "The foundation layer added on 2026-08-27: object storage, the AI service layer, and onboarding.\n\nCovers only the NEW endpoints. Auth and user management live in the first collection (`api-doc-2026-27-11:42:00.json`).\n\n## Getting started\n\n```bash\nmongod --dbpath ~/data/mongodb --logpath ~/data/mongolog/mongod.log --fork\ncd backend && pnpm install && pnpm dev\n```\n\nRun **Setup → Register a fresh user** first. It captures the token AND leaves you with an un-onboarded account, which is exactly the state the onboarding endpoints are for.\n\n---\n\n## Uploads are deliberately three steps\n\n```\n1. POST /files/upload-url   →  a row exists (status: pending), you get a presigned PUT\n2. PUT  <upload_url>        →  the bytes go STRAIGHT TO S3, never through this API\n3. POST /files/{id}/confirm →  we HEAD the object and flip it to ready\n```\n\n**Why not just post the file here and hand it to the AI?** Because then the file is gone — the user could never open a gallery of what they photographed, nothing could be re-processed when a prompt improves, and there would be no evidence of what an AI read was based on. Uploading and processing are separate concerns, so they are separate calls.\n\nTwo consequences worth knowing:\n\n- **Bytes never pass through this server.** It would pay for the bandwidth twice and fall over on a large file.\n- **Only the object KEY is stored.** A presigned URL expires, so a stored one is a link guaranteed to be broken later. Keys become URLs at the moment of responding — every file in a response carries a freshly signed `url` and the key itself is never published.\n\nStep 3 exists because the server never observes the PUT. Without asking the bucket directly, a row could claim a file that was never uploaded.\n\n---\n\n## The AI layer\n\nNothing calls OpenAI directly:\n\n```\nfeature  →  aiService  →  openAiProvider  →  OpenAI SDK\n                       ↘  mockAiProvider  →  canned JSON in src/features/mock/data\n```\n\n`AI_PROVIDER` picks: `mock` · `openai` · `auto` (real when `OPENAI_API_KEY` is set, canned otherwise — the default).\n\nEvery call site has a stable **prompt id** (`ingredients.extract_photo`, `recipe.generate`, …) and the mock data is keyed by it, so a demo is deterministic: the same input gives the same output, instantly, with no spend. Results carry `meta.provider`, so canned data is never mistaken for a real read.\n\n*No endpoint in this collection calls AI yet — the extraction endpoints come with the capture feature. The layer is in place and stubbed.*\n\n---\n\n## Onboarding\n\nThe **server** owns whether someone still needs onboarding. `user.has_onboarded` appears on register, login and `/users/me`, and the web app routes on that — never on anything it stores locally, or a cleared browser would replay onboarding forever.\n\nSaves are per-step and partial: `PATCH /onboarding` sets only the fields you send, so a step that collects cuisines cannot blank the kitchen list a later step fills.",
+    "name": "Cookiepot API — Files, Onboarding & Kitchen",
+    "description": "The foundation layer added on 2026-08-27: object storage, the AI service layer, onboarding, and the kitchen — the home screen a signed-in cook opens by default.\n\nCovers only the NEW endpoints. Auth and user management live in the first collection (`api-doc-2026-27-11:42:00.json`).\n\n## Getting started\n\n```bash\nmongod --dbpath ~/data/mongodb --logpath ~/data/mongolog/mongod.log --fork\ncd backend && pnpm install && pnpm dev\n```\n\nRun **Setup → Register a fresh user** first. It captures the token AND leaves you with an un-onboarded account, which is exactly the state the onboarding endpoints are for.\n\n---\n\n## Uploads are deliberately three steps\n\n```\n1. POST /files/upload-url   →  a row exists (status: pending), you get a presigned PUT\n2. PUT  <upload_url>        →  the bytes go STRAIGHT TO S3, never through this API\n3. POST /files/{id}/confirm →  we HEAD the object and flip it to ready\n```\n\n**Why not just post the file here and hand it to the AI?** Because then the file is gone — the user could never open a gallery of what they photographed, nothing could be re-processed when a prompt improves, and there would be no evidence of what an AI read was based on. Uploading and processing are separate concerns, so they are separate calls.\n\nTwo consequences worth knowing:\n\n- **Bytes never pass through this server.** It would pay for the bandwidth twice and fall over on a large file.\n- **Only the object KEY is stored.** A presigned URL expires, so a stored one is a link guaranteed to be broken later. Keys become URLs at the moment of responding — every file in a response carries a freshly signed `url` and the key itself is never published.\n\nStep 3 exists because the server never observes the PUT. Without asking the bucket directly, a row could claim a file that was never uploaded.\n\n---\n\n## The AI layer\n\nNothing calls OpenAI directly:\n\n```\nfeature  →  aiService  →  openAiProvider  →  OpenAI SDK\n                       ↘  mockAiProvider  →  canned JSON in src/features/mock/data\n```\n\n`AI_PROVIDER` picks: `mock` · `openai` · `auto` (real when `OPENAI_API_KEY` is set, canned otherwise — the default).\n\nEvery call site has a stable **prompt id** (`ingredients.extract_photo`, `recipe.generate`, …) and the mock data is keyed by it, so a demo is deterministic: the same input gives the same output, instantly, with no spend. Results carry `meta.provider`, so canned data is never mistaken for a real read.\n\n*No endpoint in this collection calls AI yet — the extraction endpoints come with the capture feature. The layer is in place and stubbed.*\n\n---\n\n## Onboarding\n\nThe **server** owns whether someone still needs onboarding. `user.has_onboarded` appears on register, login and `/users/me`, and the web app routes on that — never on anything it stores locally, or a cleared browser would replay onboarding forever.\n\nSaves are per-step and partial: `PATCH /onboarding` sets only the fields you send, so a step that collects cuisines cannot blank the kitchen list a later step fills.\n\n---\n\n## The kitchen\n\n`GET /kitchen` returns the basket plus recents; `PUT /kitchen` replaces the basket and folds its items into the recents. The basket starts as whatever onboarding collected, so the home screen is never empty for a new signup.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:4000", "type": "string" },
-    { "key": "api_v1", "value": "{{base_url}}/api/v1", "type": "string" },
-    { "key": "access_token", "value": "", "type": "string" },
-    { "key": "refresh_token", "value": "", "type": "string" },
-    { "key": "file_id", "value": "", "type": "string", "description": "Captured by Request an upload URL." },
-    { "key": "upload_url", "value": "", "type": "string", "description": "The presigned PUT. Captured automatically." },
-    { "key": "default_password", "value": "Pass123!word", "type": "string" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "api_v1",
+      "value": "{{base_url}}/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "file_id",
+      "value": "",
+      "type": "string",
+      "description": "Captured by Request an upload URL."
+    },
+    {
+      "key": "upload_url",
+      "value": "",
+      "type": "string",
+      "description": "The presigned PUT. Captured automatically."
+    },
+    {
+      "key": "default_password",
+      "value": "Pass123!word",
+      "type": "string"
+    }
   ],
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
   },
   "event": [
     {
@@ -79,15 +115,35 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{run_email}}\",\n  \"password\": \"{{default_password}}\",\n  \"name\": \"Onboarding Tester\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] },
+            "url": {
+              "raw": "{{api_v1}}/auth/register",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
             "description": "Creates an account with a unique email each run, so it is re-runnable.\n\nThe response now carries `has_onboarded: false` and the default prefs — everything the web app needs to route straight to onboarding without a second call."
           },
           "response": [
@@ -95,14 +151,36 @@
               "name": "201 — note has_onboarded and prefs",
               "originalRequest": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"email\": \"onboard-1@test.test\",\n  \"password\": \"Pass123!word\",\n  \"name\": \"Onboarding Tester\"\n}" },
-                "url": { "raw": "{{api_v1}}/auth/register", "host": ["{{api_v1}}"], "path": ["auth", "register"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"onboard-1@test.test\",\n  \"password\": \"Pass123!word\",\n  \"name\": \"Onboarding Tester\"\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/auth/register",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"u_01m10qcggkrs9cc4faxhr4g76m\",\n      \"email\": \"onboard-1@test.test\",\n      \"name\": \"Onboarding Tester\",\n      \"role\": \"user\",\n      \"status\": \"pending\",\n      \"email_verified_at\": null,\n      \"last_login_at\": null,\n      \"onboarding_completed_at\": null,\n      \"has_onboarded\": false,\n      \"prefs\": {\n        \"cuisines\": [\"Nigerian\", \"West African\"],\n        \"difficulty\": \"anything\",\n        \"measurement\": \"metric\"\n      },\n      \"created_at\": \"2026-08-27T12:24:24.345Z\",\n      \"updated_at\": \"2026-08-27T12:24:24.345Z\"\n    },\n    \"tokens\": {\n      \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n      \"refresh_token\": \"6k-lX0nu3dM83qgJQoF6jHggP9HXPjlAZSB20dxwRdfiHQPpo3xiwZ7_DXMGCxfs\",\n      \"token_type\": \"Bearer\",\n      \"expires_in\": 900\n    }\n  }\n}"
             }
           ]
@@ -125,15 +203,35 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"root@test.test\",\n  \"password\": \"{{default_password}}\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{api_v1}}/auth/login", "host": ["{{api_v1}}"], "path": ["auth", "login"] },
+            "url": {
+              "raw": "{{api_v1}}/auth/login",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
             "description": "Login also carries `has_onboarded`, so a returning user is routed correctly on the first response."
           },
           "response": []
@@ -168,7 +266,15 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] },
+            "url": {
+              "raw": "{{api_v1}}/onboarding",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            },
             "description": "Everything needed to render and **resume** onboarding — including `available_cuisines`, so the option list lives in one place rather than being duplicated in the client.\n\n`completed` is the server's answer to \"should I show onboarding\".\n\n**Status:** `active` or `pending`. **Rate limit:** 120/min."
           },
           "response": [
@@ -177,12 +283,25 @@
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] }
+                "url": {
+                  "raw": "{{api_v1}}/onboarding",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"completed\": false,\n    \"completed_at\": null,\n    \"cuisines\": [\"Nigerian\", \"West African\"],\n    \"difficulty\": \"anything\",\n    \"measurement\": \"metric\",\n    \"kitchen_items\": [],\n    \"available_cuisines\": [\n      \"Nigerian\",\n      \"West African\",\n      \"Asian\",\n      \"Mediterranean\",\n      \"Comfort food\",\n      \"Continental\"\n    ]\n  }\n}"
             }
           ]
@@ -191,13 +310,30 @@
           "name": "Save taste (step: cuisines + difficulty)",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"cuisines\": [\"Nigerian\", \"West African\"],\n  \"difficulty\": \"medium\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] },
+            "url": {
+              "raw": "{{api_v1}}/onboarding",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            },
             "description": "**Partial by design.** Only the fields you send are written, so this step cannot blank the kitchen list the next step fills.\n\nThese answers are real signal — the suggestion engine treats cuisines as a hard filter, so someone who picks only Asian and Mediterranean must never be shown egusi.\n\n`difficulty` is `easy | medium | anything`.\n\n**200** the full updated state · **422** `validation_error` (unknown cuisine, or an empty body)"
           },
           "response": [
@@ -205,28 +341,70 @@
               "name": "200 Saved",
               "originalRequest": {
                 "method": "PATCH",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"cuisines\": [\"Nigerian\", \"West African\"],\n  \"difficulty\": \"medium\"\n}" },
-                "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cuisines\": [\"Nigerian\", \"West African\"],\n  \"difficulty\": \"medium\"\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/onboarding",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"completed\": false,\n    \"completed_at\": null,\n    \"cuisines\": [\"Nigerian\", \"West African\"],\n    \"difficulty\": \"medium\",\n    \"measurement\": \"metric\",\n    \"kitchen_items\": [],\n    \"available_cuisines\": [\"Nigerian\", \"West African\", \"Asian\", \"Mediterranean\", \"Comfort food\", \"Continental\"]\n  }\n}"
             },
             {
               "name": "422 Unknown cuisine",
               "originalRequest": {
                 "method": "PATCH",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"cuisines\": [\"Martian\"]\n}" },
-                "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cuisines\": [\"Martian\"]\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/onboarding",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding"
+                  ]
+                }
               },
               "status": "Unprocessable Entity",
               "code": 422,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"error\": {\n    \"code\": \"validation_error\",\n    \"message\": \"Some of the details you sent are not valid.\",\n    \"severity\": 10,\n    \"field_errors\": {\n      \"cuisines.0\": [\"Invalid enum value.\"]\n    },\n    \"rejection_reason\": \"invalid_body\"\n  }\n}"
             }
           ]
@@ -235,13 +413,30 @@
           "name": "Save kitchen (step: what you have)",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"kitchen_items\": [\n    \"Rice\",\n    \"Tomatoes\",\n    \"rice\",\n    \"Scotch bonnet\",\n    \"Palm oil\",\n    \"Chicken\"\n  ]\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] },
+            "url": {
+              "raw": "{{api_v1}}/onboarding",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            },
             "description": "The first answer to \"what do you have\", so the first suggestion has something to work with.\n\n**Deliberately a plain list, not a pantry.** Counts, locations and freshness belong to the standing-kitchen feature; this is just the opening answer.\n\nNote the body sends both `Rice` and `rice`: the server de-duplicates **case-insensitively but keeps the spelling the cook used**. It is not our place to re-case someone's word.\n\n**200** the full updated state · **422** more than 100 items"
           },
           "response": [
@@ -249,14 +444,35 @@
               "name": "200 — note the case-insensitive dedupe",
               "originalRequest": {
                 "method": "PATCH",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"kitchen_items\": [\"Rice\", \"Tomatoes\", \"rice\", \"Scotch bonnet\", \"Palm oil\", \"Chicken\"]\n}" },
-                "url": { "raw": "{{api_v1}}/onboarding", "host": ["{{api_v1}}"], "path": ["onboarding"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kitchen_items\": [\"Rice\", \"Tomatoes\", \"rice\", \"Scotch bonnet\", \"Palm oil\", \"Chicken\"]\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/onboarding",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"completed\": false,\n    \"completed_at\": null,\n    \"cuisines\": [\"Nigerian\", \"West African\"],\n    \"difficulty\": \"medium\",\n    \"measurement\": \"metric\",\n    \"kitchen_items\": [\"Rice\", \"Tomatoes\", \"Scotch bonnet\", \"Palm oil\", \"Chicken\"],\n    \"available_cuisines\": [\"Nigerian\", \"West African\", \"Asian\", \"Mediterranean\", \"Comfort food\", \"Continental\"]\n  }\n}"
             }
           ]
@@ -285,8 +501,13 @@
             "header": [],
             "url": {
               "raw": "{{api_v1}}/onboarding/complete",
-              "host": ["{{api_v1}}"],
-              "path": ["onboarding", "complete"]
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding",
+                "complete"
+              ]
             },
             "description": "Stamps the finish and stops sending the user to onboarding.\n\n**Completing twice is refused (409), not silently re-stamped.** The timestamp is a real fact about when someone joined, and quietly moving it would lose that. A client should treat the conflict as \"already done, carry on\" rather than as an error to show.\n\n(A genuine race between two concurrent completes returns 200 — the outcome the caller wanted did happen.)\n\n**200** completed · **409** `onboarding_already_completed`\n\nRegistered before `/onboarding` so the literal path is not shadowed by the router."
           },
@@ -296,12 +517,26 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/onboarding/complete", "host": ["{{api_v1}}"], "path": ["onboarding", "complete"] }
+                "url": {
+                  "raw": "{{api_v1}}/onboarding/complete",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding",
+                    "complete"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"completed\": true,\n    \"completed_at\": \"2026-08-27T12:31:02.884Z\",\n    \"cuisines\": [\"Nigerian\", \"West African\"],\n    \"difficulty\": \"medium\",\n    \"measurement\": \"metric\",\n    \"kitchen_items\": [\"Rice\", \"Tomatoes\", \"Scotch bonnet\", \"Palm oil\", \"Chicken\"],\n    \"available_cuisines\": [\"Nigerian\", \"West African\", \"Asian\", \"Mediterranean\", \"Comfort food\", \"Continental\"]\n  }\n}"
             },
             {
@@ -309,12 +544,26 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/onboarding/complete", "host": ["{{api_v1}}"], "path": ["onboarding", "complete"] }
+                "url": {
+                  "raw": "{{api_v1}}/onboarding/complete",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "onboarding",
+                    "complete"
+                  ]
+                }
               },
               "status": "Conflict",
               "code": 409,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"error\": {\n    \"code\": \"onboarding_already_completed\",\n    \"message\": \"You have already finished setting up.\",\n    \"severity\": 60,\n    \"rejection_reason\": \"onboarding_already_completed\"\n  }\n}"
             }
           ]
@@ -324,10 +573,157 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{api_v1}}/users/me", "host": ["{{api_v1}}"], "path": ["users", "me"] },
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
             "description": "The same onboarding state appears on the user object, which is what the web app actually routes on: `has_onboarded` false sends them to onboarding, true sends them to the kitchen."
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Kitchen",
+      "description": "What the cook currently says is in their kitchen, plus the recents that feed \"pick from recent\".\n\nThe screen owns the whole basket, so saving **replaces** it rather than merging — a merge would make removing the last item indistinguishable from sending nothing.\n\nRecents are a side-effect of past sessions: saving a basket folds its items into the remembered list, newest first. Nobody maintains them, which is the same principle the standing kitchen runs on.",
+      "item": [
+        {
+          "name": "Get the kitchen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json().data;",
+                  "  pm.test('recents never repeat what is already in the basket', function () {",
+                  "    const inBasket = d.items.map(function (i) { return i.toLowerCase(); });",
+                  "    d.recent.forEach(function (r) {",
+                  "      pm.expect(inBasket).to.not.include(r.toLowerCase());",
+                  "    });",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/kitchen",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "kitchen"
+              ]
+            },
+            "description": "The basket and the recents.\n\nThe basket starts as whatever was entered during onboarding, so the kitchen screen is never empty for someone who just signed up.\n\nRecents exclude anything already in the basket — a chip that is a no-op is worse than no chip.\n\n**Status:** `active` or `pending` — this is the screen onboarding lands on. **Rate limit:** 120/min."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{api_v1}}/kitchen",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "kitchen"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"items\": [\"Rice\", \"Tomatoes\", \"Scotch bonnet\", \"Palm oil\"],\n    \"recent\": [\"Chicken\", \"Plantain\", \"Onions\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Save the kitchen",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    \"Rice\",\n    \"Tomatoes\",\n    \"rice\",\n    \"Scotch bonnet\",\n    \"Chicken\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_v1}}/kitchen",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "kitchen"
+              ]
+            },
+            "description": "Replaces the basket wholesale. **PUT, not PATCH** — the screen holds the entire list, and a merge could never express \"I removed the last thing\".\n\nThe body deliberately sends both `Rice` and `rice`: they are de-duplicated **case-insensitively, keeping the spelling the cook used**. It is not our place to re-case somebody's word.\n\nSaving also folds these items into the recents, newest first, capped at 40 so the list cannot grow without bound.\n\nThe web app debounces this ~800ms after the last edit — a round-trip per keystroke would make adding six ingredients feel like six operations.\n\n**200** basket + refreshed recents · **422** more than 100 items, or a blank ingredient"
+          },
+          "response": [
+            {
+              "name": "200 — deduped, recents updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\"Rice\", \"Tomatoes\", \"rice\", \"Scotch bonnet\", \"Chicken\"]\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/kitchen",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "kitchen"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"items\": [\"Rice\", \"Tomatoes\", \"Scotch bonnet\", \"Chicken\"],\n    \"recent\": [\"Palm oil\", \"Plantain\", \"Onions\"]\n  }\n}"
+            }
+          ]
         }
       ]
     },
@@ -362,16 +758,30 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"purpose\": \"shelf_photo\",\n  \"content_type\": \"image/jpeg\",\n  \"filename\": \"fridge.jpg\",\n  \"size_bytes\": 482301\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{api_v1}}/files/upload-url",
-              "host": ["{{api_v1}}"],
-              "path": ["files", "upload-url"]
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "upload-url"
+              ]
             },
             "description": "Creates the file row (`pending`) and returns a presigned PUT.\n\nThe row is written **before** the URL is handed out, so an upload that is started and abandoned still leaves a trace we can show and clean up.\n\n`purpose` is one of `shelf_photo · receipt · voice_note · recipe_hero · avatar`. It scopes the key and makes the gallery filterable.\n\n`size_bytes` is declared up front so it can be signed into the URL — the bucket then rejects an oversized body itself, rather than us discovering it afterwards. Max 15 MB.\n\nNote the response carries `url: null`: there are no bytes yet, so a signature would 404.\n\n**Status:** `active` or `pending` — onboarding happens before verification, and photographing a shelf is part of it.\n\n**201** ticket · **422** `validation_error` · **503** `storage_unavailable` (S3 env not configured)"
           },
@@ -380,28 +790,72 @@
               "name": "201 Ticket",
               "originalRequest": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"purpose\": \"shelf_photo\",\n  \"content_type\": \"image/jpeg\",\n  \"filename\": \"fridge.jpg\",\n  \"size_bytes\": 482301\n}" },
-                "url": { "raw": "{{api_v1}}/files/upload-url", "host": ["{{api_v1}}"], "path": ["files", "upload-url"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"purpose\": \"shelf_photo\",\n  \"content_type\": \"image/jpeg\",\n  \"filename\": \"fridge.jpg\",\n  \"size_bytes\": 482301\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/files/upload-url",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "files",
+                    "upload-url"
+                  ]
+                }
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"file\": {\n      \"id\": \"f_01m10qjb2zxxtn7tsh9jr02aw5\",\n      \"purpose\": \"shelf_photo\",\n      \"status\": \"pending\",\n      \"content_type\": \"image/jpeg\",\n      \"size\": null,\n      \"original_filename\": \"fridge.jpg\",\n      \"url\": null,\n      \"url_expires_in\": 3600,\n      \"uploaded_at\": null,\n      \"created_at\": \"2026-08-27T12:27:35.391Z\"\n    },\n    \"upload_url\": \"https://<bucket>.<endpoint>/shelf_photo/u_01m10.../2026-08-27T12-27-35-391Z-a1b2c3d4e5f6.jpg?X-Amz-Signature=...\",\n    \"upload_expires_in\": 900,\n    \"required_headers\": {\n      \"Content-Type\": \"image/jpeg\",\n      \"Content-Length\": \"482301\"\n    }\n  }\n}"
             },
             {
               "name": "503 Storage not configured",
               "originalRequest": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
-                "body": { "mode": "raw", "raw": "{\n  \"purpose\": \"shelf_photo\",\n  \"content_type\": \"image/jpeg\",\n  \"filename\": \"fridge.jpg\",\n  \"size_bytes\": 482301\n}" },
-                "url": { "raw": "{{api_v1}}/files/upload-url", "host": ["{{api_v1}}"], "path": ["files", "upload-url"] }
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"purpose\": \"shelf_photo\",\n  \"content_type\": \"image/jpeg\",\n  \"filename\": \"fridge.jpg\",\n  \"size_bytes\": 482301\n}"
+                },
+                "url": {
+                  "raw": "{{api_v1}}/files/upload-url",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "files",
+                    "upload-url"
+                  ]
+                }
               },
               "status": "Service Unavailable",
               "code": 503,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"error\": {\n    \"code\": \"storage_unavailable\",\n    \"message\": \"File storage is not available right now. Please try again shortly.\",\n    \"severity\": 90,\n    \"rejection_reason\": \"storage_not_configured\"\n  }\n}"
             }
           ]
@@ -409,11 +863,28 @@
         {
           "name": "2 · PUT the bytes straight to S3",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "image/jpeg" }],
-            "body": { "mode": "file", "file": { "src": "" } },
-            "url": { "raw": "{{upload_url}}", "host": ["{{upload_url}}"] },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "image/jpeg"
+              }
+            ],
+            "body": {
+              "mode": "file",
+              "file": {
+                "src": ""
+              }
+            },
+            "url": {
+              "raw": "{{upload_url}}",
+              "host": [
+                "{{upload_url}}"
+              ]
+            },
             "description": "**This request does not hit our API at all** — it goes directly to the bucket, using the presigned URL from step 1.\n\nTo run it in Postman: select a real image under **Body → binary**, and make sure `Content-Type` matches exactly what you declared in step 1. The headers are signed into the URL, so a mismatch is rejected by the bucket, not by us.\n\nNo `Authorization` header — the signature in the URL *is* the authorisation. Sending a bearer token here can confuse some S3-compatible endpoints.\n\nExpect **200** with an empty body."
           },
           "response": []
@@ -445,8 +916,14 @@
             "header": [],
             "url": {
               "raw": "{{api_v1}}/files/{{file_id}}/confirm",
-              "host": ["{{api_v1}}"],
-              "path": ["files", "{{file_id}}", "confirm"]
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "{{file_id}}",
+                "confirm"
+              ]
             },
             "description": "Flips the row to `ready`.\n\nThe server never observed the PUT, so it **asks the bucket directly** (HEAD) rather than trusting the client's word. Without this, a row could claim a file that was never uploaded and every later read would 404. The `size` in the response is the bucket's number, not the client's.\n\n**Idempotent** — confirming twice is a retry, not an error.\n\n**200** ready, with a freshly signed `url` · **404** not yours / does not exist · **409** `file_not_uploaded` (nothing in the bucket yet)"
           },
@@ -456,12 +933,27 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/files/f_01m10qjb2zxxtn7tsh9jr02aw5/confirm", "host": ["{{api_v1}}"], "path": ["files", "f_01m10qjb2zxxtn7tsh9jr02aw5", "confirm"] }
+                "url": {
+                  "raw": "{{api_v1}}/files/f_01m10qjb2zxxtn7tsh9jr02aw5/confirm",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "files",
+                    "f_01m10qjb2zxxtn7tsh9jr02aw5",
+                    "confirm"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": {\n    \"id\": \"f_01m10qjb2zxxtn7tsh9jr02aw5\",\n    \"purpose\": \"shelf_photo\",\n    \"status\": \"ready\",\n    \"content_type\": \"image/jpeg\",\n    \"size\": 482301,\n    \"original_filename\": \"fridge.jpg\",\n    \"url\": \"https://<bucket>.<endpoint>/shelf_photo/u_01m10.../2026-08-27T12-27-35-391Z-a1b2c3d4e5f6.jpg?X-Amz-Signature=...\",\n    \"url_expires_in\": 3600,\n    \"uploaded_at\": \"2026-08-27T12:29:10.220Z\",\n    \"created_at\": \"2026-08-27T12:27:35.391Z\"\n  }\n}"
             },
             {
@@ -469,12 +961,27 @@
               "originalRequest": {
                 "method": "POST",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/files/f_01m10qjb2zxxtn7tsh9jr02aw5/confirm", "host": ["{{api_v1}}"], "path": ["files", "f_01m10qjb2zxxtn7tsh9jr02aw5", "confirm"] }
+                "url": {
+                  "raw": "{{api_v1}}/files/f_01m10qjb2zxxtn7tsh9jr02aw5/confirm",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "files",
+                    "f_01m10qjb2zxxtn7tsh9jr02aw5",
+                    "confirm"
+                  ]
+                }
               },
               "status": "Conflict",
               "code": 409,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"error\": {\n    \"code\": \"file_not_uploaded\",\n    \"message\": \"That file has not finished uploading yet. Upload it, then confirm again.\",\n    \"severity\": 70,\n    \"rejection_reason\": \"object_missing_in_bucket\"\n  }\n}"
             }
           ]
@@ -486,12 +993,30 @@
             "header": [],
             "url": {
               "raw": "{{api_v1}}/files?limit=20",
-              "host": ["{{api_v1}}"],
-              "path": ["files"],
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files"
+              ],
               "query": [
-                { "key": "limit", "value": "20", "description": "1–50, default 20. Clamped server-side." },
-                { "key": "cursor", "value": "", "description": "Opaque, from meta.next_cursor. A malformed cursor falls back to page one rather than erroring.", "disabled": true },
-                { "key": "purpose", "value": "shelf_photo", "description": "shelf_photo | receipt | voice_note | recipe_hero | avatar", "disabled": true }
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "1–50, default 20. Clamped server-side."
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "Opaque, from meta.next_cursor. A malformed cursor falls back to page one rather than erroring.",
+                  "disabled": true
+                },
+                {
+                  "key": "purpose",
+                  "value": "shelf_photo",
+                  "description": "shelf_photo | receipt | voice_note | recipe_hero | avatar",
+                  "disabled": true
+                }
               ]
             },
             "description": "**This endpoint is the whole point of decoupling upload from processing.** Because the file is a first-class thing rather than an argument to an AI call, the user can come back and see everything they ever photographed.\n\nNewest first, cursor-paginated. Scoped to the caller — one person can never list another's files.\n\nEvery `ready` file carries a **freshly signed** `url`. They are signed per response and never stored, so nothing here goes stale in the database.\n\n**200** `{ data: File[], meta: { next_cursor, has_more } }`"
@@ -502,12 +1027,31 @@
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{api_v1}}/files?limit=20", "host": ["{{api_v1}}"], "path": ["files"], "query": [{ "key": "limit", "value": "20" }] }
+                "url": {
+                  "raw": "{{api_v1}}/files?limit=20",
+                  "host": [
+                    "{{api_v1}}"
+                  ],
+                  "path": [
+                    "files"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
-              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
               "body": "{\n  \"data\": [\n    {\n      \"id\": \"f_01m10qjb2zxxtn7tsh9jr02aw5\",\n      \"purpose\": \"shelf_photo\",\n      \"status\": \"ready\",\n      \"content_type\": \"image/jpeg\",\n      \"size\": 482301,\n      \"original_filename\": \"fridge.jpg\",\n      \"url\": \"https://<bucket>.<endpoint>/shelf_photo/...?X-Amz-Signature=...\",\n      \"url_expires_in\": 3600,\n      \"uploaded_at\": \"2026-08-27T12:29:10.220Z\",\n      \"created_at\": \"2026-08-27T12:27:35.391Z\"\n    },\n    {\n      \"id\": \"f_01m10qab1yywsm6rsg8iq91zv4\",\n      \"purpose\": \"receipt\",\n      \"status\": \"pending\",\n      \"content_type\": \"image/png\",\n      \"size\": null,\n      \"original_filename\": \"receipt.png\",\n      \"url\": null,\n      \"url_expires_in\": 3600,\n      \"uploaded_at\": null,\n      \"created_at\": \"2026-08-27T12:20:04.110Z\"\n    }\n  ],\n  \"meta\": {\n    \"next_cursor\": null,\n    \"has_more\": false\n  }\n}"
             }
           ]
@@ -519,8 +1063,13 @@
             "header": [],
             "url": {
               "raw": "{{api_v1}}/files/{{file_id}}",
-              "host": ["{{api_v1}}"],
-              "path": ["files", "{{file_id}}"]
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "{{file_id}}"
+              ]
             },
             "description": "Fetch one file, with a **newly signed** URL.\n\nThis is how a client refreshes an expired link: it asks again rather than caching the URL. Presigned URLs are short-lived by design, and a client that persists one will be holding a broken link within the hour.\n\nScoped by owner — guessing another person's file id returns 404, not their file.\n\n**200** file · **404** `not_found`\n\nRegistered *after* `/files/:fileId/confirm` so the literal segment is not swallowed by the parameter."
           },

@@ -32,7 +32,16 @@ const BEARER = 'Bearer ';
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
   const header = req.header('authorization');
 
-  if (header === undefined || !header.startsWith(BEARER)) {
+  /**
+   * EventSource cannot set headers, so an SSE stream has no way to send a
+   * bearer token except in the query string. Accepted ONLY for the stream
+   * route — a token in a URL lands in server logs and browser history, so it
+   * is deliberately not a general fallback.
+   */
+  const isStream = req.path.endsWith('/stream');
+  const queryToken = isStream ? (req.query['token'] as string | undefined) : undefined;
+
+  if ((header === undefined || !header.startsWith(BEARER)) && queryToken === undefined) {
     next(
       new AppError(
         ERROR_CODES.UNAUTHENTICATED,
@@ -46,7 +55,8 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
     return;
   }
 
-  const result = verifyAccessToken(header.slice(BEARER.length).trim());
+  const raw = header?.startsWith(BEARER) === true ? header.slice(BEARER.length).trim() : (queryToken ?? '');
+  const result = verifyAccessToken(raw);
 
   if (!result.valid) {
     const expired = result.reason === 'expired';

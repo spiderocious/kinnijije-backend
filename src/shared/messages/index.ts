@@ -44,6 +44,38 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.files.STORAGE_UNAVAILABLE]:
     'File storage is not available right now. Please try again shortly.',
 
+  [MESSAGE_KEYS.stock.FETCHED]: 'Kitchen loaded.',
+  [MESSAGE_KEYS.stock.ADDED]: 'Added to your kitchen.',
+  [MESSAGE_KEYS.stock.UPDATED]: 'Updated.',
+  [MESSAGE_KEYS.stock.REMOVED]: 'Removed from your kitchen.',
+  [MESSAGE_KEYS.stock.NOT_FOUND]: 'That is not in your kitchen.',
+  [MESSAGE_KEYS.stock.UNIT_EXISTS]: 'You already have a unit with that name.',
+
+  [MESSAGE_KEYS.market.FETCHED]: 'Market list loaded.',
+  [MESSAGE_KEYS.market.ADDED]: 'Added to your list.',
+  [MESSAGE_KEYS.market.REMOVED]: 'Taken off your list.',
+  [MESSAGE_KEYS.market.BOUGHT]: 'Moved into your kitchen.',
+  [MESSAGE_KEYS.market.NOT_FOUND]: 'That is not on your list.',
+  [MESSAGE_KEYS.market.ALREADY_BOUGHT]: 'You already ticked that one off.',
+
+  [MESSAGE_KEYS.meals.FETCHED]: 'Meals loaded.',
+  [MESSAGE_KEYS.meals.NOT_FOUND]: 'That meal does not exist.',
+  [MESSAGE_KEYS.meals.FAVOURITED]: 'Saved.',
+  [MESSAGE_KEYS.meals.COOKED]: 'Enjoy it.',
+
+  [MESSAGE_KEYS.chat.ANSWERED]: 'Answered.',
+  [MESSAGE_KEYS.chat.FAILED]: 'I could not answer that one. Try asking another way.',
+
+  [MESSAGE_KEYS.jobs.FETCHED]: 'Jobs loaded.',
+  [MESSAGE_KEYS.jobs.NOT_FOUND]: 'That job does not exist.',
+  [MESSAGE_KEYS.jobs.NOT_CANCELLABLE]: 'That job has already finished, so there is nothing to cancel.',
+  [MESSAGE_KEYS.jobs.NOT_RETRYABLE]: 'Only work that failed or was cancelled can be retried.',
+  [MESSAGE_KEYS.jobs.CANCELLED]: 'Stopping that.',
+  [MESSAGE_KEYS.jobs.RETRIED]: 'Trying that again.',
+
+  [MESSAGE_KEYS.kitchen.FETCHED]: 'Kitchen loaded.',
+  [MESSAGE_KEYS.kitchen.SAVED]: 'Kitchen saved.',
+
   [MESSAGE_KEYS.onboarding.FETCHED]: 'Onboarding loaded.',
   [MESSAGE_KEYS.onboarding.SAVED]: 'Saved.',
   [MESSAGE_KEYS.onboarding.COMPLETED]: 'You are all set.',
@@ -82,6 +114,9 @@ const FALLBACK_BY_CODE: Record<ErrorCode, MessageKey> = {
   [ERROR_CODES.FILE_NOT_UPLOADED]: MESSAGE_KEYS.files.NOT_UPLOADED,
   [ERROR_CODES.STORAGE_UNAVAILABLE]: MESSAGE_KEYS.files.STORAGE_UNAVAILABLE,
   [ERROR_CODES.ONBOARDING_ALREADY_COMPLETED]: MESSAGE_KEYS.onboarding.ALREADY_COMPLETED,
+
+  [ERROR_CODES.JOB_NOT_CANCELLABLE]: MESSAGE_KEYS.jobs.NOT_CANCELLABLE,
+  [ERROR_CODES.JOB_NOT_RETRYABLE]: MESSAGE_KEYS.jobs.NOT_RETRYABLE,
 
   [ERROR_CODES.NOT_FOUND]: MESSAGE_KEYS.common.NOT_FOUND,
   [ERROR_CODES.ALREADY_EXISTS]: MESSAGE_KEYS.common.VALIDATION_ERROR,

@@ -81,6 +81,10 @@ export class UsersRepository {
     return UserModel.findOneAndUpdate({ _id: userId }, { $set: update }, { new: true }).exec();
   }
 
+  async deleteById(userId: string): Promise<void> {
+    await UserModel.deleteOne({ _id: userId }).exec();
+  }
+
   async updateStatus(
     userId: string,
     status: UserStatus,

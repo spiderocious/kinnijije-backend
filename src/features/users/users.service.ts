@@ -60,6 +60,67 @@ export class UsersService {
     return ok(toUserView(updated));
   }
 
+  /**
+   * Settings. Every switch here changes real behaviour — a toggle that saves
+   * nothing is worse than no toggle at all.
+   */
+  async updateSettings(
+    userId: string,
+    input: Record<string, unknown>,
+  ): Promise<ServiceResult<UserView>> {
+    const update: Record<string, unknown> = {};
+
+    if (typeof input['name'] === 'string') update['name'] = input['name'];
+    if (Array.isArray(input['cuisines'])) update['prefs.cuisines'] = input['cuisines'];
+    if (typeof input['difficulty'] === 'string') update['prefs.difficulty'] = input['difficulty'];
+    if (typeof input['measurement'] === 'string') update['prefs.measurement'] = input['measurement'];
+    if (typeof input['city'] === 'string') update['city'] = input['city'];
+    if (typeof input['country'] === 'string') update['country'] = input['country'];
+    if (typeof input['low_stock_nudges'] === 'boolean') {
+      update['notifications.lowStockNudges'] = input['low_stock_nudges'];
+    }
+    if (typeof input['weekly_summary'] === 'boolean') {
+      update['notifications.weeklySummary'] = input['weekly_summary'];
+    }
+
+    const updated = await this.repo.updateProfile(userId, update);
+    if (updated === null) {
+      return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.users.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    }
+    return ok(toUserView(updated));
+  }
+
+  /**
+   * Deletes the account and everything attached to it.
+   *
+   * Hard delete rather than a flag: somebody asking to be deleted means it.
+   * Sessions go first so the account cannot act while the rest is cleared.
+   */
+  async deleteAccount(userId: string): Promise<ServiceResult<null>> {
+    await this.authRepo.revokeAllSessionsForUser(userId, 'status_change');
+
+    const { StockItemModel, StockMovementModel, CustomUnitModel } = await import(
+      '@features/stock/stock.model.js'
+    );
+    const { MarketItemModel } = await import('@features/market/market.model.js');
+    const { ChatMessageModel } = await import('@features/chat/chat.model.js');
+    const { CookedMealModel, FavouriteModel } = await import('@features/meals/meals.model.js');
+
+    await Promise.all([
+      StockItemModel.deleteMany({ ownerId: userId }).exec(),
+      StockMovementModel.deleteMany({ ownerId: userId }).exec(),
+      CustomUnitModel.deleteMany({ ownerId: userId }).exec(),
+      MarketItemModel.deleteMany({ ownerId: userId }).exec(),
+      ChatMessageModel.deleteMany({ ownerId: userId }).exec(),
+      CookedMealModel.deleteMany({ ownerId: userId }).exec(),
+      FavouriteModel.deleteMany({ ownerId: userId }).exec(),
+    ]);
+
+    await this.repo.deleteById(userId);
+    logger.info('account deleted', { user_id: userId });
+    return ok(null);
+  }
+
   async list(query: ListUsersQuery): Promise<ServiceResult<UserListResult>> {
     const page = await this.repo.list({
       limit: clampLimit(query.limit, MAX_ADMIN_PAGE_SIZE),

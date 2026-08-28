@@ -9,11 +9,14 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -b && tsc-alias -p tsconfig.json",
+    "build": "tsc -b && tsc-alias -p tsconfig.json && pnpm copy:assets",
     "start": "node dist/server.js",
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "copy:assets": "mkdir -p dist/lib/ai/mock-data && cp src/lib/ai/mock-data/*.json dist/lib/ai/mock-data/",
+    "seed:meals": "tsx scripts/seed-meals.ts",
+    "seed:all": "pnpm seed && pnpm seed:meals"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1119.0",

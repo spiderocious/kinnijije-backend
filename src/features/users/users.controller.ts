@@ -27,6 +27,20 @@ export const usersController = {
     ResponseUtil.ok(res, result.data);
   },
 
+  updateSettings: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const result = await usersService.updateSettings(actor.userId, req.body as Record<string, unknown>);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  deleteMe: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const result = await usersService.deleteAccount(actor.userId);
+    if (!result.success) return bail(result);
+    ResponseUtil.noContent(res);
+  },
+
   list: async (req: Request, res: Response): Promise<void> => {
     const result = await usersService.list(req.query);
     if (!result.success) return bail(result);

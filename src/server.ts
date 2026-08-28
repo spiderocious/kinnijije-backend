@@ -3,6 +3,8 @@ import type { Server } from 'node:http';
 import { buildApp } from '@app/app.js';
 import { env, IS_PRODUCTION } from '@app/env.js';
 import { connectDatabase, disconnectDatabase } from '@lib/db/connection.js';
+import { registerJobHandlers } from '@lib/jobs/handlers.js';
+import { jobQueue } from '@lib/jobs/jobs.queue.js';
 import { logger } from '@lib/logger/index.js';
 import { assertMailerConfigured } from '@lib/mail/mailer.js';
 import { stopRateLimitStore } from '@lib/ratelimit/index.js';
@@ -32,6 +34,11 @@ async function main(): Promise<void> {
   // The database connects before the port opens: an instance that accepts
   // traffic it cannot serve fails every request instead of failing to start.
   await connectDatabase();
+
+  // Handlers must be registered BEFORE the worker starts, or it claims a job
+  // it has no way to run.
+  registerJobHandlers();
+  jobQueue.start();
 
   const app = buildApp();
   const server: Server = app.listen(env.PORT, () => {
@@ -72,6 +79,7 @@ function installShutdownHandlers(server: Server): void {
       }
 
       void (async () => {
+        jobQueue.stop();
         stopRateLimitStore();
         await disconnectDatabase();
         logger.info('shutdown complete');

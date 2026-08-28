@@ -3,9 +3,18 @@ import express, { type Express } from 'express';
 import helmet from 'helmet';
 
 import { env } from '@app/env.js';
+import { register as registerAdmin } from '@features/admin/index.js';
 import { register as registerAuth } from '@features/auth/index.js';
+import { register as registerExtraction } from '@features/extraction/index.js';
 import { register as registerFiles } from '@features/files/index.js';
 import { register as registerHealth } from '@features/health/index.js';
+import { register as registerChat } from '@features/chat/index.js';
+import { register as registerInsights } from '@features/insights/index.js';
+import { register as registerJobs } from '@features/jobs/index.js';
+import { register as registerMarket } from '@features/market/index.js';
+import { register as registerMeals } from '@features/meals/index.js';
+import { register as registerStock } from '@features/stock/index.js';
+import { register as registerKitchen } from '@features/kitchen/index.js';
 import { register as registerOnboarding } from '@features/onboarding/index.js';
 import { register as registerUsers } from '@features/users/index.js';
 import { RATE_LIMITS } from '@lib/ratelimit/index.js';
@@ -72,6 +81,17 @@ export function buildApp(): Express {
   registerUsers(app);
   registerFiles(app);
   registerOnboarding(app);
+  registerKitchen(app);
+  registerJobs(app);
+  registerStock(app);
+  registerMeals(app);
+  registerMarket(app);
+  registerExtraction(app);
+  registerChat(app);
+  registerInsights(app);
+  // Last of the features: every path here is under /admin, so it cannot shadow
+  // a consumer route however it is ordered.
+  registerAdmin(app);
 
   // Unmatched path → a 404 in the standard envelope, not Express's HTML page.
   app.use(notFoundHandler);

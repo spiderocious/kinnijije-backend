@@ -21,6 +21,8 @@ export type ServiceResult<T> =
       fieldErrors?: Record<string, string[]>;
       rejectionReason?: string;
       retryAfterSeconds?: number;
+      /** Replaces the registry message when the service knows something specific. */
+      overrideMessage?: string;
     };
 
 export type ServiceFailure = Extract<ServiceResult<never>, { success: false }>;
@@ -35,6 +37,7 @@ export const fail = (
     fieldErrors?: Record<string, string[]>;
     rejectionReason?: string;
     retryAfterSeconds?: number;
+    overrideMessage?: string;
   } = {},
 ): ServiceFailure => ({
   success: false,
@@ -46,6 +49,7 @@ export const fail = (
   ...(extra.fieldErrors !== undefined && { fieldErrors: extra.fieldErrors }),
   ...(extra.rejectionReason !== undefined && { rejectionReason: extra.rejectionReason }),
   ...(extra.retryAfterSeconds !== undefined && { retryAfterSeconds: extra.retryAfterSeconds }),
+  ...(extra.overrideMessage !== undefined && { overrideMessage: extra.overrideMessage }),
 });
 
 /**
@@ -66,5 +70,6 @@ export const bail = (failure: ServiceFailure): never => {
     failure.fieldErrors,
     failure.rejectionReason,
     failure.retryAfterSeconds,
+    failure.overrideMessage,
   );
 };

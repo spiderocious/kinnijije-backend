@@ -101,6 +101,34 @@ const userSchema = new Schema(
      * do you have", so the first suggestion has something to work with.
      */
     kitchenItems: { type: [String], default: [] },
+
+    /**
+     * Ingredients this cook has used before, most recent first.
+     *
+     * Feeds "pick from recent" so a returning cook does not retype the same
+     * six things every session. Capped when written — an unbounded list would
+     * grow forever and the tail is never shown anyway.
+     */
+    recentIngredients: { type: [String], default: [] },
+
+    /**
+     * Where they are. Drives the weather that shapes an answer — a hot
+     * afternoon and a rainy night call for different food.
+     */
+    city: { type: String, default: null },
+    country: { type: String, default: null },
+
+    /** What we may send. Off by default — nobody opted into being messaged. */
+    notifications: {
+      type: new Schema(
+        {
+          lowStockNudges: { type: Boolean, default: false },
+          weeklySummary: { type: Boolean, default: false },
+        },
+        { _id: false },
+      ),
+      default: () => ({}),
+    },
   },
   {
     timestamps: true,
@@ -141,6 +169,10 @@ export interface UserAttributes {
   onboardingCompletedAt: Date | null;
   prefs: UserPrefs;
   kitchenItems: string[];
+  recentIngredients: string[];
+  city: string | null;
+  country: string | null;
+  notifications: { lowStockNudges: boolean; weeklySummary: boolean };
   createdAt: Date;
   updatedAt: Date;
 }

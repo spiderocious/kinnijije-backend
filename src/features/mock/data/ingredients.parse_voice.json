@@ -1,9 +1,0 @@
-{
-  "promptId": "ingredients.parse_voice",
-  "description": "A spoken sentence turned into ingredients. Nigerian names kept as spoken.",
-  "default": ["Rice", "Tomatoes", "Chicken", "Atarodo", "Onions"],
-  "scenarios": {
-    "pidgin": ["Rice", "Stew", "Plantain", "Egg"],
-    "single_item": ["Yam"]
-  }
-}

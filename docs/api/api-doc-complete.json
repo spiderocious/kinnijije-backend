@@ -1,0 +1,1393 @@
+{
+  "info": {
+    "_postman_id": "c00k1e70-0003-4000-a000-000000000003",
+    "name": "Cookiepot API — Complete",
+    "description": "Every endpoint in the product: 60 across 13 features.\n\n## Setup\n\n```bash\nmongod --dbpath ~/data/mongodb --logpath ~/data/mongolog/mongod.log --fork\ncd backend && pnpm install && pnpm seed:all && pnpm dev\n```\n\n`pnpm seed:all` creates the seven role/status accounts AND loads 24 Nigerian recipes.\n\nRun **Auth → POST /auth/login** first; the token is captured automatically.\n\n## The rules this API is built on\n\n1. **The kitchen is never stock-taken.** Stock moves as a side-effect of cooking and shopping.\n2. **Every claim shows where it came from.** Verified vs AI, always.\n3. **Nothing is auto-committed.** A photo read is reviewed before it counts.\n4. **No request ever waits on a model.** AI work returns a job id immediately.\n5. **Every model answer is checked before it is believed.** A reply that does not fit its schema is rejected, not patched up.\n\n## Error envelope\n\n```json\n{ \"error\": { \"code\": \"account_suspended\", \"message\": \"…\", \"severity\": 40, \"field_errors\": {}, \"rejection_reason\": \"…\" } }\n```\n\nBranch on `code` and nothing else. Display `message` verbatim. `rejection_reason` is an operator diagnostic and is NOT contract.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "api_v1",
+      "value": "{{base_url}}/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "default_password",
+      "value": "Pass123!word",
+      "type": "string"
+    },
+    {
+      "key": "stock_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "market_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "meal_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "job_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "file_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unit_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "target_user_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Capture ids so later requests in each folder just work.",
+          "const ct = pm.response.headers.get('Content-Type') || '';",
+          "if (pm.response.code < 300 && ct.includes('application/json')) {",
+          "  const body = pm.response.json();",
+          "  const d = body.data;",
+          "  if (d && d.tokens) {",
+          "    pm.collectionVariables.set('access_token', d.tokens.access_token);",
+          "    pm.collectionVariables.set('refresh_token', d.tokens.refresh_token);",
+          "  }",
+          "  if (Array.isArray(d) && d.length > 0 && d[0].id) {",
+          "    const url = pm.request.url.toString();",
+          "    if (url.includes('/stock')) pm.collectionVariables.set('stock_id', d[0].id);",
+          "    if (url.includes('/meals')) pm.collectionVariables.set('meal_id', d[0].meal ? d[0].meal.id : d[0].id);",
+          "  }",
+          "  if (d && d.items && Array.isArray(d.items) && d.items.length > 0 && d.items[0].id) {",
+          "    pm.collectionVariables.set('market_id', d.items[0].id);",
+          "  }",
+          "  if (d && d.id && String(d.id).includes('_')) {",
+          "    if (String(d.id).startsWith('f_')) pm.collectionVariables.set('file_id', d.id);",
+          "    if (d.type && d.status) pm.collectionVariables.set('job_id', d.id);",
+          "  }",
+          "  if (d && d.file && d.file.id) pm.collectionVariables.set('file_id', d.file.id);",
+          "}",
+          "",
+          "pm.test('uses the { data } / { error } envelope', function () {",
+          "  if (pm.response.code === 204) return;",
+          "  if (!ct.includes('application/json')) return;",
+          "  const b = pm.response.json();",
+          "  pm.expect(b).to.satisfy(function (x) {",
+          "    return Object.prototype.hasOwnProperty.call(x, 'data') ||",
+          "           Object.prototype.hasOwnProperty.call(x, 'error');",
+          "  });",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Access JWT + rotated refresh token. Replaying a rotated token is treated as theft and revokes every session.",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/auth/register",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/auth/login",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/auth/refresh",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/auth/logout",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/change-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/auth/change-password",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "description": "The only write surface a `pending` account may use — a new account IS pending, and gating this on `active` would deadlock every new user.",
+      "item": [
+        {
+          "name": "POST /onboarding/complete",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/onboarding/complete",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding",
+                "complete"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /onboarding",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/onboarding",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /onboarding",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/onboarding",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kitchen basket",
+      "description": "The working list. PUT replaces it wholesale — a merge could never express \"I removed the last thing\".",
+      "item": [
+        {
+          "name": "GET /kitchen",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/kitchen",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "kitchen"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /kitchen",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/kitchen",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "kitchen"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    \"Rice\",\n    \"Tomatoes\",\n    \"Scotch bonnet\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock",
+      "description": "The standing kitchen. Adding MERGES with what is there — buying rice twice must not make two rice rows, or \"how much rice do I have\" has no answer.\n\n`/stock/dashboard`, `/stock/suggest`, `/stock/history` and `/stock/units` are literals registered BEFORE `/stock/:stockId`; without that ordering \"dashboard\" arrives as a stock id.",
+      "item": [
+        {
+          "name": "GET /stock/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/dashboard",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /stock/suggest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/suggest",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "suggest"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /stock/history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/history",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /stock/units",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/units",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "units"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /stock/units",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/stock/units",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "units"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"mudu\",\n  \"abbr\": \"mudu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /stock/units/:unitId",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/units/{{unit_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "units",
+                "{{unit_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /stock",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/stock",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"catalogue_id\": \"rice_long_grain\",\n      \"name\": \"Long-grain rice\",\n      \"quantity\": 2,\n      \"unit\": \"congo\"\n    },\n    {\n      \"name\": \"Ponmo\",\n      \"quantity\": 300,\n      \"unit\": \"g\"\n    }\n  ],\n  \"source\": \"manual\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /stock/:stockId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/{{stock_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "{{stock_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /stock/:stockId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/stock/{{stock_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "{{stock_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3,\n  \"unit\": \"kg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /stock/:stockId",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/stock/{{stock_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "stock",
+                "{{stock_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Market list",
+      "description": "Ticking something bought MOVES it into stock. `movedToStockAt` guards that: tick, un-tick and re-tick must not add it three times.\n\nUn-ticking does NOT remove it from stock — they bought it, and silently deleting stock would be far worse than a stale tick.",
+      "item": [
+        {
+          "name": "DELETE /market/bought",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/market/bought",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "market",
+                "bought"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /market",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/market",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "market"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /market",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/market",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "market"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Palm oil\",\n  \"catalogue_id\": \"palm_oil\",\n  \"quantity\": 1,\n  \"unit\": \"bottle\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /market/:marketId/bought",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/market/{{market_id}}/bought",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "market",
+                "{{market_id}}",
+                "bought"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bought\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /market/:marketId",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/market/{{market_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "market",
+                "{{market_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meals & suggestions",
+      "description": "Deterministic matching — no model involved. Stock is matched against 24 seeded recipes and the five closest come back with per-ingredient markers.\n\n`/meals/suggest` and `/meals/favourites` are literals and MUST precede `/meals/:mealId`.\n\n`POST /meals/:id/cooked` is the write that moves stock: cooking takes the ingredients out.",
+      "item": [
+        {
+          "name": "GET /meals/suggest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/suggest",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "suggest"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /meals/favourites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/favourites",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "favourites"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /meals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /meals/:mealId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/{{meal_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "{{meal_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /meals/:mealId/favourite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/{{meal_id}}/favourite",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "{{meal_id}}",
+                "favourite"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /meals/:mealId/favourite",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/{{meal_id}}/favourite",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "{{meal_id}}",
+                "favourite"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /meals/:mealId/cooked",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/meals/{{meal_id}}/cooked",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "meals",
+                "{{meal_id}}",
+                "cooked"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "description": "Every question carries the cook's stock, history, preferences, time of day and weather. The model declares an output KIND so the interface can render meals as cards rather than a wall of text.\n\nEvery meal id it returns is verified against the database — a hallucinated id is downgraded to \"the model invented this\" rather than trusted.",
+      "item": [
+        {
+          "name": "GET /chat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/chat",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "chat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/chat",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "chat"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What can I cook tonight?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /chat",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/chat",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "chat"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Extraction (async)",
+      "description": "Photo and receipt reading. **Every one of these returns 202 immediately with a job id** — nothing waits on a model.\n\nTwo stages: a CHEAP validity check on a small model (is this even food?), then the expensive extraction only on photos that passed.",
+      "item": [
+        {
+          "name": "POST /extraction/check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/extraction/check",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "extraction",
+                "check"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_ids\": [\n    \"{{file_id}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /extraction/photos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/extraction/photos",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "extraction",
+                "photos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_ids\": [\n    \"{{file_id}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /extraction/receipt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/extraction/receipt",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "extraction",
+                "receipt"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_ids\": [\n    \"{{file_id}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "description": "The generic queue. Knows nothing about AI — AI is just its first consumer.\n\nPoll `GET /jobs/:id`, or stream `GET /jobs/:id/stream` (SSE). Cancellation is COOPERATIVE: a queued job stops at once, a running one is flagged and stops at its next checkpoint.",
+      "item": [
+        {
+          "name": "GET /jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/jobs",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "jobs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /jobs/:jobId/stream",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/jobs/{{job_id}}/stream",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "jobs",
+                "{{job_id}}",
+                "stream"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /jobs/:jobId/cancel",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/jobs/{{job_id}}/cancel",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "jobs",
+                "{{job_id}}",
+                "cancel"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /jobs/:jobId/retry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/jobs/{{job_id}}/retry",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "jobs",
+                "{{job_id}}",
+                "retry"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /jobs/:jobId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/jobs/{{job_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "jobs",
+                "{{job_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Your week",
+      "description": "Numbers are computed in code; the AI reading is an interpretation on top and never the source of a figure.\n\n`POST /week/reading` returns `queued: false` when nothing has changed — otherwise opening the screen twice pays twice.",
+      "item": [
+        {
+          "name": "GET /week",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/week",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "week"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /week/reading",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/week/reading",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "week",
+                "reading"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "description": "Upload decoupled from processing: presign → PUT straight to S3 → confirm. Only the KEY is stored; URLs are signed per response.",
+      "item": [
+        {
+          "name": "GET /files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/files",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /files/upload-url",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/files/upload-url",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "upload-url"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /files/:fileId/confirm",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/files/{{file_id}}/confirm",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "{{file_id}}",
+                "confirm"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /files/:fileId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/files/{{file_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "files",
+                "{{file_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users & settings",
+      "description": "Settings that actually persist. `/users/me` literals precede `/users/:userId`.",
+      "item": [
+        {
+          "name": "GET /users/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/me",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/me/settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_v1}}/users/me/settings",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "settings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cuisines\": [\n    \"Nigerian\",\n    \"West African\"\n  ],\n  \"difficulty\": \"medium\",\n  \"city\": \"Lagos\",\n  \"low_stock_nudges\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /users/me",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/me",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users/:userId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "{{target_user_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/:userId/status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}/status",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "{{target_user_id}}",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/:userId/role",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/users/{{target_user_id}}/role",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "users",
+                "{{target_user_id}}",
+                "role"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "description": "Liveness checks nothing external; readiness pings the database.",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/health",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /health/ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_v1}}/health/ready",
+              "host": [
+                "{{api_v1}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

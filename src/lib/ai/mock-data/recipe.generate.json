@@ -1,0 +1,88 @@
+{
+  "name": "Tomato Rice with Fried Plantain",
+  "cuisines": [
+    "Nigerian",
+    "West African"
+  ],
+  "difficulty": "easy",
+  "cookTimeMinutes": 45,
+  "serves": 4,
+  "whatMakesItGood": "It is the one-pot answer to a Tuesday: the rice takes on the colour and sweetness of the fried pepper base, and the plantain on the side does the work of a whole second dish.",
+  "ingredients": [
+    {
+      "name": "Long-grain rice",
+      "quantity": "3 cups",
+      "approximate": true
+    },
+    {
+      "name": "Tomatoes",
+      "quantity": "6 medium",
+      "approximate": true
+    },
+    {
+      "name": "Red onions",
+      "quantity": "2",
+      "approximate": true
+    },
+    {
+      "name": "Scotch bonnet",
+      "quantity": "2",
+      "approximate": true
+    },
+    {
+      "name": "Groundnut oil",
+      "quantity": "half cup",
+      "approximate": true
+    },
+    {
+      "name": "Stock cubes",
+      "quantity": "2",
+      "approximate": true
+    },
+    {
+      "name": "Ripe plantain",
+      "quantity": "2",
+      "approximate": true
+    }
+  ],
+  "steps": [
+    {
+      "index": 1,
+      "heading": "Blend the base",
+      "description": "Blend the tomatoes, one onion and the scotch bonnet until smooth. Do not add water \u2014 the tomatoes carry enough.",
+      "estMinutes": 5
+    },
+    {
+      "index": 2,
+      "heading": "Fry the base",
+      "description": "Heat the oil, slice in the second onion and fry until translucent. Pour in the blend and fry it down until the oil floats to the top and the raw smell is gone. This is the step people rush; do not rush it.",
+      "estMinutes": 15
+    },
+    {
+      "index": 3,
+      "heading": "Cook the rice",
+      "description": "Stir in the stock cubes, add the washed rice and just enough water to sit level with it. Cover tightly, lowest heat.",
+      "estMinutes": 20
+    },
+    {
+      "index": 4,
+      "heading": "Fry the plantain",
+      "description": "While the rice steams, slice the plantain on the diagonal and fry until each side is deep gold. Drain on paper.",
+      "estMinutes": 8
+    },
+    {
+      "index": 5,
+      "heading": "Rest and serve",
+      "description": "Off the heat, leave it covered five minutes before stirring. Serve with the plantain alongside.",
+      "estMinutes": 5
+    }
+  ],
+  "notes": {},
+  "metrics": {
+    "outputLevel": "complete",
+    "outputConfidence": 0.9,
+    "clarity": 0.85,
+    "ambiguity": 0.15,
+    "tuneSuggestion": "none"
+  }
+}

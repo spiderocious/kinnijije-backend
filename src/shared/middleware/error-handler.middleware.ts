@@ -43,7 +43,8 @@ export const errorHandler: ErrorRequestHandler = (
 
     ResponseUtil.error(res, err.httpStatus, {
       code: err.code,
-      message: resolveErrorMessage(err.code, err.messageKey),
+      // A specific reason beats the registry default — see AppError.
+      message: err.overrideMessage ?? resolveErrorMessage(err.code, err.messageKey),
       severity: severityFor(err.code),
       ...(err.fieldErrors !== undefined && { field_errors: err.fieldErrors }),
       ...(err.rejectionReason !== undefined && { rejection_reason: err.rejectionReason }),

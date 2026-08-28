@@ -1,9 +1,0 @@
-{
-  "promptId": "audio.transcribe",
-  "description": "Canned transcript for a voice note.",
-  "default": "I have rice, some tomatoes, two onions, atarodo and a bit of chicken in the freezer.",
-  "scenarios": {
-    "short": "Just yam and palm oil.",
-    "noisy": "I have... rice, and I think tomatoes."
-  }
-}

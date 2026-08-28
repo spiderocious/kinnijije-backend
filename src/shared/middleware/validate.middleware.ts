@@ -32,14 +32,32 @@ export const validate =
       next();
     } catch (error) {
       if (error instanceof ZodError) {
+        const fieldErrors = fieldErrorsFromZod(error);
+
+        /**
+         * Surface the actual reason, not the generic line.
+         *
+         * "Some of the details you sent are not valid" tells somebody nothing
+         * they can act on. When there is exactly one problem — or one that
+         * belongs to the whole request rather than a field — that message IS
+         * the useful one, so it becomes the envelope's `message` and the
+         * interface can show it directly.
+         */
+        const allMessages = Object.values(fieldErrors).flat();
+        const rootMessage = fieldErrors['_root']?.[0];
+        const singleMessage = allMessages.length === 1 ? allMessages[0] : undefined;
+        const specific = rootMessage ?? singleMessage;
+
         next(
           new AppError(
             ERROR_CODES.VALIDATION_ERROR,
             HTTP_STATUS.UNPROCESSABLE,
-            `validation failed on ${source}`,
+            specific ?? `validation failed on ${source}`,
             MESSAGE_KEYS.common.VALIDATION_ERROR,
-            fieldErrorsFromZod(error),
+            fieldErrors,
             `invalid_${source}`,
+            undefined,
+            specific,
           ),
         );
         return;
