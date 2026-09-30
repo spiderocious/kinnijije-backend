@@ -58,6 +58,9 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.market.NOT_FOUND]: 'That is not on your list.',
   [MESSAGE_KEYS.market.ALREADY_BOUGHT]: 'You already ticked that one off.',
 
+  [MESSAGE_KEYS.decideHistory.FETCHED]: 'Your past decisions.',
+  [MESSAGE_KEYS.decideHistory.NOT_FOUND]: 'That decision is not in your history.',
+  [MESSAGE_KEYS.decideHistory.DELETED]: 'Removed from your history.',
   [MESSAGE_KEYS.meals.FETCHED]: 'Meals loaded.',
   [MESSAGE_KEYS.meals.NOT_FOUND]: 'That meal does not exist.',
   [MESSAGE_KEYS.meals.FAVOURITED]: 'Saved.',

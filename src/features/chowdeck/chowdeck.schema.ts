@@ -58,6 +58,11 @@ export const UpdatePlaceSchema = z
   })
   .refine((v) => Object.keys(v).length > 0, { message: 'Nothing to change.' });
 
+/** The console's multi-select. Bounded like every other array here. */
+export const DeletePlacesSchema = z.object({
+  ids: z.array(id).min(1).max(500),
+});
+
 export const ImportPlacesSchema = z.object({
   /** Omitted: the default list in chowdeck.places-seed.ts. */
   places: z

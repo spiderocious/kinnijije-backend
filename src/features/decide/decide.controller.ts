@@ -2,13 +2,25 @@ import type { Request, Response } from 'express';
 
 import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { ResponseUtil } from '@lib/response.js';
-import { bail } from '@lib/service-result.js';
+import { bail, fail } from '@lib/service-result.js';
+import { ERROR_CODES } from '@shared/constants/error-codes.js';
+import { HTTP_STATUS } from '@shared/constants/http-status.js';
+import { MESSAGE_KEYS } from '@shared/messages/index.js';
 
+import { decideHistoryService } from './decide-history.service.js';
 import { decideOptions } from './decide.options.js';
 import { decideStats, STATS_TTL_MS } from './decide.stats.js';
 import { decideService } from './decide.service.js';
 import type { DecideInputRaw } from './decide.schema.js';
 import type { DecideInput, Mood, Weight } from './decide.types.js';
+
+/**
+ * The route is behind `authenticate`, so this is unreachable in practice.
+ * It exists because the actor is typed as optional and an assertion here
+ * would be a crash where a refusal is the honest answer.
+ */
+const unauthenticated = () =>
+  fail(ERROR_CODES.UNAUTHENTICATED, MESSAGE_KEYS.auth.UNAUTHENTICATED, HTTP_STATUS.UNAUTHORIZED);
 
 export const decideController = {
   /**
@@ -64,6 +76,58 @@ export const decideController = {
       `public, max-age=${String(seconds)}, stale-while-revalidate=${String(seconds * 2)}`,
     );
     ResponseUtil.ok(res, stats);
+  },
+
+  /**
+   * A cook's own past decisions.
+   *
+   * AUTHENTICATED, unlike everything else on this router: history belongs to
+   * an account. The owner comes off the verified token and is never read from
+   * the request, so one cook cannot ask for another's rows.
+   */
+  history: async (req: Request, res: Response): Promise<void> => {
+    const ownerId = req.actor?.userId;
+    if (ownerId === undefined) return bail(unauthenticated());
+
+    ResponseUtil.ok(res, await decideHistoryService.list(ownerId));
+  },
+
+  historyEntry: async (req: Request, res: Response): Promise<void> => {
+    const ownerId = req.actor?.userId;
+    if (ownerId === undefined) return bail(unauthenticated());
+
+    const entry = await decideHistoryService.get(ownerId, req.params.id ?? '');
+    // Somebody else's id and a made-up one are the SAME answer on purpose: a
+    // 403 would confirm the row exists, which is itself a leak.
+    if (entry === null) {
+      return bail(
+        fail(
+          ERROR_CODES.NOT_FOUND,
+          MESSAGE_KEYS.decideHistory.NOT_FOUND,
+          HTTP_STATUS.NOT_FOUND,
+        ),
+      );
+    }
+
+    ResponseUtil.ok(res, entry);
+  },
+
+  removeHistoryEntry: async (req: Request, res: Response): Promise<void> => {
+    const ownerId = req.actor?.userId;
+    if (ownerId === undefined) return bail(unauthenticated());
+
+    const removed = await decideHistoryService.remove(ownerId, req.params.id ?? '');
+    if (!removed) {
+      return bail(
+        fail(
+          ERROR_CODES.NOT_FOUND,
+          MESSAGE_KEYS.decideHistory.NOT_FOUND,
+          HTTP_STATUS.NOT_FOUND,
+        ),
+      );
+    }
+
+    ResponseUtil.noContent(res);
   },
 
   decide: async (req: Request, res: Response): Promise<void> => {

@@ -13,6 +13,7 @@ import {
   AutocompleteSchema,
   ClearCacheSchema,
   ClickSchema,
+  DeletePlacesSchema,
   FetchAheadSchema,
   IdParamSchema,
   ImportPlacesSchema,
@@ -102,6 +103,13 @@ router.post(
 );
 // Every place and its cache, gone. The console asks for a typed confirmation first.
 router.post('/admin/chowdeck/places/purge', ...action, asyncHandler(chowdeckController.purgePlaces));
+// The chosen ones only — the console's multi-select.
+router.post(
+  '/admin/chowdeck/places/delete',
+  ...action,
+  validate(DeletePlacesSchema),
+  asyncHandler(chowdeckController.deletePlaces),
+);
 router.post('/admin/chowdeck/places', ...action, validate(SavePlaceSchema), asyncHandler(chowdeckController.savePlace));
 router.patch(
   '/admin/chowdeck/places/:placeId',

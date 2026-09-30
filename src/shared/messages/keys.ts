@@ -59,6 +59,11 @@ export const MESSAGE_KEYS = {
     NOT_FOUND: 'market.not_found',
     ALREADY_BOUGHT: 'market.already_bought',
   },
+  decideHistory: {
+    FETCHED: 'decide_history.fetched',
+    NOT_FOUND: 'decide_history.not_found',
+    DELETED: 'decide_history.deleted',
+  },
   meals: {
     FETCHED: 'meals.fetched',
     NOT_FOUND: 'meals.not_found',

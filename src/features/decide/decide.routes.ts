@@ -7,7 +7,7 @@ import { asyncHandler } from '@shared/middleware/async-handler.js';
 import { byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
-import { optionalAuthenticate } from '@shared/middleware/authenticate.middleware.js';
+import { authenticate, optionalAuthenticate } from '@shared/middleware/authenticate.middleware.js';
 
 import { decideController } from './decide.controller.js';
 import { DecideSchema } from './decide.schema.js';
@@ -69,6 +69,21 @@ router.post(
   decideRateLimit,
   validate(DecideSchema),
   asyncHandler(decideController.decide),
+);
+
+/**
+ * History. AUTHENTICATED, and the only part of this feature that is.
+ *
+ * Registered after `/decide/options` and `/decide/stats` for the same reason
+ * they come first: a literal path must not be shadowed by a parameterised one.
+ * `/decide/history/:id` is literal-prefixed so there is no conflict either way.
+ */
+router.get('/decide/history', authenticate, asyncHandler(decideController.history));
+router.get('/decide/history/:id', authenticate, asyncHandler(decideController.historyEntry));
+router.delete(
+  '/decide/history/:id',
+  authenticate,
+  asyncHandler(decideController.removeHistoryEntry),
 );
 
 export function register(app: Express): void {

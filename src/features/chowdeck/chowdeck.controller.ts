@@ -11,6 +11,7 @@ import type { z } from 'zod';
 import type {
   ClearCacheSchema,
   ClickSchema,
+  DeletePlacesSchema,
   FetchAheadSchema,
   ImportPlacesSchema,
   ListCacheSchema,
@@ -117,6 +118,13 @@ export const chowdeckController = {
 
   deletePlace: async (req: Request, res: Response): Promise<void> => {
     const result = await chowdeckAdminService.deletePlace(param(req, 'placeId'), requireActor(req).userId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  deletePlaces: async (req: Request, res: Response): Promise<void> => {
+    const body = req.body as z.infer<typeof DeletePlacesSchema>;
+    const result = await chowdeckAdminService.deletePlaces(body.ids, requireActor(req).userId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },

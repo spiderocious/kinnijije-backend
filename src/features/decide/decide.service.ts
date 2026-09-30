@@ -8,6 +8,7 @@ import { rankingSettings } from '@lib/ranking/index.js';
 import { ok, type ServiceResult } from '@lib/service-result.js';
 
 import { templatedFraming } from './decide.copy.js';
+import { DecideHistoryModel } from './decide-history.model.js';
 import { DecideLogModel, hashIp } from './decide-log.model.js';
 import { toMealView } from './decide.presenter.js';
 import { POOL_SIZE, rankCandidates, type WeatherHint } from './decide.ranker.js';
@@ -127,6 +128,8 @@ export class DecideService {
       framed === null ? 'model unavailable, slow, or rejected' : null,
     );
 
+    this.remember(resolved, userId, verdict, rest);
+
     return ok({
       verdict,
       alternates: rest.slice(0, 2),
@@ -227,6 +230,46 @@ export class DecideService {
    * analytics, and a logging failure must never turn a good decision into an
    * error. The catch is what makes that true rather than aspirational.
    */
+  /**
+   * The signed-in cook's own copy, for their history.
+   *
+   * Written to a DIFFERENT collection than `record`, on purpose: `decide_logs`
+   * promises in its own header to identify nobody, and attaching an owner to
+   * it would retract that for every row. A guest reaches this and writes
+   * nothing, which is the whole distinction.
+   *
+   * Best effort, never awaited. History is a convenience; a failure here must
+   * not turn a successful decision into an error the cook sees.
+   */
+  private remember(
+    input: DecideInput,
+    userId: string | undefined,
+    verdict: DecideVerdictView['verdict'],
+    pool: DecideVerdictView['pool'],
+  ): void {
+    if (userId === undefined) return;
+
+    void DecideHistoryModel.create({
+      ownerId: userId,
+      kitchenItems: input.kitchenItems,
+      kitchenSkipped: input.kitchenSkipped,
+      mood: input.mood,
+      weight: input.weight,
+      minutes: input.minutes,
+      city: input.city ?? null,
+      mode: input.mode ?? 'cook',
+      verdictMealId: verdict.meal_id === '' ? null : verdict.meal_id,
+      verdictName: verdict.name,
+      verdictScore: verdict.match.score,
+      why: verdict.why,
+      poolMealIds: pool.map((m) => m.meal_id).filter((id) => id !== ''),
+    }).catch((error: unknown) => {
+      logger.warn('decide history failed', {
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+    });
+  }
+
   private record(
     input: DecideInput,
     ip: string,

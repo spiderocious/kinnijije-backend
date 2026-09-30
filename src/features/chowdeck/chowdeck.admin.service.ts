@@ -342,6 +342,24 @@ export class ChowdeckAdminService {
    * Cooks lose "I'll order" and the area picker until places exist again;
    * the app falls back to the plain city field meanwhile.
    */
+  /**
+   * Deletes the chosen places, and the cached searches that belonged to them.
+   * The console's multi-select. Ids that no longer exist are simply skipped.
+   */
+  async deletePlaces(ids: string[], actorId: string): Promise<ServiceResult<{ places: number; cleared: number }>> {
+    const [places, cache] = await Promise.all([
+      ChowdeckPlaceModel.deleteMany({ _id: { $in: ids } }).exec(),
+      ChowdeckOfferModel.deleteMany({ placeId: { $in: ids } }).exec(),
+    ]);
+    logger.info('chowdeck places deleted in bulk', {
+      requested: ids.length,
+      places: places.deletedCount,
+      cleared: cache.deletedCount,
+      by: actorId,
+    });
+    return ok({ places: places.deletedCount, cleared: cache.deletedCount });
+  }
+
   async purgePlaces(actorId: string): Promise<ServiceResult<{ places: number; cleared: number }>> {
     const [places, cache] = await Promise.all([
       ChowdeckPlaceModel.deleteMany({}).exec(),
