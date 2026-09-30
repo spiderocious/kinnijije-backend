@@ -5,6 +5,8 @@ import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 
+import { DAY_MS, SERIES_DAYS, dailyCounts } from '../dashboard/admin-series.js';
+
 /**
  * What the console can see about the decide flow.
  *
@@ -268,16 +270,58 @@ export class AdminDecideService {
     distinct_visitors: number;
     empty_verdicts: number;
     ai_framed: number;
+    /** Empty verdicts TODAY, separately: the alert is about now, not all time. */
+    empty_today: number;
+    /** Yesterday's, so today can be stated as a change rather than a bare count. */
+    empty_yesterday: number;
+    /** Decisions in the seven days before this one, for the trend. */
+    previous_week: number;
+    /** Decisions in the last seven days. */
+    this_week: number;
+    /** How many refusals were recorded — a refused suggestion is a signal. */
+    rejected: number;
+    /** One count per day, oldest first, for the sparkline. */
+    daily: { date: string; count: number }[];
   }> {
     const midnight = new Date();
     midnight.setHours(0, 0, 0, 0);
+    const yesterday = new Date(midnight.getTime() - DAY_MS);
+    const weekAgo = new Date(Date.now() - 7 * DAY_MS);
+    const twoWeeksAgo = new Date(Date.now() - 14 * DAY_MS);
+    const seriesFrom = new Date(midnight.getTime() - (SERIES_DAYS - 1) * DAY_MS);
 
-    const [decisions, today, distinct, empty, aiFramed] = await Promise.all([
+    const [
+      decisions,
+      today,
+      distinct,
+      empty,
+      aiFramed,
+      emptyToday,
+      emptyYesterday,
+      thisWeek,
+      previousWeek,
+      rejected,
+      daily,
+    ] = await Promise.all([
       DecideLogModel.countDocuments().exec(),
       DecideLogModel.countDocuments({ createdAt: { $gte: midnight } }).exec(),
       DecideLogModel.distinct('ipHash').exec(),
       DecideLogModel.countDocuments({ verdictMealId: null }).exec(),
       DecideLogModel.countDocuments({ provenance: 'ai_framed' }).exec(),
+      DecideLogModel.countDocuments({
+        verdictMealId: null,
+        createdAt: { $gte: midnight },
+      }).exec(),
+      DecideLogModel.countDocuments({
+        verdictMealId: null,
+        createdAt: { $gte: yesterday, $lt: midnight },
+      }).exec(),
+      DecideLogModel.countDocuments({ createdAt: { $gte: weekAgo } }).exec(),
+      DecideLogModel.countDocuments({
+        createdAt: { $gte: twoWeeksAgo, $lt: weekAgo },
+      }).exec(),
+      DecideLogModel.countDocuments({ 'rejected.0': { $exists: true } }).exec(),
+      dailyCounts(DecideLogModel, seriesFrom),
     ]);
 
     return {
@@ -286,6 +330,12 @@ export class AdminDecideService {
       distinct_visitors: distinct.length,
       empty_verdicts: empty,
       ai_framed: aiFramed,
+      empty_today: emptyToday,
+      empty_yesterday: emptyYesterday,
+      previous_week: previousWeek,
+      this_week: thisWeek,
+      rejected,
+      daily,
     };
   }
 

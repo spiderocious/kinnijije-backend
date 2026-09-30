@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --line:#e3ecf2; --line-2:#cfdde7;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-400:#6bc8f4;
+  --sky:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-border:#cfc6fb; --grape-onsoft:#3f2e9e;
+  --success:#3fbf7f; --success-soft:#e6f7ef; --success-border:#b5e6cd; --success-onsoft:#12613b;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-border:#f6d9a6; --caution-onsoft:#7a4e08;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-border:#f8c2c1; --critical-onsoft:#8c1f1d;
+  --blade:20px 6px 20px 6px;
+  --blade-sm:12px 4px 12px 4px;
+  --blade-xs:8px 3px 8px 3px;
+  --edge:3px 4px 0 var(--ink);
+  --edge-sm:2px 3px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:Nunito,system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',Nunito,sans-serif;letter-spacing:-.02em}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.tnum{font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px 64px}
+
+/* ─── Page head ─────────────────────────────────────────── */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.head h1{margin:0;font-size:30px;font-weight:800}
+.head .sub{margin:2px 0 0;color:var(--ink-3);font-size:13.5px}
+.asof{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1.5px solid var(--line-2);border-radius:var(--blade-xs);
+  padding:6px 11px;background:#fff;font-size:12px;color:var(--ink-2);font-weight:700;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 3px var(--success-soft)}
+
+/* ─── Attention band ────────────────────────────────────── */
+.band{margin:20px 0 0;display:flex;flex-direction:column;gap:8px}
+.alert{
+  display:flex;align-items:flex-start;gap:11px;
+  border:2px solid var(--ink);border-radius:var(--blade-sm);
+  box-shadow:var(--edge-sm);padding:12px 14px;background:#fff;
+}
+.alert.crit{background:var(--critical-soft);border-color:var(--ink)}
+.alert.warn{background:var(--caution-soft)}
+.alert .ic{
+  width:26px;height:26px;flex:none;border-radius:var(--blade-xs);
+  display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;
+}
+.alert.crit .ic{background:var(--critical)}
+.alert.warn .ic{background:var(--caution)}
+.alert .t{font-weight:800;font-size:13.5px;margin:0}
+.alert .d{margin:1px 0 0;font-size:12.5px;color:var(--ink-2)}
+.alert .go{
+  margin-left:auto;flex:none;align-self:center;
+  border:2px solid var(--ink);border-radius:var(--blade-xs);background:#fff;
+  padding:5px 12px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;
+  box-shadow:var(--edge-sm);
+}
+.ok-band{
+  display:flex;align-items:center;gap:10px;
+  border:1.5px solid var(--success-border);border-radius:var(--blade-sm);
+  background:var(--success-soft);padding:11px 14px;font-size:13px;
+  font-weight:700;color:var(--success-onsoft);
+}
+
+/* ─── Hero KPIs ─────────────────────────────────────────── */
+.kpis{
+  margin-top:20px;display:grid;gap:12px;
+  grid-template-columns:repeat(4,1fr);
+}
+.kpi{
+  border:2px solid var(--ink);border-radius:var(--blade);
+  box-shadow:var(--edge);background:#fff;padding:16px 16px 14px;position:relative;overflow:hidden;
+}
+.kpi.lead{background:linear-gradient(160deg,var(--sky-50),#fff 60%)}
+.kpi .lab{
+  font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 6px;
+}
+.kpi .val{font-family:'Baloo 2';font-size:38px;font-weight:800;line-height:1;letter-spacing:-.03em}
+.kpi .val.sm{font-size:30px}
+.kpi .meta{margin:7px 0 0;font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.trend{
+  display:inline-flex;align-items:center;gap:3px;font-weight:800;font-size:11.5px;
+  padding:2px 7px;border-radius:999px;
+}
+.trend.up{background:var(--success-soft);color:var(--success-onsoft)}
+.trend.down{background:var(--critical-soft);color:var(--critical-onsoft)}
+.trend.flat{background:var(--paper-2);color:var(--ink-3)}
+/* Sparkline sits behind the number, never competing with it. */
+.spark{position:absolute;right:0;bottom:0;width:100%;height:40px;opacity:.5}
+
+/* ─── Section rhythm ────────────────────────────────────── */
+.sec{margin-top:34px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin:0 0 12px}
+.sec-h h2{margin:0;font-size:18px;font-weight:800}
+.sec-h .hint{font-size:12.5px;color:var(--ink-3)}
+.rule{flex:1;height:1.5px;background:var(--line);border-radius:2px}
+
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.span2{grid-column:span 2}
+
+.card{
+  border:2px solid var(--ink);border-radius:var(--blade);
+  box-shadow:var(--edge);background:#fff;padding:16px;
+}
+.card.quiet{border:1.5px solid var(--line-2);box-shadow:none;background:#fff}
+.card-h{display:flex;align-items:center;gap:9px;margin:0 0 13px}
+.card-h h3{margin:0;font-size:15.5px;font-weight:800;flex:1}
+.chip{
+  font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:999px;background:var(--paper-2);color:var(--ink-3);
+}
+.chip.good{background:var(--success-soft);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);color:var(--caution-onsoft)}
+.chip.bad{background:var(--critical-soft);color:var(--critical-onsoft)}
+.chip.ai{background:var(--grape-soft);color:var(--grape-onsoft)}
+.link{
+  margin-left:auto;font-size:12px;font-weight:800;color:var(--sky-700);
+  text-decoration:none;border-bottom:2px solid var(--sky-200);cursor:pointer;
+}
+
+/* Stat rows inside a card — a label, a number, and room to breathe. */
+.rows{display:flex;flex-direction:column;gap:0}
+.row{
+  display:flex;align-items:center;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--line);
+}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row:first-child{padding-top:0}
+.row .n{font-weight:800;font-size:17px;margin-left:auto}
+.row .l{font-size:13.5px;color:var(--ink-2)}
+.row .s{font-size:11.5px;color:var(--ink-4)}
+
+/* A proportion, shown rather than described. */
+.bar{height:7px;border-radius:999px;background:var(--paper-3);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:9px;height:9px;border-radius:3px;flex:none}
+
+/* Big single figure inside a card. */
+.big{font-family:'Baloo 2';font-size:32px;font-weight:800;line-height:1;letter-spacing:-.03em}
+.big.warnc{color:var(--caution-onsoft)}
+.big.badc{color:var(--critical-onsoft)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  text-align:left;padding:7px 0;font-size:10.5px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);border-bottom:1.5px solid var(--line-2);
+}
+td{padding:9px 0;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+.r{text-align:right}
+.bad{color:var(--critical-onsoft);font-weight:800}
+.muted{color:var(--ink-4)}
+.pid{font-family:'JetBrains Mono';font-size:11.5px}
+
+/* Health pill for a prompt row. */
+.hp{display:inline-block;width:40px;height:5px;border-radius:999px;background:var(--paper-3);overflow:hidden;vertical-align:middle}
+.hp i{display:block;height:100%;background:var(--success)}
+.hp.w i{background:var(--caution)}
+.hp.b i{background:var(--critical)}
+
+.note{
+  margin-top:11px;padding:9px 11px;border-radius:var(--blade-xs);
+  background:var(--paper-2);font-size:12px;color:var(--ink-2);
+}
+.note.ai{background:var(--grape-soft);color:var(--grape-onsoft)}
+
+.foot{margin-top:40px;padding-top:16px;border-top:1.5px solid var(--line);font-size:12px;color:var(--ink-4)}
+
+@media (max-width:1080px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .wrap{padding:16px 16px 48px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi .val{font-size:30px}
+  .g3,.g2{grid-template-columns:1fr}
+  .span2{grid-column:auto}
+  .head h1{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="sub">Every number is live. Nothing here is sampled or cached.</p>
+    </div>
+    <span class="asof"><span class="dot"></span> Updated just now</span>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       WHAT NEEDS YOU. The single biggest change: the dashboard
+       now opens by saying whether anything is wrong, instead of
+       making an operator read forty numbers to find out.
+       ───────────────────────────────────────────────────────── -->
+  <div class="band">
+    <div class="alert crit">
+      <span class="ic">!</span>
+      <div>
+        <p class="t">14 people asked and got nothing back</p>
+        <p class="d">Empty verdicts today, up from 3 yesterday. Usually a recipe coverage hole, not a bug.</p>
+      </div>
+      <button class="go">Open decide</button>
+    </div>
+    <div class="alert warn">
+      <span class="ic">!</span>
+      <div>
+        <p class="t">2 jobs failed in the last 24 hours</p>
+        <p class="d">Both <span class="mono">recipe.enrich</span>. Retried once and failed again.</p>
+      </div>
+      <button class="go">Open jobs</button>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       THE FOUR NUMBERS. Was seven equal-weight KPIs; a strip of
+       seven has no first among them, so the eye picks none.
+       ───────────────────────────────────────────────────────── -->
+  <div class="kpis">
+    <div class="kpi lead">
+      <svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,32 L20,30 L40,33 L60,26 L80,28 L100,20 L120,22 L140,14 L160,17 L180,9 L200,11 L200,40 L0,40 Z" fill="var(--sky-100)"/>
+        <path d="M0,32 L20,30 L40,33 L60,26 L80,28 L100,20 L120,22 L140,14 L160,17 L180,9 L200,11" fill="none" stroke="var(--sky)" stroke-width="2"/>
+      </svg>
+      <p class="lab">Decisions</p>
+      <div class="val tnum">1,284</div>
+      <p class="meta"><span class="trend up">▲ 18%</span> 47 today · 312 people</p>
+    </div>
+
+    <div class="kpi">
+      <svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,30 L25,28 L50,29 L75,24 L100,25 L125,19 L150,21 L175,16 L200,13" fill="none" stroke="var(--sky-400)" stroke-width="2"/>
+      </svg>
+      <p class="lab">People</p>
+      <div class="val tnum">438</div>
+      <p class="meta"><span class="trend up">▲ 26</span> this week · 391 onboarded</p>
+    </div>
+
+    <div class="kpi">
+      <p class="lab">Cooked this week</p>
+      <div class="val tnum">96</div>
+      <p class="meta"><span class="trend down">▼ 9%</span> 1,507 all time</p>
+    </div>
+
+    <div class="kpi">
+      <p class="lab">Model spend</p>
+      <div class="val tnum sm">2.41<span style="font-size:18px;color:var(--ink-3)">M</span></div>
+      <p class="meta">tokens · <span class="chip ai" style="padding:2px 7px">4,912 calls</span></p>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       THE FLOW. Promoted out of the flat grid: it is the front
+       door of the product, so it gets width and a funnel rather
+       than four tiles that have to be mentally assembled.
+       ───────────────────────────────────────────────────────── -->
+  <div class="sec">
+    <div class="sec-h">
+      <h2>The decide flow</h2>
+      <span class="hint">the front door</span>
+      <span class="rule"></span>
+      <a class="link">Open →</a>
+    </div>
+
+    <div class="grid g3">
+      <div class="card span2">
+        <div class="card-h">
+          <h3>What happened to 1,284 decisions</h3>
+          <span class="chip warn">14 empty today</span>
+        </div>
+
+        <div class="bar" role="img" aria-label="871 answered by the model, 399 templated, 14 empty">
+          <i style="width:67.8%;background:var(--grape)"></i>
+          <i style="width:31.1%;background:var(--sky)"></i>
+          <i style="width:1.1%;background:var(--critical)"></i>
+        </div>
+        <div class="legend">
+          <span><i class="sw" style="background:var(--grape)"></i> 871 written by the model</span>
+          <span><i class="sw" style="background:var(--sky)"></i> 399 templated line</span>
+          <span><i class="sw" style="background:var(--critical)"></i> 14 nothing matched</span>
+        </div>
+
+        <div class="rows" style="margin-top:16px">
+          <div class="row">
+            <span class="l">Reached a verdict<br><span class="s">of everyone who started</span></span>
+            <span class="n tnum">78%</span>
+          </div>
+          <div class="row">
+            <span class="l">Distinct visitors<br><span class="s">salted hashes, never an identity</span></span>
+            <span class="n tnum">312</span>
+          </div>
+          <div class="row">
+            <span class="l">Remixed a past decision<br><span class="s">signed in only</span></span>
+            <span class="n tnum">64</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Nothing matched</h3></div>
+        <div class="big badc tnum">14</div>
+        <p class="sub" style="margin:6px 0 0;font-size:12.5px;color:var(--ink-3)">
+          today, out of 47
+        </p>
+        <div class="note">
+          The number to drive to zero. Each one is somebody who answered every
+          question and was told we had nothing.
+        </div>
+        <div class="rows" style="margin-top:12px">
+          <div class="row"><span class="l">Most common gap</span><span class="n" style="font-size:13.5px">swallow&nbsp;+&nbsp;15&nbsp;min</span></div>
+          <div class="row"><span class="l">Refused a suggestion</span><span class="n tnum">88</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       THE MODEL. Grape throughout — the system's one AI colour.
+       ───────────────────────────────────────────────────────── -->
+  <div class="sec">
+    <div class="sec-h">
+      <h2>The model</h2>
+      <span class="hint">grape means a machine wrote it</span>
+      <span class="rule"></span>
+      <a class="link">Open AI audit →</a>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <div class="card-h"><h3>Calls</h3><span class="chip ai">last 24h</span></div>
+        <div class="big tnum">318</div>
+        <p style="margin:6px 0 0;font-size:12.5px;color:var(--ink-3)">4,912 all time</p>
+        <div class="rows" style="margin-top:13px">
+          <div class="row"><span class="l">Median time</span><span class="n tnum">1.9<span style="font-size:12px;color:var(--ink-3)">s</span></span></div>
+          <div class="row"><span class="l">p95</span><span class="n tnum">4.6<span style="font-size:12px;color:var(--ink-3)">s</span></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Rejected replies</h3><span class="chip warn">1.3%</span></div>
+        <div class="big warnc tnum">62</div>
+        <p style="margin:6px 0 0;font-size:12.5px;color:var(--ink-3)">
+          failed the envelope and were thrown away
+        </p>
+        <div class="note ai">
+          A rejected reply is never patched. We paid for the tokens and showed
+          the templated line instead, which is the honest fallback.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Tokens</h3></div>
+        <div class="big tnum">2.41<span style="font-size:19px;color:var(--ink-3)">M</span></div>
+        <p style="margin:6px 0 0;font-size:12.5px;color:var(--ink-3)">all time, in and out</p>
+        <div class="rows" style="margin-top:13px">
+          <div class="row"><span class="l">Last 24h</span><span class="n tnum">148k</span></div>
+          <div class="row"><span class="l">Per call, median</span><span class="n tnum">486</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-h">
+        <h3>Every prompt, by volume</h3>
+        <span class="chip">7 prompts</span>
+        <a class="link">See all calls →</a>
+      </div>
+      <table>
+        <thead>
+          <tr><th>prompt</th><th style="width:96px">health</th><th class="r">calls</th><th class="r">rejected</th><th class="r">tokens</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pid">decide.frame</td>
+            <td><span class="hp"><i style="width:98%"></i></span></td>
+            <td class="r tnum">2,140</td><td class="r muted tnum">18</td><td class="r tnum">862k</td>
+          </tr>
+          <tr>
+            <td class="pid">recipe.enrich</td>
+            <td><span class="hp b"><i style="width:79%"></i></span></td>
+            <td class="r tnum">884</td><td class="r bad tnum">31</td><td class="r tnum">701k</td>
+          </tr>
+          <tr>
+            <td class="pid">chat.reply</td>
+            <td><span class="hp"><i style="width:99%"></i></span></td>
+            <td class="r tnum">742</td><td class="r muted tnum">4</td><td class="r tnum">402k</td>
+          </tr>
+          <tr>
+            <td class="pid">receipt.read</td>
+            <td><span class="hp w"><i style="width:93%"></i></span></td>
+            <td class="r tnum">613</td><td class="r muted tnum">7</td><td class="r tnum">318k</td>
+          </tr>
+          <tr>
+            <td class="pid">shelf.read</td>
+            <td><span class="hp"><i style="width:97%"></i></span></td>
+            <td class="r tnum">533</td><td class="r muted tnum">2</td><td class="r tnum">127k</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       THE REST. Demoted on purpose: quiet cards, no drop edge.
+       These are reference figures, not things to act on, and
+       giving them the same weight as the flow is what made the
+       old dashboard read as an undifferentiated wall.
+       ───────────────────────────────────────────────────────── -->
+  <div class="sec">
+    <div class="sec-h">
+      <h2>Everything else</h2>
+      <span class="hint">reference, not alarms</span>
+      <span class="rule"></span>
+    </div>
+
+    <div class="grid g3">
+      <div class="card quiet">
+        <div class="card-h"><h3>People</h3><span class="chip good">89% onboarded</span></div>
+        <div class="bar">
+          <i style="width:89.3%;background:var(--success)"></i>
+          <i style="width:10.7%;background:var(--line-2)"></i>
+        </div>
+        <div class="legend"><span>391 finished setup</span><span class="muted">47 did not</span></div>
+        <div class="rows" style="margin-top:14px">
+          <div class="row"><span class="l">Active</span><span class="n tnum">421</span></div>
+          <div class="row"><span class="l">Suspended</span><span class="n tnum">3</span></div>
+          <div class="row"><span class="l">Admins</span><span class="n tnum">4</span></div>
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <div class="card-h"><h3>Recipes</h3><span class="chip">417 total</span></div>
+        <div class="bar">
+          <i style="width:88%;background:var(--sky)"></i>
+          <i style="width:12%;background:var(--line-2)"></i>
+        </div>
+        <div class="legend"><span>367 published</span><span class="muted">50 draft</span></div>
+        <div class="rows" style="margin-top:14px">
+          <div class="row"><span class="l">Written by hand</span><span class="n tnum">124</span></div>
+          <div class="row"><span class="l">Generated</span><span class="n tnum">293</span></div>
+          <div class="row"><span class="l">With a photo</span><span class="n tnum">88</span></div>
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <div class="card-h"><h3>Kitchens</h3></div>
+        <div class="rows">
+          <div class="row"><span class="l">Stock rows</span><span class="n tnum">3,946</span></div>
+          <div class="row"><span class="l">On market lists</span><span class="n tnum">612</span></div>
+          <div class="row"><span class="l">Saved recipes</span><span class="n tnum">1,204</span></div>
+          <div class="row"><span class="l">Uploaded files</span><span class="n tnum">271</span></div>
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <div class="card-h"><h3>Jobs</h3><span class="chip bad">2 failed</span></div>
+        <div class="rows">
+          <div class="row"><span class="l">Done</span><span class="n tnum">8,410</span></div>
+          <div class="row"><span class="l">Queued</span><span class="n tnum">12</span></div>
+          <div class="row"><span class="l">Failed, 24h</span><span class="n tnum" style="color:var(--critical-onsoft)">2</span></div>
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <div class="card-h"><h3>Chat</h3></div>
+        <div class="rows">
+          <div class="row"><span class="l">Messages</span><span class="n tnum">2,118</span></div>
+          <div class="row">
+            <span class="l">Of those, canned<br><span class="s">mock provider, never reached a model</span></span>
+            <span class="n tnum">36</span>
+          </div>
+        </div>
+        <div class="note">
+          Mock replies are a testing artefact, not a product signal. Shown so
+          nobody reads them as real usage.
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <div class="card-h"><h3>Chowdeck</h3><span class="chip">offers on</span></div>
+        <div class="rows">
+          <div class="row"><span class="l">Offers shown</span><span class="n tnum">486</span></div>
+          <div class="row"><span class="l">Tapped through</span><span class="n tnum">73</span></div>
+          <div class="row"><span class="l">Cache hit rate</span><span class="n tnum">91%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">
+    Mockup · backend/docs/v2/admin-dashboard.html · numbers are illustrative,
+    the shape is the proposal.
+  </p>
+</div>
+</body>
+</html>
