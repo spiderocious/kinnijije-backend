@@ -25,6 +25,7 @@ export const ID_PREFIXES = {
   recipeImage: 'img',
   chat: 'chat',
   insight: 'ins',
+  decideLog: 'dlog',
 } as const;
 
 /** Callers name the resource; the prefix itself is an implementation detail. */

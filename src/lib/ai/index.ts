@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 
 import { env } from '@app/env.js';
+import { SERVER_EVENTS, analytics, estimateCostUsd } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 
 import { AiLogModel } from './ai-log.model.js';
@@ -218,11 +219,50 @@ class AiService {
       error: callError ?? parseError,
     });
 
+    /**
+     * The analytics event sits beside the log write, not inside the provider.
+     *
+     * Same reasoning the log row uses: at this layer it cannot be skipped by a
+     * new provider, and it sees the call whatever answered it. Shape only —
+     * tokens, duration, outcome. The prompt and the reply stay in `ai_logs`,
+     * which is the forensic record; sending them here would leak user content
+     * to a third party and blow past property size limits.
+     */
+    const imageCount = input.images?.length ?? 0;
+    analytics.track(SERVER_EVENTS.AI_CALL_COMPLETED, input.ownerId ?? 'system', {
+      prompt_id: input.promptId,
+      provider: this.provider.name,
+      model,
+      tier: input.tier ?? 'large',
+      ok,
+      parsed: parsed !== null,
+      duration_ms: durationMs,
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: totalTokens,
+      estimated_cost_usd: estimateCostUsd(model, promptTokens, completionTokens),
+      had_images: imageCount > 0,
+      image_count: imageCount,
+      attempts,
+    });
+
     if (!ok) {
       logger.warn('ai call did not produce a usable answer', {
         prompt_id: input.promptId,
         log_id: logId,
         error: callError ?? parseError,
+      });
+
+      // Separate from the completion event so a failure rate can be charted
+      // without filtering, and so `failure_kind` can carry the distinction
+      // that matters: a parse failure is a prompt bug we can fix, a provider
+      // error is the vendor having a bad day.
+      analytics.track(SERVER_EVENTS.AI_CALL_FAILED, input.ownerId ?? 'system', {
+        prompt_id: input.promptId,
+        model,
+        failure_kind: callError !== null ? 'provider_error' : 'parse_failed',
+        duration_ms: durationMs,
+        attempts,
       });
     }
 
@@ -256,9 +296,25 @@ class AiService {
         ok: true,
         error: null,
       });
+      analytics.track(SERVER_EVENTS.AI_TRANSCRIPTION_COMPLETED, ownerId ?? 'system', {
+        model,
+        duration_ms: Date.now() - started,
+        // Billed by audio length, so this is the cost driver rather than a
+        // curiosity. Bytes is the honest proxy available here.
+        audio_bytes: audio.byteLength,
+        text_length: text.length,
+        ok: true,
+      });
       return { ok: true, data: text, error: null, logId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      analytics.track(SERVER_EVENTS.AI_TRANSCRIPTION_COMPLETED, ownerId ?? 'system', {
+        model: 'unknown',
+        duration_ms: Date.now() - started,
+        audio_bytes: audio.byteLength,
+        text_length: 0,
+        ok: false,
+      });
       return { ok: false, data: null, error: message, logId: null };
     }
   }
@@ -297,10 +353,25 @@ class AiService {
         ok: true,
         error: null,
       });
+      // Tracked apart from text calls because it costs an order of magnitude
+      // more — an image is worth roughly ten to forty text calls, so it must
+      // not be averaged into them.
+      analytics.track(SERVER_EVENTS.AI_IMAGE_GENERATED, input.ownerId ?? 'system', {
+        model: image.model,
+        duration_ms: Date.now() - started,
+        bytes: image.bytes.byteLength,
+        ok: true,
+      });
       return { ok: true, data: image, error: null, logId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn('image generation failed', { error: message });
+      analytics.track(SERVER_EVENTS.AI_IMAGE_GENERATED, input.ownerId ?? 'system', {
+        model: 'unknown',
+        duration_ms: Date.now() - started,
+        bytes: 0,
+        ok: false,
+      });
       const logId = await this.record({
         promptId: 'image.generate',
         provider: this.provider.name,

@@ -30,9 +30,11 @@ import {
   RetryJobSchema,
   SetEmailKindSchema,
   SetFeatureFlagSchema,
+  SetMailProviderSchema,
   SetRecipeStatusSchema,
   SetUserRoleSchema,
   SetUserStatusSchema,
+  TestMailProviderSchema,
 } from './admin.schema.js';
 
 const router = Router();
@@ -65,6 +67,14 @@ router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 
 // How meals are ranked. Tunable, because ranking quality is an empirical
 // question and a constant buried in a function cannot be answered empirically.
+// Visibility into the anonymous decide flow: what people submit, what we
+// answer, and how often the model actually contributes.
+router.get('/admin/decide/overview', ...guard, asyncHandler(adminController.decideOverview));
+router.get('/admin/decide/logs', ...guard, asyncHandler(adminController.decideLogs));
+// Parameterised LAST: '/decide/logs' and '/decide/overview' are literals and
+// must not arrive here as a log id.
+router.get('/admin/decide/logs/:logId', ...guard, asyncHandler(adminController.decideLog));
+
 router.get('/admin/ranking', ...guard, asyncHandler(adminController.rankingConfig));
 router.put('/admin/ranking', ...guard, asyncHandler(adminController.saveRankingConfig));
 
@@ -181,6 +191,20 @@ router.patch(
   ...guard,
   validate(SetEmailKindSchema),
   asyncHandler(adminController.setEmailKind),
+);
+// Which provider sends. Literal paths, so they must stay above '/:emailId'.
+router.get('/admin/emails/provider', ...guard, asyncHandler(adminController.mailProvider));
+router.put(
+  '/admin/emails/provider',
+  ...guard,
+  validate(SetMailProviderSchema),
+  asyncHandler(adminController.setMailProvider),
+);
+router.post(
+  '/admin/emails/provider/test',
+  ...guard,
+  validate(TestMailProviderSchema),
+  asyncHandler(adminController.testMailProvider),
 );
 router.post(
   '/admin/emails/preview',

@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
+
 import { FEATURE_FLAGS, flagsService, type FeatureFlag } from '@lib/flags/index.js';
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
@@ -18,6 +20,9 @@ import {
 import { adminAiService } from './ai/admin-ai.service.js';
 import { adminAuthService } from './auth/admin-auth.service.js';
 import { adminDashboardService } from './dashboard/admin-dashboard.service.js';
+import { adminDecideService } from './decide/admin-decide.service.js';
+import type { MailProvider } from '@lib/mail/index.js';
+
 import { adminEmailsService, type ComposeInput } from './emails/admin-emails.service.js';
 import { adminJobsService } from './jobs/admin-jobs.service.js';
 import { adminRecipesService, type RecipeInput } from './recipes/admin-recipes.service.js';
@@ -127,6 +132,15 @@ export const adminController = {
     const { status } = req.body as { status: string };
     const result = await adminUsersService.setStatus(userId, status);
     if (!result.success) return bail(result);
+
+    // Moderation load, and it keeps the `status` profile property honest so
+    // suspended accounts can be excluded from engagement reports.
+    analytics.track(SERVER_EVENTS.ACCOUNT_STATUS_CHANGED, userId, {
+      to_status: status,
+      changed_by: 'admin',
+    });
+    analytics.setProfile(userId, { status });
+
     ResponseUtil.noContent(res);
   },
 
@@ -232,10 +246,16 @@ export const adminController = {
   },
 
   listEmails: async (req: Request, res: Response): Promise<void> => {
-    const query = req.query as { kind?: string; status?: string; to?: string };
+    const query = req.query as {
+      kind?: string;
+      status?: string;
+      provider?: string;
+      to?: string;
+    };
     const result = await adminEmailsService.list({
       ...(query.kind !== undefined && { kind: query.kind }),
       ...(query.status !== undefined && { status: query.status }),
+      ...(query.provider !== undefined && { provider: query.provider }),
       ...(query.to !== undefined && { to: query.to }),
       ...paging(req),
     });
@@ -276,6 +296,28 @@ export const adminController = {
     );
     if (!result.success) return bail(result);
     ResponseUtil.noContent(res);
+  },
+
+  mailProvider: async (_req: Request, res: Response): Promise<void> => {
+    const result = await adminEmailsService.provider();
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  setMailProvider: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { provider, reason } = req.body as { provider: MailProvider; reason?: string };
+    const result = await adminEmailsService.setProvider(provider, actor.userId, reason);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  testMailProvider: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { provider, to } = req.body as { provider: MailProvider; to: string };
+    const result = await adminEmailsService.testProvider(provider, to, actor.userId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
   },
 
   emailKinds: async (_req: Request, res: Response): Promise<void> => {
@@ -362,6 +404,44 @@ export const adminController = {
 
     rankingSettings.invalidate();
     ResponseUtil.ok(res, { config: merged });
+  },
+
+
+  /** Everything the console knows about the decide flow, aggregated. */
+  decideOverview: async (req: Request, res: Response): Promise<void> => {
+    const { days } = req.query as { days?: string };
+    const result = await adminDecideService.overview(
+      days !== undefined ? Math.min(Math.max(Number(days), 1), 90) : 14,
+    );
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  /** The raw log: every submission and every answer, newest first. */
+  decideLogs: async (req: Request, res: Response): Promise<void> => {
+    const query = req.query as {
+      mood?: string;
+      provenance?: string;
+      empty?: string;
+    };
+
+    const result = await adminDecideService.list({
+      ...paging(req),
+      ...(query.mood !== undefined && { mood: query.mood }),
+      ...(query.provenance !== undefined && { provenance: query.provenance }),
+      ...(query.empty === 'true' && { emptyOnly: true }),
+    });
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+
+  /** One decision, in full. */
+  decideLog: async (req: Request, res: Response): Promise<void> => {
+    const { logId } = req.params as { logId: string };
+    const result = await adminDecideService.detail(logId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
   },
 
 };

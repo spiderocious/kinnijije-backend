@@ -7,7 +7,11 @@ import {
   EmailLogModel,
   emailService,
   EmailSettingModel,
+  MAIL_PROVIDER_SETTING_ID,
+  mailer,
+  MailProviderSettingModel,
   type EmailKind,
+  type MailProvider,
 } from '@lib/mail/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
@@ -127,6 +131,7 @@ export class AdminEmailsService {
   async list(query: {
     kind?: string;
     status?: string;
+    provider?: string;
     to?: string;
     limit?: number;
     skip?: number;
@@ -134,6 +139,7 @@ export class AdminEmailsService {
     const filter: Record<string, unknown> = {};
     if (query.kind !== undefined) filter['kind'] = query.kind;
     if (query.status !== undefined) filter['status'] = query.status;
+    if (query.provider !== undefined) filter['provider'] = query.provider;
     if (query.to !== undefined && query.to.length > 0) {
       filter['to'] = { $regex: query.to.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
     }
@@ -158,6 +164,7 @@ export class AdminEmailsService {
         owner_id: row.ownerId,
         subject: row.subject,
         status: row.status,
+        provider: row.provider,
         provider_id: row.providerId,
         error: row.error,
         sent_by: row.sentBy,
@@ -184,6 +191,7 @@ export class AdminEmailsService {
       html: row.html,
       text: row.text,
       status: row.status,
+      provider: row.provider,
       provider_id: row.providerId,
       error: row.error,
       sent_by: row.sentBy,
@@ -270,6 +278,111 @@ export class AdminEmailsService {
 
     logger.info('email kind switched', { kind, enabled, by: actorId, reason });
     return ok(null);
+  }
+
+  /**
+   * Which provider is live, and which ones could be.
+   *
+   * `configured` is the important half: an operator about to switch needs to
+   * see that the target has credentials BEFORE they switch, not afterwards in a
+   * column of failures.
+   */
+  async provider(): Promise<
+    ServiceResult<{
+      provider: MailProvider;
+      /** False when nothing has been chosen and this is the env default. */
+      chosen: boolean;
+      configured: Record<MailProvider, boolean>;
+      live: boolean;
+      updated_by: string | null;
+      reason: string | null;
+      updated_at: string | null;
+    }>
+  > {
+    const row = await MailProviderSettingModel.findById(MAIL_PROVIDER_SETTING_ID).exec();
+    const active = await mailer.activeProvider();
+
+    return ok({
+      provider: active,
+      chosen: row !== null,
+      configured: mailer.configuredProviders(),
+      live: mailer.isProviderConfigured(active),
+      updated_by: row?.updatedBy ?? null,
+      reason: row?.reason ?? null,
+      updated_at: isoOrNull(row?.updatedAt),
+    });
+  }
+
+  /**
+   * Point every outgoing email at a different provider, from now on.
+   *
+   * Switching to a provider with no credentials is ALLOWED and only warned
+   * about. Refusing would be the wrong call: the console is also where somebody
+   * recovers from a broken setting, and the failure is loud anyway — every send
+   * is logged `failed` with the reason, and this response says `live: false`.
+   */
+  async setProvider(
+    provider: MailProvider,
+    actorId: string,
+    reason?: string,
+  ): Promise<ServiceResult<{ provider: MailProvider; live: boolean }>> {
+    await MailProviderSettingModel.findByIdAndUpdate(
+      MAIL_PROVIDER_SETTING_ID,
+      { $set: { provider, updatedBy: actorId, reason: reason ?? null } },
+      { upsert: true },
+    ).exec();
+
+    // The mailer caches the choice for a few seconds; clearing it here is what
+    // makes the switch take effect immediately rather than eventually.
+    mailer.forgetCachedProvider();
+
+    const live = mailer.isProviderConfigured(provider);
+    if (!live) {
+      logger.error('an email provider with no credentials was selected', {
+        provider,
+        by: actorId,
+      });
+    } else {
+      logger.info('email provider switched', { provider, by: actorId, reason });
+    }
+
+    return ok({ provider, live });
+  }
+
+  /**
+   * Send one real email through a named provider, without switching anything.
+   *
+   * The point is to prove a provider works before live traffic depends on it.
+   * It goes through `emailService`, so the attempt is logged like any other and
+   * shows up in the console with its provider and its error.
+   */
+  async testProvider(
+    provider: MailProvider,
+    to: string,
+    actorId: string,
+  ): Promise<ServiceResult<{ id: string; delivered: boolean; error: string | null }>> {
+    const content = adminBroadcastEmail(null, `Test send via ${provider}`, [
+      `This is a test of the ${provider} email provider.`,
+      'If you are reading this, that provider can send mail. Nothing has been switched — this was a one-off.',
+    ]);
+
+    const result = await emailService.send({
+      kind: EMAIL_KINDS.ADMIN_BROADCAST,
+      to,
+      ownerId: null,
+      content,
+      sentBy: actorId,
+      provider,
+    });
+
+    logger.info('email provider tested', {
+      provider,
+      to,
+      by: actorId,
+      delivered: result.delivered,
+    });
+
+    return ok({ id: result.id, delivered: result.delivered, error: result.error });
   }
 
   /** The kinds that have actually been sent, for the filter rail. */

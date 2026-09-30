@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
 
@@ -31,7 +32,16 @@ export const decideController = {
     // a problem worth a blocking request for.
     res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
 
-    if (req.headers['if-none-match'] === etag) {
+    const anonId = analytics.anonymousId(req.ip ?? 'unknown');
+    const cacheHit = req.headers['if-none-match'] === etag;
+
+    analytics.track(SERVER_EVENTS.DECIDE_OPTIONS_SERVED, anonId, {
+      cache_hit: cacheHit,
+      total_items: view.total_items,
+      version: view.version,
+    });
+
+    if (cacheHit) {
       res.status(304).end();
       return;
     }
@@ -69,8 +79,39 @@ export const decideController = {
       rejected: body.rejected,
     };
 
-    const result = await decideService.decide(input);
+    const started = Date.now();
+    // The IP is hashed inside the service; it is never stored raw.
+    const result = await decideService.decide(input, req.ip ?? 'unknown');
     if (!result.success) return bail(result);
-    ResponseUtil.ok(res, result.data);
+
+    /**
+     * Server truth for the funnel that matters most.
+     *
+     * The client sends its own version of this, which an ad blocker can stop;
+     * this one cannot be blocked, so the `provenance` split here is the honest
+     * AI-versus-fallback ratio.
+     */
+    const view = result.data;
+    analytics.track(SERVER_EVENTS.DECIDE_SERVED, analytics.anonymousId(req.ip ?? 'unknown'), {
+      provenance: view.provenance,
+      duration_ms: Date.now() - started,
+      candidate_count: view.alternates.length + 1,
+      pool_count: view.pool.length,
+      match_score: view.verdict.match.score,
+      missing_count: view.verdict.match.missing.length,
+      have_count: view.verdict.match.have.length,
+      kitchen_item_count: input.kitchenItems.length,
+      kitchen_skipped: input.kitchenSkipped,
+      mood: input.mood,
+      weight: input.weight,
+      minutes: input.minutes,
+      city: input.city ?? null,
+      rejected_count: input.rejected.length,
+      // The empty sentinel: nothing matched at all. These properties together
+      // are the recipe coverage hole, stated precisely.
+      is_empty: view.verdict.meal_id === '',
+    });
+
+    ResponseUtil.ok(res, view);
   },
 };

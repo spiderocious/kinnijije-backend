@@ -1,11 +1,13 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { AppError } from '@lib/errors.js';
 import { getContext } from '@lib/http/request-context.js';
 import { logger } from '@lib/logger/index.js';
 import { rateLimitStore, type RateLimitPolicy } from '@lib/ratelimit/index.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
+import { routePattern } from '@shared/utils/route-pattern.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 
 /**
@@ -40,6 +42,35 @@ export const byBodyField =
   };
 
 /**
+ * Refusals per bucket in the current hour, for telling tuning from attack.
+ *
+ * A real person hits the decide cap once and either waits or signs up. Fifty
+ * refusals from one bucket in an hour is a script. In memory and bounded —
+ * this is a signal, not an audit trail, and it resets on restart like the
+ * limiter's own buckets do.
+ */
+const refusals = new Map<string, { count: number; hourStartedAt: number }>();
+const HOUR_MS = 60 * 60 * 1000;
+/** Past this many refusals in one hour, the bucket is reported as abuse. */
+const ABUSE_THRESHOLD = 20;
+/** Bounds the map so a distributed flood cannot grow it without limit. */
+const MAX_TRACKED_BUCKETS = 10_000;
+
+function countRefusal(key: string): number {
+  const now = Date.now();
+  const existing = refusals.get(key);
+
+  if (existing === undefined || now - existing.hourStartedAt > HOUR_MS) {
+    if (refusals.size >= MAX_TRACKED_BUCKETS) refusals.clear();
+    refusals.set(key, { count: 1, hourStartedAt: now });
+    return 1;
+  }
+
+  existing.count += 1;
+  return existing.count;
+}
+
+/**
  * Applies one policy. Always sets the X-RateLimit-* headers, on allow and on
  * deny alike, so a well-behaved client can pace itself before being refused.
  *
@@ -71,6 +102,31 @@ export const rateLimit = (
         path: req.originalUrl,
         retry_after_seconds: decision.retryAfterSeconds,
       });
+
+      const isAuthenticated = getContext()?.user_id !== undefined;
+      const distinctId = getContext()?.user_id ?? analytics.anonymousId(req.ip ?? 'unknown');
+
+      analytics.track(SERVER_EVENTS.RATE_LIMIT_EXCEEDED, distinctId, {
+        policy: policy.name,
+        route: routePattern(req),
+        // Which bucket refused, not the bucket's value — the key itself holds
+        // an email or an IP and must never leave the server.
+        key_kind: scope !== '' ? scope : 'identity',
+        is_authenticated: isAuthenticated,
+        retry_after_seconds: decision.retryAfterSeconds,
+      });
+
+      const refusalCount = countRefusal(key);
+      if (refusalCount === ABUSE_THRESHOLD) {
+        // Fired once, on crossing — not on every refusal after it, which would
+        // bury the signal in the noise it is meant to surface.
+        analytics.track(SERVER_EVENTS.ANONYMOUS_ABUSE_SUSPECTED, distinctId, {
+          route: routePattern(req),
+          policy: policy.name,
+          refusals_in_window: refusalCount,
+          is_authenticated: isAuthenticated,
+        });
+      }
 
       next(
         new AppError(

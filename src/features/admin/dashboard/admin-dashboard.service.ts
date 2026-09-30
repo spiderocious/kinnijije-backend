@@ -10,6 +10,8 @@ import { AiLogModel } from '@lib/ai/ai-log.model.js';
 import { JobModel } from '@lib/jobs/jobs.model.js';
 import { ok, type ServiceResult } from '@lib/service-result.js';
 
+import { adminDecideService } from '../decide/admin-decide.service.js';
+
 /** Everything the console shows at a glance, in one round trip. */
 export interface AdminOverview {
   users: {
@@ -29,6 +31,20 @@ export interface AdminOverview {
   };
   kitchen: { stock_items: number; market_items: number; market_unbought: number; files: number };
   jobs: { total: number; by_status: Record<string, number>; failed_last_day: number };
+  /**
+   * The anonymous decide flow, at a glance.
+   *
+   * Enough to notice something is wrong; the decide screen answers why.
+   */
+  decide: {
+    decisions: number;
+    today: number;
+    distinct_visitors: number;
+    /** Decisions that returned no meal. The number to drive to zero. */
+    empty_verdicts: number;
+    /** How often the model's answer was actually used. */
+    ai_framed: number;
+  };
   ai: {
     calls: number;
     failed: number;
@@ -152,6 +168,11 @@ export class AdminDashboardService {
 
     const totals = aiTotals[0] as { tokens?: number; duration?: number } | undefined;
 
+    // Its own service, because the decide flow owns the shape of its own
+    // numbers and the dashboard should not be querying another feature's
+    // collection directly.
+    const decideSummary = await adminDecideService.summary();
+
     return ok({
       users: {
         total: userTotal,
@@ -181,6 +202,7 @@ export class AdminDashboardService {
         files,
       },
       jobs: { total: jobTotal, by_status: jobsByStatus, failed_last_day: jobsFailedDay },
+      decide: decideSummary,
       ai: {
         calls: aiCalls,
         failed: aiFailed,

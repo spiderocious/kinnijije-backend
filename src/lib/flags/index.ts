@@ -1,4 +1,5 @@
 export {
+  FAIL_CLOSED_FLAGS,
   FEATURE_FLAGS,
   FLAG_DEFINITIONS,
   FlagModel,

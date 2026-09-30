@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 
 import { buildJobId, JOB_STATUSES, JobModel, type JobDocument } from './jobs.model.js';
@@ -226,6 +227,15 @@ class JobQueue {
   private async fail(job: JobDocument, message: string, fatal: boolean): Promise<void> {
     const exhausted = fatal || job.attempts >= job.maxAttempts;
 
+    analytics.track(SERVER_EVENTS.JOB_FAILED, job.ownerId, {
+      job_type: job.type,
+      attempts: job.attempts,
+      max_attempts: job.maxAttempts,
+      // False here is a person who never got their result and does not know why.
+      will_retry: !exhausted,
+      error_class: fatal ? 'fatal' : 'transient',
+    });
+
     if (!exhausted) {
       logger.warn('job failed, will retry', { job_id: job._id, attempt: job.attempts, error: message });
       await JobModel.updateOne(
@@ -257,7 +267,38 @@ class JobQueue {
     };
     if (status === JOB_STATUSES.SUCCEEDED) update['progress'] = 1;
 
-    await JobModel.updateOne({ _id: jobId }, { $set: update }).exec();
+    // `findOneAndUpdate` rather than `updateOne`: the analytics event needs the
+    // job's type and timings, and reading them back costs an extra round trip
+    // that this returns for free.
+    const finished = await JobModel.findOneAndUpdate(
+      { _id: jobId },
+      { $set: update },
+      { new: true },
+    ).exec();
+
+    if (finished !== null) {
+      const createdAt = finished.createdAt.getTime();
+      const startedAt = finished.startedAt?.getTime() ?? createdAt;
+
+      analytics.track(SERVER_EVENTS.JOB_COMPLETED, finished.ownerId, {
+        job_type: finished.type,
+        status,
+        duration_ms: Date.now() - startedAt,
+        // The number that matters for how the app FEELS: a job that runs fast
+        // but waits thirty seconds for a worker is a spinner the person is
+        // still watching.
+        queue_wait_ms: startedAt - createdAt,
+        attempts: finished.attempts,
+      });
+
+      if (status === JOB_STATUSES.CANCELLED) {
+        analytics.track(SERVER_EVENTS.JOB_CANCELLED, finished.ownerId, {
+          job_type: finished.type,
+          progress_at_cancel: finished.progress,
+          ms_before_cancel: Date.now() - startedAt,
+        });
+      }
+    }
 
     this.events.emit(`job:${jobId}`, { type: 'finished', status, result, error });
   }

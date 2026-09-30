@@ -2,6 +2,7 @@ import { logger } from '@lib/logger/index.js';
 import { isoOrNull } from '@lib/dates.js';
 
 import {
+  FAIL_CLOSED_FLAGS,
   FEATURE_FLAGS,
   FLAG_DEFINITIONS,
   FlagModel,
@@ -22,10 +23,18 @@ export type FlagState = Record<FeatureFlag, boolean>;
 const CACHE_MS = 30_000;
 let cache: { value: FlagState; expires: number } | null = null;
 
-/** Everything on. The answer when no row exists, and when the database is down. */
-function allOn(): FlagState {
+/**
+ * The default state: everything on EXCEPT the fail-closed flags.
+ *
+ * This is the answer when no row exists and when the database is down, so the
+ * one function carries both defaults — an ordinary flag ships enabled without
+ * a migration, an analytics flag ships disabled until somebody turns it on.
+ */
+function defaults(): FlagState {
   const out = {} as FlagState;
-  for (const key of Object.values(FEATURE_FLAGS)) out[key] = true;
+  for (const key of Object.values(FEATURE_FLAGS)) {
+    out[key] = !FAIL_CLOSED_FLAGS.includes(key);
+  }
   return out;
 }
 
@@ -40,14 +49,16 @@ export class FlagsService {
   /**
    * The current state of every flag.
    *
-   * FAILS OPEN. If the flags cannot be read, everything is on — a database
-   * blip must not silently strip features out of the product, and a flag
-   * system that fails closed takes the whole app down with it.
+   * FAILS OPEN for ordinary flags: if they cannot be read, everything is on —
+   * a database blip must not silently strip features out of the product, and a
+   * flag system that fails closed takes the whole app down with it.
+   *
+   * FAILS CLOSED for the analytics pair. See `FAIL_CLOSED_FLAGS`.
    */
   async state(): Promise<FlagState> {
     if (cache !== null && cache.expires > Date.now()) return cache.value;
 
-    const value = allOn();
+    const value = defaults();
     try {
       const rows = await FlagModel.find().exec();
       for (const row of rows) value[row._id] = row.enabled;
@@ -65,6 +76,31 @@ export class FlagsService {
   /** Whether one flag is on. */
   async isOn(key: FeatureFlag): Promise<boolean> {
     return (await this.state())[key];
+  }
+
+  /**
+   * The cached answer, or `undefined` if nothing has been read yet.
+   *
+   * Exists for the analytics service, which is called from request paths and
+   * from `catch` blocks where awaiting a flag is not acceptable — an await
+   * there would add latency to every request and could reorder a log line
+   * against the error it describes.
+   *
+   * `undefined` means "not known yet", which an analytics caller must treat as
+   * off. It is deliberately NOT collapsed into `false` here: a caller that
+   * wants to distinguish "off" from "unknown" still can.
+   */
+  cached(key: FeatureFlag): boolean | undefined {
+    if (cache === null || cache.expires <= Date.now()) return undefined;
+    return cache.value[key];
+  }
+
+  /**
+   * Fills the cache. Called once at boot so the first request does not have to
+   * decide analytics policy from an empty cache.
+   */
+  async warm(): Promise<void> {
+    await this.state();
   }
 
   /** Every flag with its label and who last touched it, for the console. */

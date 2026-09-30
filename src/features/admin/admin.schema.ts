@@ -107,7 +107,10 @@ export const PreviewAudienceSchema = z.object({
 
 export const ListEmailsSchema = z.object({
   kind: z.string().max(60).optional(),
-  status: z.enum(['sent', 'failed', 'suppressed']).optional(),
+  // 'blocked' is a status a row can actually have, so it has to be filterable —
+  // otherwise the console can show blocked mail but never narrow to it.
+  status: z.enum(['sent', 'failed', 'suppressed', 'blocked']).optional(),
+  provider: z.enum(['resend', 'cloudflare']).optional(),
   to: z.string().max(160).optional(),
   ...pagination,
 });
@@ -116,6 +119,18 @@ export const SetEmailKindSchema = z.object({
   enabled: z.boolean(),
   /** Why it was switched. Optional, but the console asks for one. */
   reason: z.string().max(300).optional(),
+});
+
+export const SetMailProviderSchema = z.object({
+  provider: z.enum(['resend', 'cloudflare']),
+  /** Why it was switched. Optional, but the console asks for one. */
+  reason: z.string().max(300).optional(),
+});
+
+export const TestMailProviderSchema = z.object({
+  provider: z.enum(['resend', 'cloudflare']),
+  /** Where the test goes. An operator's own address, in practice. */
+  to: z.string().email('That is not an email address').max(160),
 });
 
 export const SetFeatureFlagSchema = z.object({

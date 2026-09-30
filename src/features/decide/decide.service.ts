@@ -1,10 +1,14 @@
 import { MealModel, type MealDocument } from '@features/meals/meals.model.js';
 import { aiService, DecideVerdictSchema, PROMPT_IDS } from '@lib/ai/index.js';
+import { env } from '@app/env.js';
+import { getContext } from '@lib/http/request-context.js';
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 import { rankingSettings } from '@lib/ranking/index.js';
 import { ok, type ServiceResult } from '@lib/service-result.js';
 
 import { templatedFraming } from './decide.copy.js';
+import { DecideLogModel, hashIp } from './decide-log.model.js';
 import { toMealView } from './decide.presenter.js';
 import { POOL_SIZE, rankCandidates, type WeatherHint } from './decide.ranker.js';
 import type { DecideCandidate, DecideInput, DecideVerdictView } from './decide.types.js';
@@ -55,7 +59,8 @@ export class DecideService {
     return (await MealModel.find({ status: 'published' }).lean().exec()) as unknown as MealDocument[];
   }
 
-  async decide(input: DecideInput): Promise<ServiceResult<DecideVerdictView>> {
+  async decide(input: DecideInput, ip = 'unknown'): Promise<ServiceResult<DecideVerdictView>> {
+    const started = Date.now();
     const meals = await this.publishedMeals();
     const [weather, config] = await Promise.all([
       this.weatherFor(input.city),
@@ -66,6 +71,7 @@ export class DecideService {
 
     // Nothing fits. A real answer, not an error — the client widens a filter.
     if (candidates.length === 0) {
+      this.record(input, ip, null, 0, 'deterministic', Date.now() - started, 'no candidates');
       return ok({
         verdict: EMPTY_VERDICT,
         alternates: [],
@@ -95,12 +101,65 @@ export class DecideService {
 
     const rest = views.filter((_, i) => i !== index);
 
+    this.record(
+      input,
+      ip,
+      verdict,
+      views.length,
+      framed !== null && winnerIndex >= 0 ? 'ai_framed' : 'deterministic',
+      Date.now() - started,
+      framed === null ? 'model unavailable, slow, or rejected' : null,
+    );
+
     return ok({
       verdict,
       alternates: rest.slice(0, 2),
       pool: rest,
       framing: framed?.framing ?? templatedFraming(input, candidates[index]),
       provenance: framed !== null && winnerIndex >= 0 ? 'ai_framed' : 'deterministic',
+    });
+  }
+
+  /**
+   * Records the decision, for the console.
+   *
+   * Deliberately NOT awaited: a person waiting on a meal must never wait on
+   * analytics, and a logging failure must never turn a good decision into an
+   * error. The catch is what makes that true rather than aspirational.
+   */
+  private record(
+    input: DecideInput,
+    ip: string,
+    verdict: DecideVerdictView['verdict'] | null,
+    poolSize: number,
+    provenance: string,
+    durationMs: number,
+    fallbackReason: string | null,
+  ): void {
+    void DecideLogModel.create({
+      requestId: getContext()?.request_id ?? '-',
+      // Salted with a server secret the client never sees, so the hash cannot
+      // be reversed by walking the IPv4 space.
+      ipHash: hashIp(ip, env.JWT_ACCESS_SECRET),
+      kitchenItems: input.kitchenItems,
+      kitchenSkipped: input.kitchenSkipped,
+      mood: input.mood,
+      weight: input.weight,
+      minutes: input.minutes,
+      city: input.city ?? null,
+      rejected: input.rejected,
+      verdictMealId: verdict?.meal_id === '' ? null : (verdict?.meal_id ?? null),
+      verdictName: verdict?.name ?? null,
+      verdictScore: verdict?.match.score ?? null,
+      poolSize,
+      provenance,
+      why: verdict?.why ?? null,
+      durationMs,
+      aiFallbackReason: fallbackReason,
+    }).catch((error: unknown) => {
+      logger.warn('decide log failed', {
+        error: error instanceof Error ? error.message : 'unknown',
+      });
     });
   }
 
@@ -176,10 +235,21 @@ export class DecideService {
       logger.warn('decide: model too slow, serving deterministic winner', {
         timeout_ms: AI_TIMEOUT_MS,
       });
+      // The degradation nobody would otherwise see: the person gets a real
+      // answer, just the deterministic one, and nothing in the response says so.
+      analytics.track(SERVER_EVENTS.AI_FALLBACK_SERVED, 'system', {
+        prompt_id: PROMPT_IDS.DECIDE_VERDICT,
+        reason: 'timeout',
+        timeout_ms: AI_TIMEOUT_MS,
+      });
       return null;
     }
     if (!answer.ok || answer.data === null) {
       logger.warn('decide: model answer rejected', { error: answer.error });
+      analytics.track(SERVER_EVENTS.AI_FALLBACK_SERVED, 'system', {
+        prompt_id: PROMPT_IDS.DECIDE_VERDICT,
+        reason: 'answer_rejected',
+      });
       return null;
     }
 
@@ -189,6 +259,12 @@ export class DecideService {
     // would mean showing a sentence written about a meal we never offered.
     if (!offered.has(data.chosenMealId)) {
       logger.warn('decide: model chose a meal we did not offer', { chosen: data.chosenMealId });
+      // The model inventing a meal we never sent it. Worth an alert, not just a
+      // chart — it means the prompt contract is being ignored.
+      analytics.track(SERVER_EVENTS.AI_FALLBACK_SERVED, 'system', {
+        prompt_id: PROMPT_IDS.DECIDE_VERDICT,
+        reason: 'unoffered_meal',
+      });
       return null;
     }
 

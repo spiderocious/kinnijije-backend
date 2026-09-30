@@ -1,5 +1,8 @@
 import type { Request, Response } from 'express';
 
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
+import { PROMPT_IDS } from '@lib/ai/index.js';
+
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
@@ -37,8 +40,30 @@ export const stockController = {
 
   add: async (req: Request, res: Response): Promise<void> => {
     const actor = requireActor(req);
-    const result = await stockService.add(actor.userId, req.body as AddStockInput);
+    const body = req.body as AddStockInput;
+    const result = await stockService.add(actor.userId, body);
     if (!result.success) return bail(result);
+
+    /**
+     * Human acceptance is the only honest measure of extraction quality.
+     *
+     * The model's self-graded confidence is not evidence — what a person kept
+     * after reading the suggestions is. Only for the AI-fed sources: a manual
+     * add has nothing to accept or reject.
+     */
+    if (body.source === 'photo' || body.source === 'receipt') {
+      analytics.track(SERVER_EVENTS.AI_EXTRACTION_REVIEWED, actor.userId, {
+        prompt_id:
+          body.source === 'photo'
+            ? PROMPT_IDS.INGREDIENTS_FROM_PHOTO
+            : PROMPT_IDS.INGREDIENTS_FROM_RECEIPT,
+        // What the person kept. The count the model SUGGESTED is not known
+        // here — the client drops rejected rows before sending — so this is
+        // the numerator; `stock_added.item_count` on the client is the pair.
+        accepted_count: result.data.length,
+      });
+    }
+
     ResponseUtil.created(res, result.data);
   },
 

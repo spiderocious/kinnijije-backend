@@ -2,6 +2,8 @@ import { model, Schema, type HydratedDocument } from 'mongoose';
 
 import { newId } from '@lib/ids.js';
 
+import { MAIL_PROVIDERS, type MailProvider } from './mail-provider.model.js';
+
 /** What kind of email it was. Drives filtering and the resend path. */
 export const EMAIL_KINDS = {
   WELCOME: 'welcome',
@@ -34,7 +36,16 @@ export interface EmailLogAttributes {
    * Neither is a failure, and calling them one would hide a real outage.
    */
   status: 'sent' | 'failed' | 'suppressed' | 'blocked';
-  /** Resend's id, when it accepted the message. */
+  /**
+   * Which provider handled it.
+   *
+   * Null on rows written before there was more than one, and on a `blocked`
+   * send, which never reached a provider at all. Without this, one switch makes
+   * every past failure unattributable — which is the whole point of being able
+   * to switch.
+   */
+  provider: MailProvider | null;
+  /** The provider's id for the message, when it accepted it. */
   providerId: string | null;
   error: string | null;
   /** Set when an operator sent it by hand. */
@@ -59,6 +70,7 @@ const emailLogSchema = new Schema<EmailLogAttributes>(
       enum: ['sent', 'failed', 'suppressed', 'blocked'],
       index: true,
     },
+    provider: { type: String, enum: Object.values(MAIL_PROVIDERS), default: null, index: true },
     providerId: { type: String, default: null },
     error: { type: String, default: null },
     sentBy: { type: String, default: null },

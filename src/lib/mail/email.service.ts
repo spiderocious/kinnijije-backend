@@ -1,8 +1,10 @@
-import { env } from '@app/env.js';
+import { env, IS_PRODUCTION } from '@app/env.js';
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 
 import { EmailLogModel, type EmailKind } from './email-log.model.js';
 import { EmailSettingModel } from './email-settings.model.js';
+import type { MailProvider } from './mail-provider.model.js';
 import { mailer } from './mailer.js';
 import type { EmailContent } from './templates.js';
 
@@ -15,6 +17,13 @@ export interface SendInput {
   readonly sentBy?: string;
   /** Set when this is a repeat of a previous send. */
   readonly resendOf?: string;
+  /**
+   * Force a provider, ignoring the operator's selection.
+   *
+   * For the console's "try it" button only, so a provider can be proven before
+   * live traffic is switched onto it.
+   */
+  readonly provider?: MailProvider;
 }
 
 /**
@@ -47,7 +56,9 @@ export class EmailService {
     return setting?.enabled !== false;
   }
 
-  async send(input: SendInput): Promise<{ id: string; delivered: boolean }> {
+  async send(
+    input: SendInput,
+  ): Promise<{ id: string; delivered: boolean; provider: MailProvider | null; error: string | null }> {
     // The kill switch, checked HERE rather than at each callsite — this is the
     // only way an email leaves, so this is the only place it can be stopped.
     // The attempt is still recorded, because "why did nobody get that?" is
@@ -61,6 +72,7 @@ export class EmailService {
         html: input.content.html,
         text: input.content.text,
         status: 'blocked',
+        provider: null,
         providerId: null,
         error: 'This kind of email is switched off in the console.',
         sentBy: input.sentBy ?? null,
@@ -68,12 +80,23 @@ export class EmailService {
       });
 
       logger.info('email blocked by an operator switch', { kind: input.kind, to: input.to });
-      return { id: blocked._id, delivered: false };
+      // Not a failure: an operator switched this kind off and it worked.
+      analytics.track(SERVER_EVENTS.NOTIFICATION_SUPPRESSED, input.ownerId ?? 'system', {
+        kind: input.kind,
+        reason: 'kind_switched_off',
+      });
+      return {
+        id: blocked._id,
+        delivered: false,
+        provider: null,
+        error: 'This kind of email is switched off in the console.',
+      };
     }
 
     const result = await mailer.send({
       to: input.to,
       content: input.content,
+      ...(input.provider !== undefined && { provider: input.provider }),
       // Everything except a password reset gets the header. A reset is a
       // response to a request somebody just made, and offering to unsubscribe
       // from it makes no sense.
@@ -84,10 +107,12 @@ export class EmailService {
 
     // `suppressed` is its own status, not a failure: no key configured is a
     // development state, and calling it "failed" would make a dev log look
-    // like an outage.
+    // like an outage. In production the same state IS a failure — an operator
+    // selected a provider that cannot send, and that has to be visible in the
+    // console rather than filed under "nothing to see here".
     const status = result.delivered
       ? 'sent'
-      : result.reason === 'mailer_not_configured'
+      : !result.configured && !IS_PRODUCTION
         ? 'suppressed'
         : 'failed';
 
@@ -99,13 +124,46 @@ export class EmailService {
       html: input.content.html,
       text: input.content.text,
       status,
+      provider: result.provider,
       providerId: result.delivered ? result.id : null,
       error: result.delivered ? null : result.reason,
       sentBy: input.sentBy ?? null,
       resendOf: input.resendOf ?? null,
     });
 
-    return { id: row._id, delivered: result.delivered };
+    /**
+     * Rates only — the per-send record is `email_logs`, which already holds the
+     * subject, the body and the provider id. The reason to have this in
+     * analytics at all is to sit sends beside the behaviour they were meant to
+     * cause: did `have_you_eaten` actually bring anybody back?
+     */
+    if (status === 'failed') {
+      analytics.track(SERVER_EVENTS.EMAIL_FAILED, input.ownerId ?? 'system', {
+        kind: input.kind,
+        // `configured` lives only on the failure variant of the union, so the
+        // narrowing has to come from `delivered` being false.
+        error_class: !result.delivered && result.configured ? 'provider_rejected' : 'not_configured',
+      });
+    } else if (status === 'suppressed') {
+      analytics.track(SERVER_EVENTS.NOTIFICATION_SUPPRESSED, input.ownerId ?? 'system', {
+        kind: input.kind,
+        reason: 'provider_not_configured',
+      });
+    } else {
+      analytics.track(SERVER_EVENTS.EMAIL_SENT, input.ownerId ?? 'system', {
+        kind: input.kind,
+        status,
+        is_broadcast: input.kind === 'admin_broadcast',
+        is_resend: input.resendOf !== undefined && input.resendOf !== null,
+      });
+    }
+
+    return {
+      id: row._id,
+      delivered: result.delivered,
+      provider: result.provider,
+      error: result.delivered ? null : result.reason,
+    };
   }
 
   /**

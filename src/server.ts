@@ -11,6 +11,8 @@ import { registerJobHandlers } from '@lib/jobs/handlers.js';
 import { jobQueue } from '@lib/jobs/jobs.queue.js';
 import { logger } from '@lib/logger/index.js';
 import { assertMailerConfigured } from '@lib/mail/mailer.js';
+import { analytics } from '@lib/analytics/index.js';
+import { flagsService } from '@lib/flags/index.js';
 import { stopRateLimitStore } from '@lib/ratelimit/index.js';
 
 /**
@@ -20,8 +22,6 @@ import { stopRateLimitStore } from '@lib/ratelimit/index.js';
  */
 function assertProductionReadiness(): void {
   if (!IS_PRODUCTION) return;
-
-  assertMailerConfigured();
 
   if (env.JWT_ACCESS_SECRET.includes('dev-only') || env.JWT_REFRESH_SECRET.includes('dev-only')) {
     throw new Error('Refusing to start: JWT secrets are still the development defaults');
@@ -38,6 +38,19 @@ async function main(): Promise<void> {
   // The database connects before the port opens: an instance that accepts
   // traffic it cannot serve fails every request instead of failing to start.
   await connectDatabase();
+
+  // Which email provider is live is stored in the database, so this can only
+  // be checked once the connection is open.
+  await assertMailerConfigured();
+
+  /**
+   * Fill the flag cache before anything can want it.
+   *
+   * The analytics service reads the kill switch from cache only and treats an
+   * empty cache as OFF, so without this the first seconds after a boot would
+   * silently drop events. Doing it here makes the normal case a warm cache.
+   */
+  await flagsService.warm();
 
   // Handlers must be registered BEFORE the worker starts, or it claims a job
   // it has no way to run.
@@ -91,6 +104,9 @@ function installShutdownHandlers(server: Server): void {
       void (async () => {
         jobQueue.stop();
         stopRateLimitStore();
+        // Before the database closes: a provider that buffers gets its chance
+        // to drain rather than losing the last few events on every deploy.
+        await analytics.flush();
         await disconnectDatabase();
         logger.info('shutdown complete');
         clearTimeout(forceExit);

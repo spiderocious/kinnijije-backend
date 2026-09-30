@@ -79,6 +79,27 @@ const EnvSchema = z.object({
 
   RESEND_API_KEY: z.string().default(''),
   MAIL_FROM: z.string().default('KinniJije <onboarding@resend.dev>'),
+
+  // ---- Email (Cloudflare Email Sending) ----
+  // The second provider. Which one is actually used is an operator decision
+  // stored in the database, not here — see lib/mail/mail-provider.model.ts.
+  // These are only the credentials; empty means "cloudflare is not available",
+  // and selecting it anyway fails the send loudly rather than silently
+  // falling back to Resend.
+  CLOUDFLARE_EMAIL_SENDING_TOKEN: z.string().default(''),
+  CLOUDFLARE_ACCOUNT_ID: z.string().default(''),
+  /**
+   * Cloudflare will only send from a domain onboarded to Email Sending, so it
+   * needs its own from-address: MAIL_FROM's default points at resend.dev,
+   * which Cloudflare would reject.
+   */
+  CLOUDFLARE_MAIL_FROM: z.string().default('chef@kinnijije.xyz'),
+  /**
+   * The provider used when the database has no row yet — the seed value, not
+   * the live setting. Operators switch providers from the console at runtime;
+   * this only decides where a fresh install starts.
+   */
+  MAIL_PROVIDER: z.enum(['resend', 'cloudflare']).default('resend'),
   /**
    * Where the web app lives. Every link in an email is built from this — a
    * password-reset link that points at the API is a dead end.
@@ -88,6 +109,33 @@ const EnvSchema = z.object({
   MAIL_REPLY_TO: z.string().default('chef@kinnijije.xyz'),
 
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
+
+  // ---- Analytics ----
+  /**
+   * Comma-separated provider list, e.g. `mixpanel,console`. EMPTY IS VALID and
+   * is the default: the service becomes a no-op and the app behaves identically,
+   * which is what keeps tests, CI and fresh clones quiet with no special-casing.
+   */
+  ANALYTICS_PROVIDERS: z
+    .string()
+    .default('')
+    .transform((value) =>
+      value
+        .split(',')
+        .map((name) => name.trim().toLowerCase())
+        .filter((name) => name.length > 0),
+    ),
+  /** Required only if `mixpanel` is in the provider list. */
+  MIXPANEL_TOKEN: z.string().default(''),
+  /**
+   * Salt for the anonymous distinct id on public routes.
+   *
+   * Without it, `sha256(ip + date)` is trivially reversible — an attacker can
+   * hash every address in a /24 in milliseconds — which would turn a privacy
+   * measure into a durable tracking id. Empty means anonymous server events are
+   * skipped entirely rather than sent with a weak identifier.
+   */
+  ANALYTICS_ANON_SALT: z.string().default(''),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

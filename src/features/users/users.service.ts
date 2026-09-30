@@ -1,5 +1,6 @@
 import type { AuthRepository } from '@features/auth/auth.repo.js';
 import { authRepository } from '@features/auth/auth.repo.js';
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 import type { Mailer} from '@lib/mail/mailer.js';
 import { mailer } from '@lib/mail/mailer.js';
@@ -111,6 +112,29 @@ export class UsersService {
     const { MarketItemModel } = await import('@features/market/market.model.js');
     const { ChatMessageModel } = await import('@features/chat/chat.model.js');
     const { CookedMealModel, FavouriteModel } = await import('@features/meals/meals.model.js');
+
+    /**
+     * Counted and reported BEFORE anything is deleted.
+     *
+     * This is the clearest churn signal there is, and it is only answerable
+     * while the rows still exist: `meals_cooked_total` of zero means they never
+     * got value, a high count means they got it and left anyway — completely
+     * different problems. A moment later none of it is knowable.
+     */
+    const user = await this.repo.findById(userId);
+    const [cookedCount, stockCount] = await Promise.all([
+      CookedMealModel.countDocuments({ ownerId: userId }).exec(),
+      StockItemModel.countDocuments({ ownerId: userId }).exec(),
+    ]);
+    const createdAt = user?.createdAt?.getTime();
+    analytics.track(SERVER_EVENTS.ACCOUNT_DELETED_SERVER, userId, {
+      days_since_signup:
+        createdAt === undefined ? null : Math.floor((Date.now() - createdAt) / 86_400_000),
+      meals_cooked_total: cookedCount,
+      stock_item_count: stockCount,
+      had_onboarded:
+        user?.onboardingCompletedAt !== null && user?.onboardingCompletedAt !== undefined,
+    });
 
     await Promise.all([
       StockItemModel.deleteMany({ ownerId: userId }).exec(),

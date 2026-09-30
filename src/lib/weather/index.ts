@@ -1,3 +1,4 @@
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 
 export interface DayWeather {
@@ -31,15 +32,38 @@ export async function dayWeather(
   const cached = cache.get(key);
   if (cached !== undefined && cached.expires > Date.now()) return cached.value;
 
+  const started = Date.now();
+
+  /**
+   * Weather fails silently by design — it is a garnish, never a dependency, and
+   * a broken lookup must not fail a decision. The cost of that is that a
+   * permanently wrong API or a changed response shape is INVISIBLE forever.
+   * This event is the only thing that would surface it.
+   */
+  const reportFailure = (operation: string, status?: number): void => {
+    analytics.track(SERVER_EVENTS.UPSTREAM_FAILURE, 'system', {
+      dependency: 'open-meteo',
+      operation,
+      duration_ms: Date.now() - started,
+      http_status: status ?? null,
+    });
+  };
+
   try {
     const geo = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`,
     );
-    if (!geo.ok) return null;
+    if (!geo.ok) {
+      reportFailure('geocode', geo.status);
+      return null;
+    }
 
     const geoData = (await geo.json()) as { results?: { latitude: number; longitude: number }[] };
     const place = geoData.results?.[0];
-    if (place === undefined) return null;
+    if (place === undefined) {
+      reportFailure('geocode_empty');
+      return null;
+    }
 
     const forecast = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${String(place.latitude)}` +
@@ -47,7 +71,10 @@ export async function dayWeather(
         `&current=temperature_2m,precipitation` +
         `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=1`,
     );
-    if (!forecast.ok) return null;
+    if (!forecast.ok) {
+      reportFailure('forecast', forecast.status);
+      return null;
+    }
 
     const data = (await forecast.json()) as {
       current?: { temperature_2m?: number; precipitation?: number };
@@ -81,6 +108,7 @@ export async function dayWeather(
       city,
       error: error instanceof Error ? error.message : String(error),
     });
+    reportFailure('exception');
     return null;
   }
 }

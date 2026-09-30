@@ -2,11 +2,13 @@ import type { ErrorRequestHandler, NextFunction, Request, Response } from 'expre
 import { ZodError } from 'zod';
 
 import { IS_PRODUCTION } from '@app/env.js';
+import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { AppError } from '@lib/errors.js';
 import { logger } from '@lib/logger/index.js';
 import { ResponseUtil } from '@lib/response.js';
 import { ERROR_CODES, severityFor } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
+import { routePattern } from '@shared/utils/route-pattern.js';
 import { MESSAGE_KEYS, resolveErrorMessage } from '@shared/messages/index.js';
 import { fieldErrorsFromZod } from '@shared/utils/zod.js';
 
@@ -16,6 +18,41 @@ import { fieldErrorsFromZod } from '@shared/utils/zod.js';
  *
  * Registered last in app.ts: middleware added after it never sees an error.
  */
+/**
+ * One event for every error the app returns.
+ *
+ * Fired here rather than at each throw site because this middleware is already
+ * the single place an error becomes a response — so one call covers the whole
+ * surface and a new throw site cannot forget to report itself.
+ *
+ * `route` is the Express route PATTERN (`/stock/:stockId`), never the resolved
+ * url: the pattern has bounded cardinality and groups correctly in a report,
+ * while the raw path would create a distinct value per id.
+ */
+function reportError(
+  req: Request,
+  errorClass: string,
+  code: string,
+  httpStatus: number,
+  severity: number,
+  rejectionReason?: string,
+): void {
+  analytics.track(
+    SERVER_EVENTS.API_ERROR_RETURNED,
+    req.actor?.userId ?? analytics.anonymousId(req.ip ?? 'unknown'),
+    {
+      error_code: code,
+      severity,
+      http_status: httpStatus,
+      route: routePattern(req),
+      method: req.method,
+      is_authenticated: req.actor !== undefined,
+      error_class: errorClass,
+      ...(rejectionReason !== undefined && { rejection_reason: rejectionReason }),
+    },
+  );
+}
+
 export const errorHandler: ErrorRequestHandler = (
   err: unknown,
   req: Request,
@@ -37,6 +74,15 @@ export const errorHandler: ErrorRequestHandler = (
       rejection_reason: err.rejectionReason,
     });
 
+    reportError(
+      req,
+      'app_error',
+      err.code,
+      err.httpStatus,
+      severityFor(err.code),
+      err.rejectionReason,
+    );
+
     if (err.retryAfterSeconds !== undefined) {
       res.setHeader('Retry-After', String(err.retryAfterSeconds));
     }
@@ -56,6 +102,13 @@ export const errorHandler: ErrorRequestHandler = (
   // client error, so it must not inflate the 5xx rate.
   if (err instanceof ZodError) {
     logger.warn('unhandled zod error at boundary', { issues: err.issues });
+    reportError(
+      req,
+      'zod',
+      ERROR_CODES.VALIDATION_ERROR,
+      HTTP_STATUS.UNPROCESSABLE,
+      severityFor(ERROR_CODES.VALIDATION_ERROR),
+    );
     ResponseUtil.error(res, HTTP_STATUS.UNPROCESSABLE, {
       code: ERROR_CODES.VALIDATION_ERROR,
       message: resolveErrorMessage(ERROR_CODES.VALIDATION_ERROR),
@@ -70,6 +123,13 @@ export const errorHandler: ErrorRequestHandler = (
   // squarely a client mistake.
   if (isBodyParseError(err)) {
     logger.warn('malformed request body', { path: req.originalUrl });
+    reportError(
+      req,
+      'malformed_body',
+      ERROR_CODES.MALFORMED_JSON,
+      HTTP_STATUS.BAD_REQUEST,
+      severityFor(ERROR_CODES.MALFORMED_JSON),
+    );
     ResponseUtil.error(res, HTTP_STATUS.BAD_REQUEST, {
       code: ERROR_CODES.MALFORMED_JSON,
       message: resolveErrorMessage(ERROR_CODES.MALFORMED_JSON, MESSAGE_KEYS.common.MALFORMED_JSON),
@@ -82,6 +142,15 @@ export const errorHandler: ErrorRequestHandler = (
     error: err instanceof Error ? err : String(err),
     path: req.originalUrl,
   });
+  // The one count that must stay at zero. Everything else here is a client
+  // mistake; this is ours.
+  reportError(
+    req,
+    'unhandled',
+    ERROR_CODES.INTERNAL,
+    HTTP_STATUS.INTERNAL,
+    severityFor(ERROR_CODES.INTERNAL),
+  );
 
   ResponseUtil.error(res, HTTP_STATUS.INTERNAL, {
     code: ERROR_CODES.INTERNAL,
