@@ -20,6 +20,14 @@ export const FEATURE_FLAGS = {
    */
   ANALYTICS_CLIENT: 'analytics_client',
   ANALYTICS_SERVER: 'analytics_server',
+  /**
+   * The signup invite inside the decide flow.
+   *
+   * An experiment, not a feature: a mid-flow interstitial converts some people
+   * and loses others who would have reached a verdict. It ships behind this so
+   * the trade can be measured — step-3-to-verdict completion, on versus off.
+   */
+  DECIDE_INVITE: 'decide_invite',
 } as const;
 
 export type FeatureFlag = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
@@ -39,6 +47,19 @@ export type FeatureFlag = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
 export const FAIL_CLOSED_FLAGS: readonly FeatureFlag[] = [
   FEATURE_FLAGS.ANALYTICS_CLIENT,
   FEATURE_FLAGS.ANALYTICS_SERVER,
+  /**
+   * The product tour.
+   *
+   * It takes over the screen and navigates, and it is only ever seen ONCE —
+   * so a tour shown because a flag read was slow is also a tour permanently
+   * spent on somebody who was not ready for it. Off until an operator says
+   * otherwise, which is what "only when the console says so" means.
+   */
+  FEATURE_FLAGS.ONBOARDING_TOUR,
+  // An unproven experiment that can cost completions must not switch itself on
+  // because a read failed. Off is the safe default until the numbers say
+  // otherwise.
+  FEATURE_FLAGS.DECIDE_INVITE,
 ];
 
 export interface FlagDefinition {
@@ -63,6 +84,12 @@ export const FLAG_DEFINITIONS: readonly FlagDefinition[] = [
     key: FEATURE_FLAGS.UPLOAD_PHOTO,
     label: 'Reading a photo of a shelf',
     whenOff: 'The photo option disappears from the add-stock screen. Typing still works.',
+  },
+  {
+    key: FEATURE_FLAGS.DECIDE_INVITE,
+    label: 'Signup invite in the decide flow',
+    whenOff:
+      'Nobody is asked to sign up mid-flow. The offer after the verdict is unaffected.',
   },
   {
     key: FEATURE_FLAGS.ANALYTICS_CLIENT,

@@ -100,6 +100,18 @@ export const RATE_LIMITS = {
    */
   DECIDE_OPTIONS: perWindow('decide_options', 120, MINUTE),
 
+  /**
+   * The SAME decision, made by somebody signed in.
+   *
+   * Keyed by user id rather than IP, so a household or an office behind one
+   * address no longer shares a bucket — which is the case DECIDE_ANON gets
+   * wrong for exactly the people who have bothered to make an account.
+   *
+   * Looser, because the abuse case is different: a scraper does not sign up,
+   * and an account can be suspended, which an IP cannot.
+   */
+  DECIDE_USER: perWindow('decide_user', 40, HOUR),
+
   /** Admin tooling is trusted but still bounded against a broken script. */
   ADMIN: perWindow('admin', 600, MINUTE),
 

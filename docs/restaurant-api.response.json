@@ -1,0 +1,3017 @@
+{
+  "status": "success",
+  "message": "Products retrieved successfully",
+  "data": [
+    {
+      "id": 150670,
+      "name": "TUWO IYA LASUN ",
+      "slug": "tuwo-best-bankolemohijesha-tedotn6s3d",
+      "logo_url": "https://files.chowdeck.com/images/2026/2026-04-03/Wlb8fqfEbADoD0i3JfadJ.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2026/2026-04-03/sduExf220AOgwsAlXcKoH.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "2.50",
+      "number_of_rating": 2,
+      "location": "Ijesha Tedo",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 9,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "2000",
+          "closing": "2300",
+          "is_open": true,
+          "errors": null
+        },
+        "monday": {
+          "opening": "2015",
+          "closing": "2300",
+          "is_open": true,
+          "errors": null
+        },
+        "tuesday": {
+          "opening": "2015",
+          "closing": "2300",
+          "is_open": true,
+          "errors": null
+        },
+        "wednesday": {
+          "opening": "2015",
+          "closing": "2300",
+          "is_open": true,
+          "errors": null
+        },
+        "thursday": {
+          "opening": "2015",
+          "closing": "2300",
+          "is_open": true,
+          "errors": null
+        },
+        "friday": {
+          "opening": "2010",
+          "closing": "2200",
+          "is_open": true,
+          "errors": null
+        },
+        "saturday": {
+          "opening": "0000",
+          "closing": "0000",
+          "is_open": false
+        },
+        "sunday": {
+          "opening": "0000",
+          "closing": "0000",
+          "is_open": false
+        },
+        "Tuesday": {
+          "opening": "2015",
+          "closing": "2300"
+        },
+        "Wednesday": {
+          "opening": "2015",
+          "closing": "2300"
+        },
+        "Thursday": {
+          "opening": "2015",
+          "closing": "2300"
+        },
+        "Monday": {
+          "opening": "2015",
+          "closing": "2300"
+        },
+        "Friday": {
+          "opening": "2010",
+          "closing": "2200"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "1030",
+        "menu_ready_time": "1000"
+      },
+      "tag": [
+        "Dinner",
+        "Drinks"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 70000,
+      "minimum_delivery_time": 27,
+      "maximum_delivery_time": 37,
+      "distance": 2.83,
+      "registration_status": {
+        "basic_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 0,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "operational_information": 1,
+        "menu_information": 1
+      },
+      "verification_status": "awaiting",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 3873677,
+          "vendor_id": 150670,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo",
+          "popular_name": "",
+          "description": "Tuwo",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2026-04-03T20:21:17.000Z",
+          "updated_at": "2026-08-25T19:12:49.000Z",
+          "container_type_id": 34130,
+          "menu_group_ids": "2526111,2526110,2526109",
+          "reference": "SKU-150670-RM342GWD11",
+          "volume_per_portion": "2.00",
+          "maximum_quantity": 6,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-08-25T19:12:49.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": true,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 37726821,
+              "path": "https://files.chowdeck.com/images/2026/2026-04-03/dm6pY6k6lpR9XZcMgeQFX.png",
+              "rank": 1,
+              "menu_id": 3873677
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 2438561
+            }
+          ],
+          "category": {
+            "id": 240705
+          }
+        }
+      ]
+    },
+    {
+      "id": 149914,
+      "name": "Motunrayo tuwon spot ",
+      "slug": "motunrayo-tuwon-spot-ijesha-tedo3qz8kx",
+      "logo_url": "https://files.chowdeck.com/images/2026/2026-03-26/Q8mfjoaQH2iJeDSU4oKXB.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2026/2026-03-26/IjuOeTQUsFX3Owr5EorW2.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Ijesha Tedo",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 6,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "tuesday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "thursday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "1900",
+          "closing": "2300",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "0000",
+          "closing": "0001",
+          "is_open": false
+        },
+        "Wednesday": {
+          "opening": "1900",
+          "closing": "2300"
+        },
+        "Monday": {
+          "opening": "1900",
+          "closing": "2300"
+        },
+        "Sunday": {
+          "opening": "0700",
+          "closing": "2159"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Lunch",
+        "Dinner",
+        "Chicken dishes",
+        "Drinks",
+        "Party",
+        "Events"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 80000,
+      "minimum_delivery_time": 17,
+      "maximum_delivery_time": 27,
+      "distance": 3.03,
+      "registration_status": {
+        "basic_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 0,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "operational_information": 1,
+        "menu_information": 1
+      },
+      "verification_status": "awaiting",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 3897172,
+          "vendor_id": 149914,
+          "group_id": 0,
+          "rank": 100,
+          "name": "\tTuwo+ Ewedu & Gbegiri",
+          "popular_name": "",
+          "description": "Hot and satisfying tuwon with flavorful soup and protein.",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 300000,
+          "currency": "NGN",
+          "price_description": "per portion",
+          "created_at": "2026-04-12T11:02:14.000Z",
+          "updated_at": "2026-09-28T18:51:05.000Z",
+          "container_type_id": 0,
+          "menu_group_ids": null,
+          "reference": "SKU-149914-RGATGWZMS7",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-28T18:51:05.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 38363197,
+              "path": "https://files.chowdeck.com/images/2026/2026-04-12/Scfuqf0WABqXrVdop39wn.png",
+              "rank": 1,
+              "menu_id": 3897172
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 2504531
+            }
+          ],
+          "category": {
+            "id": 238476
+          }
+        }
+      ]
+    },
+    {
+      "id": 100523,
+      "name": "Mainlandbukka",
+      "slug": "mainlandbukkasurulere6h47zt",
+      "logo_url": "https://files.chowdeck.com/images/2024/2024-09-20/LYXXmNHfp5DffupZcVuiJ.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2024/2024-09-20/KgcoBZ3JWthXpcXop0ORn.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant_preorder",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Surulere",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 8,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "1000",
+          "closing": "1800",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "tuesday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "wednesday": {
+          "opening": "1100",
+          "closing": "1800",
+          "is_open": true,
+          "errors": null
+        },
+        "thursday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "friday": {
+          "opening": "1005",
+          "closing": "1800",
+          "is_open": true,
+          "errors": null
+        },
+        "saturday": {
+          "opening": "0000",
+          "closing": "0001",
+          "is_open": false
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "Wednesday": {
+          "opening": "1100",
+          "closing": "1800"
+        },
+        "Friday": {
+          "opening": "1005",
+          "closing": "1800"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "1800",
+        "available_days": [
+          "default"
+        ],
+        "menu_ready_time": "1100"
+      },
+      "tag": [
+        "#bukkainsurulere",
+        "#local delicacies",
+        "African",
+        "#catererinlagos",
+        "Rice dishes",
+        "Swallow",
+        "Lunch"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": false,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": true,
+      "current_is_open_state": 1,
+      "delivery_price": 70000,
+      "minimum_delivery_time": 41,
+      "maximum_delivery_time": 51,
+      "distance": 2.14,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 3895240,
+          "vendor_id": 100523,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo",
+          "popular_name": "",
+          "description": "Maize pudding (soft)",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2026-04-11T09:25:48.000Z",
+          "updated_at": "2026-08-14T10:51:46.000Z",
+          "container_type_id": 0,
+          "menu_group_ids": "",
+          "reference": "SKU-107299-365602",
+          "volume_per_portion": "1.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-08-14T10:51:46.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 38286866,
+              "path": "https://files.chowdeck.com/images/2026/2026-04-11/ZoYQD7LRT32mmQh9NHq01.jpg",
+              "rank": 1,
+              "menu_id": 3895240
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 2497219
+            }
+          ],
+          "category": {
+            "id": 3569
+          }
+        }
+      ]
+    },
+    {
+      "id": 102383,
+      "name": "Yakoyo - Surulere",
+      "slug": "yakoyo-abula-joint",
+      "logo_url": "https://files.chowdeck.com/images/arhdfltz1nikpariz6fm/1699979594.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-05-26/qS3msIGIgH0dLRBsusgQm.jpg",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.31",
+      "number_of_rating": 4272,
+      "location": "Surulere",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 958,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "0800",
+          "closing": "2200"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "African",
+        "Fast food",
+        "Chowcombo"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": false,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 70000,
+      "minimum_delivery_time": 15,
+      "maximum_delivery_time": 25,
+      "distance": 2.1,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5093324,
+          "vendor_id": 102383,
+          "group_id": 0,
+          "rank": 100,
+          "name": "tuwo ",
+          "popular_name": "",
+          "description": "2spoon",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 100000,
+          "currency": "NGN",
+          "price_description": "2spoons ",
+          "created_at": "2026-07-24T15:54:55.000Z",
+          "updated_at": "2026-09-30T16:21:16.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-102383-65ZDNVLHAJ",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T16:21:16.000Z",
+          "estimated_prep_time": 2,
+          "estimated_prep_time_last_refreshed_at": "2026-09-02T18:28:15.000Z",
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 112744481,
+              "path": "https://files.chowdeck.com/images/2026/2026-07-24/hS95nVOZIm6H6iEiSkrkU.png",
+              "rank": 1,
+              "menu_id": 5093324
+            }
+          ],
+          "tags": [
+            {
+              "name": "meal",
+              "id": 3185205
+            }
+          ],
+          "category": {
+            "id": 7588
+          }
+        }
+      ]
+    },
+    {
+      "id": 165300,
+      "name": "NIGHT SHIFT LOCAL",
+      "slug": "night-shift-localsurulerenzwxwn",
+      "logo_url": "https://files.chowdeck.com/images/2026/2026-07-28/0d6CCgoCoZ6I2Q1wYtzrj.PNG",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2026/2026-07-29/QzHupMmcC7OGxA40IRBbx.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.80",
+      "number_of_rating": 5,
+      "location": "Surulere",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 20,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "monday": {
+          "opening": "0000",
+          "closing": "0001",
+          "is_open": false,
+          "errors": null
+        },
+        "tuesday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "wednesday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "thursday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "friday": {
+          "opening": "1200",
+          "closing": 2359,
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "default": {
+          "opening": "1200",
+          "closing": 2359,
+          "is_open": true,
+          "errors": null,
+          "day": "default"
+        },
+        "Friday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "Saturday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "Sunday": {
+          "opening": "",
+          "closing": ""
+        },
+        "Tuesday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "Wednesday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "Thursday": {
+          "opening": "1200",
+          "closing": 2359
+        },
+        "Monday": {
+          "opening": "0000",
+          "closing": "0001"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Jollof rice",
+        "Eggs",
+        "Spaghetti bolognese",
+        "Chicken dishes",
+        "Pasta",
+        "Beverages",
+        "Lunch",
+        "Dinner",
+        "Breakfast",
+        "Snacks",
+        "Drinks",
+        "Party",
+        "Desserts",
+        "Grilled chicken skewers"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 70000,
+      "minimum_delivery_time": 22,
+      "maximum_delivery_time": 32,
+      "distance": 2.16,
+      "registration_status": {
+        "basic_information": 1,
+        "incorporation_information": 1,
+        "signed_sla": 1,
+        "verify_business_information": 1,
+        "verify_phone": 1,
+        "operational_information": 1,
+        "menu_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5158201,
+          "vendor_id": 165300,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo",
+          "popular_name": "Tuwo",
+          "description": "Zero lumps, ultimate softness. Our Tuwo is cooked fresh to give you that authentic home-style feel. Pair it with rich, peppered local soups and meat to hit the spot.",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2026-07-31T10:41:48.000Z",
+          "updated_at": "2026-09-30T10:59:14.000Z",
+          "container_type_id": 41293,
+          "menu_group_ids": "",
+          "reference": "SKU-165300-7DERWB3Z1M",
+          "volume_per_portion": null,
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": null,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": 0,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T10:59:14.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": 0,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": true,
+          "low_stock_alert": 0,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 120542734,
+              "path": "https://files.chowdeck.com/images/2026/2026-07-31/1SKTch6aMKrt5KZlGe9ru.png",
+              "rank": 1,
+              "menu_id": 5158201
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 3222072
+            }
+          ],
+          "category": {
+            "id": 322878
+          }
+        }
+      ]
+    },
+    {
+      "id": 130457,
+      "name": "Anike Onituwo",
+      "slug": "anike-onituwoijesha-tedotccslu",
+      "logo_url": "https://files.chowdeck.com/images/2025/2025-10-16/EJrcEtaiGAInUJhyHhgii.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-10-16/hQgIjV39bZLX6yr7GGBgy.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "5.00",
+      "number_of_rating": 7,
+      "location": "Ijesha Tedo",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 30,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "1100",
+          "closing": "2012"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Swallow"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 80000,
+      "minimum_delivery_time": 13,
+      "maximum_delivery_time": 23,
+      "distance": 3.28,
+      "registration_status": {
+        "menu_information": 1,
+        "signed_sla": 1,
+        "operational_information": 1,
+        "basic_information": 1,
+        "verify_phone": 1
+      },
+      "verification_status": "awaiting",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 2799919,
+          "vendor_id": 130457,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo",
+          "popular_name": "",
+          "description": "Tuwo.",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "per 1",
+          "created_at": "2025-10-17T05:49:16.000Z",
+          "updated_at": "2026-06-17T17:36:08.000Z",
+          "container_type_id": null,
+          "menu_group_ids": "",
+          "reference": "SKU-130457-ZRSNPK1HXE",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-06-17T17:36:08.000Z",
+          "estimated_prep_time": 71,
+          "estimated_prep_time_last_refreshed_at": "2025-12-17T11:33:02.000Z",
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 18844469,
+              "path": "https://files.chowdeck.com/images/2025/2025-10-17/IoEV3MQ18UgL7YeYJHWPy.png",
+              "rank": 1,
+              "menu_id": 2799919
+            }
+          ],
+          "tags": [
+            {
+              "name": "- ",
+              "id": 1694570
+            }
+          ],
+          "category": {
+            "id": 155696
+          }
+        }
+      ]
+    },
+    {
+      "id": 111202,
+      "name": "Amala Hajia ",
+      "slug": "amala-hajia-onike5y76yy",
+      "logo_url": "https://files.chowdeck.com/images/2024/2024-09-06/Vei4dlZIYAgQhX0BAPJyQ.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2024/2024-09-06/FQbqpyWIvJZJnXOuWAIa3.png"
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.49",
+      "number_of_rating": 1191,
+      "location": "Alagomeji",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 403,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "0900",
+          "closing": "2100"
+        },
+        "Sunday": {
+          "opening": "0900",
+          "closing": "0900"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Fast food "
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": false,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 130000,
+      "minimum_delivery_time": 21,
+      "maximum_delivery_time": 31,
+      "distance": 7.62,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 675394,
+          "vendor_id": 111202,
+          "group_id": 0,
+          "rank": 4,
+          "name": "Tuwo ",
+          "popular_name": "",
+          "description": " hot Tuwo ",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 44000,
+          "currency": "NGN",
+          "price_description": "Two portion",
+          "created_at": "2024-09-06T15:32:48.000Z",
+          "updated_at": "2026-09-30T09:20:09.000Z",
+          "container_type_id": 0,
+          "menu_group_ids": "49433",
+          "reference": "SKU-111202-4RGMM4QRLP",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": 1,
+          "maximum_quantity_as_side": 1,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T09:20:09.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 3431376,
+              "path": "https://files.chowdeck.com/images/2024/2024-09-06/Kh1VesFoO8AaCiXczHAfI.png",
+              "rank": 1,
+              "menu_id": 675394
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 508420
+            }
+          ],
+          "category": {
+            "id": 49983
+          }
+        }
+      ]
+    },
+    {
+      "id": 109029,
+      "name": "ATIRIFLAVOR ",
+      "slug": "atiriflavor-university-of-lagos38tbef",
+      "logo_url": "https://files.chowdeck.com/images/2024/2024-06-13/QWkgPVR0GdQ6onnnFyKnM.PNG",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2024/2024-06-13/2YVE3cBa18AuwRBCFKp4a.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant_preorder",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Unilag",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 2,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": 900,
+          "closing": "2000"
+        },
+        "saturday": {
+          "opening": 900,
+          "closing": "1900",
+          "errors": null
+        },
+        "sunday": {
+          "opening": "1350",
+          "closing": "1900",
+          "errors": null
+        },
+        "monday": {
+          "opening": "0820",
+          "closing": "2000",
+          "day": "monday",
+          "errors": null
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "0915",
+        "menu_ready_time": "0828"
+      },
+      "tag": [
+        "Pounded yum"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": true,
+      "current_is_open_state": 0,
+      "delivery_price": 140000,
+      "minimum_delivery_time": 11,
+      "maximum_delivery_time": 21,
+      "distance": 8.81,
+      "registration_status": {
+        "basic_information": 1,
+        "operational_information": 1,
+        "menu_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 1,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "verify_business_information": 0
+      },
+      "verification_status": "awaiting",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 808763,
+          "vendor_id": 109029,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo ",
+          "popular_name": "",
+          "description": "Tuwo with assaulted Meat or fish",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 400000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2024-11-24T10:19:49.000Z",
+          "updated_at": "2026-01-23T10:34:32.000Z",
+          "container_type_id": 4459,
+          "menu_group_ids": null,
+          "reference": "SKU-109029-6GLCJCDNXN",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-01-23T10:34:32.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 4217839,
+              "path": "https://files.chowdeck.com/images/2024/2024-11-24/MCBFYzzQjB46YIWuJcDy6.png",
+              "rank": 1,
+              "menu_id": 808763
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 2004403
+            }
+          ],
+          "category": {
+            "id": 37543
+          }
+        }
+      ]
+    },
+    {
+      "id": 100622,
+      "name": "IYA MORIA - Unilag",
+      "slug": "iya-moria-university-of-lagos",
+      "logo_url": "https://files.chowdeck.com/images/mlmprkhhyu56ddkxmlot/1686397231.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/o0tkh1furuanfvktja5c/1686397227.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.44",
+      "number_of_rating": 28256,
+      "location": "Unilag",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 3762,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "1000",
+          "closing": "2000"
+        },
+        "Sunday": {
+          "opening": "0000",
+          "closing": "0000"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "African",
+        "Yaba",
+        "Unilag",
+        "Chowcombo",
+        "Chowsmart",
+        "Affordable_options",
+        "Iftar_deals",
+        "Quick_delivery"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": false,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 140000,
+      "minimum_delivery_time": 18,
+      "maximum_delivery_time": 28,
+      "distance": 8.67,
+      "registration_status": {
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 3291647,
+          "vendor_id": 100622,
+          "group_id": 0,
+          "rank": 11,
+          "name": "tuwo ",
+          "popular_name": "",
+          "description": "tuwo",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "500",
+          "created_at": "2026-01-27T10:09:26.000Z",
+          "updated_at": "2026-09-30T08:42:45.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-100622-2CHQQ9LYMX",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T08:42:45.000Z",
+          "estimated_prep_time": 6,
+          "estimated_prep_time_last_refreshed_at": "2026-08-28T14:58:55.000Z",
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 27133444,
+              "path": "https://files.chowdeck.com/images/2026/2026-01-27/iNIO0XzQ4cZsJVPGl6dNp.PNG",
+              "rank": 1,
+              "menu_id": 3291647
+            }
+          ],
+          "tags": [
+            {
+              "name": "meal",
+              "id": 2021859
+            }
+          ],
+          "category": {
+            "id": 2352
+          }
+        }
+      ]
+    },
+    {
+      "id": 167656,
+      "name": "IYA MORIA - Fola Agoro",
+      "slug": "iya-moria-unilagabule-ijeshar3gutc",
+      "logo_url": "https://files.chowdeck.com/images/mlmprkhhyu56ddkxmlot/1686397231.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/o0tkh1furuanfvktja5c/1686397227.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.35",
+      "number_of_rating": 178,
+      "location": "Fola Agoro",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 53,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "1000",
+          "closing": "2000"
+        },
+        "Sunday": {
+          "opening": "0000",
+          "closing": "0000"
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Quick_delivery",
+        "Iftar_deals",
+        "Affordable_options",
+        "Chowsmart",
+        "Chowcombo",
+        "African",
+        "Yaba",
+        "Unilag"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": false,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": false,
+      "current_is_open_state": 1,
+      "delivery_price": 130000,
+      "minimum_delivery_time": 19,
+      "maximum_delivery_time": 29,
+      "distance": 7.87,
+      "registration_status": {
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5384081,
+          "vendor_id": 167656,
+          "group_id": 0,
+          "rank": 11,
+          "name": "tuwo ",
+          "popular_name": "",
+          "description": "tuwo",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 50000,
+          "currency": "NGN",
+          "price_description": "500",
+          "created_at": "2026-08-18T09:40:36.000Z",
+          "updated_at": "2026-09-30T14:55:56.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-100622-2CHQQ9LYMX",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T14:55:56.000Z",
+          "estimated_prep_time": 16,
+          "estimated_prep_time_last_refreshed_at": "2026-09-29T18:10:36.000Z",
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 127978765,
+              "path": "https://files.chowdeck.com/images/2026/2026-01-27/iNIO0XzQ4cZsJVPGl6dNp.PNG",
+              "rank": 1,
+              "menu_id": 5384081
+            }
+          ],
+          "tags": [],
+          "category": {
+            "id": 336917
+          }
+        }
+      ]
+    },
+    {
+      "id": 103974,
+      "name": "Sweethoney Foods ",
+      "slug": "sweethoneyfoods-akokambvxfs",
+      "logo_url": "https://files.chowdeck.com/images/wm7qm22jqpm0jihwldrn/1698676902.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-09-22/NBSz6IiihU65Ear22pFDp.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "preorder",
+      "average_rating": "3.29",
+      "number_of_rating": 7,
+      "location": "Fola Agoro",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 43,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "0000",
+          "closing": "2359"
+        },
+        "monday": {
+          "opening": "0000",
+          "closing": "2355",
+          "day": "monday",
+          "errors": null
+        },
+        "tuesday": {
+          "opening": "0000",
+          "closing": "2355",
+          "day": "tuesday",
+          "errors": null
+        },
+        "wednesday": {
+          "opening": "0000",
+          "closing": "2355",
+          "day": "wednesday",
+          "errors": null
+        },
+        "thursday": {
+          "opening": "0000",
+          "closing": "2355",
+          "day": "thursday",
+          "errors": null
+        },
+        "Monday": {
+          "opening": "0000",
+          "closing": "2355"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "1200",
+        "available_days": [
+          "default"
+        ],
+        "menu_ready_time": "1800"
+      },
+      "tag": [
+        "Abula "
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": true,
+      "current_is_open_state": 1,
+      "delivery_price": 160000,
+      "minimum_delivery_time": 33,
+      "maximum_delivery_time": 43,
+      "distance": 9.96,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 81682,
+          "vendor_id": 103974,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo",
+          "popular_name": "",
+          "description": "Tuwo is made from maize very  smooth and fluffy  for the throat.",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 40000,
+          "currency": "NGN",
+          "price_description": "2 wraps",
+          "created_at": "2023-10-23T18:06:44.000Z",
+          "updated_at": "2025-09-22T00:46:04.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-107299-365602",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2025-09-22T00:46:04.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 341159,
+              "path": "https://files.chowdeck.com/images/pz06l468ajnpbybweiej/1698084403.png",
+              "rank": 1,
+              "menu_id": 81682
+            },
+            {
+              "id": 341164,
+              "path": "https://files.chowdeck.com/images/uk0pfu8ygiuj2hi6wlul/1698084741.png",
+              "rank": 0,
+              "menu_id": 81682
+            },
+            {
+              "id": 342100,
+              "path": "https://files.chowdeck.com/images/g7devpvxfpyecosxa1s1/1698145974.png",
+              "rank": 0,
+              "menu_id": 81682
+            }
+          ],
+          "tags": [
+            {
+              "name": "Swallow ",
+              "id": 120562
+            }
+          ],
+          "category": {
+            "id": 13063
+          }
+        }
+      ]
+    },
+    {
+      "id": 100593,
+      "name": "Teez_spicy",
+      "slug": "teez-spicy-surulere",
+      "logo_url": "https://files.chowdeck.com/images/2025/2025-10-07/9mTRxA1chlGxI4DAstkue.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-10-07/KRLI2CrNQXMyRCgHcekug.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant_preorder",
+      "average_rating": "3.14",
+      "number_of_rating": 145,
+      "location": "Ijesha Tedo",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 172,
+      "liked_by_customer": 0,
+      "is_open": true,
+      "available_hours": {
+        "default": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "tuesday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "thursday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "Thursday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Friday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Saturday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Sunday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Monday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Tuesday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Wednesday": {
+          "opening": "0900",
+          "closing": "1830"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "1000",
+        "available_days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "menu_ready_time": "1200"
+      },
+      "tag": [
+        "Fast food",
+        "African",
+        "Ikeja gra",
+        "Breakfast & snacks",
+        "Maryland",
+        "Unilag",
+        "Allen",
+        "Yaba",
+        "Mende",
+        "chowsmart"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": null,
+      "can_pre_order": true,
+      "current_is_open_state": 1,
+      "delivery_price": 65000,
+      "minimum_delivery_time": 21,
+      "maximum_delivery_time": 31,
+      "distance": 1.64,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 640918,
+          "vendor_id": 100593,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo or Amala + Gbegiri + Ewedu + Assorted meat or protein of choice",
+          "popular_name": "",
+          "description": "Freshly Made Tuwo, Gbegiri, ewedu served wit assorted, ponmo or protein of choice ( Goatmeat, beef, snails Guinea fowl or cowleg)",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 650000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2024-08-03T10:34:29.000Z",
+          "updated_at": "2026-09-30T08:29:41.000Z",
+          "container_type_id": 0,
+          "menu_group_ids": "",
+          "reference": "SKU-107299-365602",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T08:29:41.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 2409017,
+              "path": "https://files.chowdeck.com/images/2024/2024-08-03/lP1fVd2NKBWBMoiINUkv5.png",
+              "rank": 1,
+              "menu_id": 640918
+            },
+            {
+              "id": 3599863,
+              "path": "https://files.chowdeck.com/images/2024/2024-10-02/Z1N06EYdogsv1jjCkKKGf.png",
+              "rank": 0,
+              "menu_id": 640918
+            },
+            {
+              "id": 7194450,
+              "path": "https://files.chowdeck.com/images/2025/2025-05-17/H29CZSSKbDMDx1DqOUPMa.png",
+              "rank": 0,
+              "menu_id": 640918
+            },
+            {
+              "id": 8798469,
+              "path": "https://files.chowdeck.com/images/2025/2025-06-19/UyS693UewOkaOWHIko6bl.png",
+              "rank": 0,
+              "menu_id": 640918
+            },
+            {
+              "id": 17410783,
+              "path": "https://files.chowdeck.com/images/2025/2025-10-05/iMafhzYoqKRlcpa3W9fre.png",
+              "rank": 0,
+              "menu_id": 640918
+            },
+            {
+              "id": 27188294,
+              "path": "https://files.chowdeck.com/images/2026/2026-01-28/Xx1MVqG76kBqFRZ44NjR9.png",
+              "rank": 0,
+              "menu_id": 640918
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 430971
+            }
+          ],
+          "category": {
+            "id": 25675
+          }
+        }
+      ]
+    },
+    {
+      "id": 101225,
+      "name": "Spicy Amala Place ",
+      "slug": "spicy-amala-place-idi-orounnjtp",
+      "logo_url": "https://files.chowdeck.com/images/s7dfcs9rxegsycpxk1w0/1698093714.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2024/2024-06-22/vzv4na5YwupvIkbKHyWci.png",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.33",
+      "number_of_rating": 1468,
+      "location": "Surulere",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": true,
+      "likes": 522,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "0900",
+          "closing": "1855",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "0900",
+          "closing": "1855",
+          "is_open": true,
+          "errors": null
+        },
+        "tuesday": {
+          "opening": "0900",
+          "closing": "1840",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "0900",
+          "closing": "1830",
+          "is_open": true
+        },
+        "thursday": {
+          "opening": "0900",
+          "closing": "1840",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "0900",
+          "closing": "1855",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "0900",
+          "closing": "1740",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "Tuesday": {
+          "opening": "0900",
+          "closing": "1840"
+        },
+        "Wednesday": {
+          "opening": "0900",
+          "closing": "1830"
+        },
+        "Thursday": {
+          "opening": "0900",
+          "closing": "1840"
+        },
+        "Friday": {
+          "opening": "0900",
+          "closing": "1855"
+        },
+        "Saturday": {
+          "opening": "0900",
+          "closing": "1740"
+        },
+        "Monday": {
+          "opening": "0900",
+          "closing": "1855"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "0635",
+        "available_days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "menu_ready_time": "0900"
+      },
+      "tag": [
+        "Abula joint",
+        "#amala",
+        "African",
+        "Breakfast",
+        "Lunch",
+        "Meat",
+        "Vegetables",
+        "Swallow",
+        "Soup",
+        "Protein",
+        "Chowcombo",
+        "Iyan toh sure",
+        "Iyan toh sure ",
+        "Chowsmart"
+      ],
+      "discounts": [
+        {
+          "id": 441955,
+          "title": "Free drink above #5000",
+          "description": "Free drink above #5000",
+          "reference": "gpt1mjz7k6uo2n9",
+          "source": 101225,
+          "type": "flat_fee",
+          "value": 500,
+          "target_service": "orders",
+          "target_service_id": null,
+          "source_service": "vendors",
+          "source_service_id": 101225,
+          "created_by": 42149,
+          "maximum_usage_times": 10,
+          "expiry_date": "2026-09-30T19:00:00.000Z",
+          "published_date": "2026-09-28T12:03:15.000Z",
+          "currency": "NGN",
+          "apply_at": "[]",
+          "is_active": true,
+          "is_published": true,
+          "minimum_order_amount": 500000,
+          "minimum_number_of_menu": 1,
+          "created_at": "2026-09-28T12:03:01.000Z",
+          "updated_at": "2026-09-28T12:03:15.000Z",
+          "settings": "{\"source\":\"vendor\",\"banner_title\":\"Free drink above #5000\",\"start_date\":\"2026-09-28T06:00:00.000Z\",\"type\":\"price_slash_off_order\"}",
+          "is_auto_applied": true,
+          "coordinate": null,
+          "minimum_distance_radius": 0,
+          "maximum_distance_radius": 0,
+          "shared_percent": "0.00",
+          "capped_amount_per_user": null,
+          "total_capped_amount": null,
+          "max_usage_capped_amount": 0,
+          "campaign_id": null,
+          "discount_image_url": null
+        }
+      ],
+      "discount_text": "Free drink above #5000",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": false,
+      "current_is_open_state": 0,
+      "delivery_price": 80000,
+      "minimum_delivery_time": 27,
+      "maximum_delivery_time": 37,
+      "distance": 3.87,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 4236721,
+          "vendor_id": 101225,
+          "group_id": 0,
+          "rank": 100,
+          "name": "Tuwo Yoruba",
+          "popular_name": "",
+          "description": "Hot Tuwo Yoruba",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 30000,
+          "currency": "NGN",
+          "price_description": "per",
+          "created_at": "2026-05-12T16:58:45.000Z",
+          "updated_at": "2026-09-30T11:12:25.000Z",
+          "container_type_id": 31689,
+          "menu_group_ids": null,
+          "reference": "SKU-101225-R5GCD3226L",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T11:12:25.000Z",
+          "estimated_prep_time": 67,
+          "estimated_prep_time_last_refreshed_at": "2026-06-04T13:15:11.000Z",
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": 0,
+          "is_variation_parent": false,
+          "cost_price": 35000,
+          "track_stock": true,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 50998596,
+              "path": "https://files.chowdeck.com/images/2026/2026-05-12/lVnWuXIWPvpipCounEEKb.png",
+              "rank": 1,
+              "menu_id": 4236721
+            }
+          ],
+          "tags": [
+            {
+              "name": "Meal",
+              "id": 2658971
+            }
+          ],
+          "category": {
+            "id": 12138
+          }
+        }
+      ]
+    },
+    {
+      "id": 166787,
+      "name": "Dami dreams ",
+      "slug": "dami-dreams-yabaarkzem",
+      "logo_url": "https://files.chowdeck.com/images/2025/2025-03-05/CHk8MgOqMHBga2TyiDi15.PNG",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-09-02/i7mm8rfovARylbbaOrSW6.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Surulere",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 1,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "tuesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "thursday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "Tuesday": {
+          "opening": "0700",
+          "closing": "2100"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "0600",
+        "menu_ready_time": "0800"
+      },
+      "tag": [
+        "Breakfast",
+        "Lunch",
+        "Dinner"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": false,
+      "current_is_open_state": 0,
+      "delivery_price": 90000,
+      "minimum_delivery_time": 11,
+      "maximum_delivery_time": 21,
+      "distance": 4.72,
+      "registration_status": {
+        "basic_information": 1,
+        "operational_information": 1,
+        "menu_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 1,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5541511,
+          "vendor_id": 166787,
+          "group_id": 0,
+          "rank": 100,
+          "name": "tuwo abula",
+          "popular_name": "",
+          "description": "tuwo with assorted meat ",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 500000,
+          "currency": "NGN",
+          "price_description": "per plate ",
+          "created_at": "2026-08-31T08:50:29.000Z",
+          "updated_at": "2026-09-01T17:22:27.000Z",
+          "container_type_id": 42060,
+          "menu_group_ids": null,
+          "reference": "SKU-166787-KDX3QMZ16F",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-01T17:22:27.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 350000,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 132861156,
+              "path": "https://files.chowdeck.com/images/2026/2026-08-31/xVGJLNXJdHGK640VNFdxx.PNG",
+              "rank": 1,
+              "menu_id": 5541511
+            }
+          ],
+          "tags": [
+            {
+              "name": "meal",
+              "id": 3368445
+            }
+          ],
+          "category": {
+            "id": 330689
+          }
+        }
+      ]
+    },
+    {
+      "id": 166788,
+      "name": "Dami dreams ",
+      "slug": "dami-dreams-yabaqk11tq",
+      "logo_url": "https://files.chowdeck.com/images/2025/2025-03-05/CHk8MgOqMHBga2TyiDi15.PNG",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-09-02/i7mm8rfovARylbbaOrSW6.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Surulere",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 1,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "tuesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "thursday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "Tuesday": {
+          "opening": "0700",
+          "closing": "2100"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "0600",
+        "menu_ready_time": "0800"
+      },
+      "tag": [
+        "Breakfast",
+        "Lunch",
+        "Dinner"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": false,
+      "current_is_open_state": 0,
+      "delivery_price": 90000,
+      "minimum_delivery_time": 11,
+      "maximum_delivery_time": 21,
+      "distance": 4.72,
+      "registration_status": {
+        "basic_information": 1,
+        "operational_information": 1,
+        "menu_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 1,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5541372,
+          "vendor_id": 166788,
+          "group_id": 0,
+          "rank": 100,
+          "name": "tuwo abula ",
+          "popular_name": "",
+          "description": "tuwo with gberi and ewedu and assorted meat ",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 500000,
+          "currency": "NGN",
+          "price_description": "per plate ",
+          "created_at": "2026-08-31T08:10:30.000Z",
+          "updated_at": "2026-09-01T17:10:58.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-166788-5JKBGNQ88R",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-01T17:10:58.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 132846962,
+              "path": "https://files.chowdeck.com/images/2026/2026-08-31/h2VmNBYpx1HPmQxSXXyhw.PNG",
+              "rank": 1,
+              "menu_id": 5541372
+            }
+          ],
+          "tags": [
+            {
+              "name": "meal",
+              "id": 3368283
+            }
+          ],
+          "category": {
+            "id": 330677
+          }
+        }
+      ]
+    },
+    {
+      "id": 166786,
+      "name": "Dami dreams ",
+      "slug": "dami-dreams-yaba7uvadg",
+      "logo_url": "https://files.chowdeck.com/images/2025/2025-03-05/CHk8MgOqMHBga2TyiDi15.PNG",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2025/2025-09-02/i7mm8rfovARylbbaOrSW6.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "5.00",
+      "number_of_rating": 1,
+      "location": "Surulere",
+      "minimum_order_amount": 0,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 1,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "tuesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "wednesday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "thursday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "0700",
+          "closing": "2100",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "",
+          "closing": "",
+          "is_open": false
+        },
+        "Tuesday": {
+          "opening": "0700",
+          "closing": "2100"
+        }
+      },
+      "preorder_configuration": {
+        "cutoff_order_time": "0600",
+        "menu_ready_time": "0800"
+      },
+      "tag": [
+        "Breakfast",
+        "Lunch",
+        "Dinner"
+      ],
+      "discounts": [],
+      "discount_text": "",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": false,
+      "current_is_open_state": 0,
+      "delivery_price": 90000,
+      "minimum_delivery_time": 11,
+      "maximum_delivery_time": 21,
+      "distance": 4.72,
+      "registration_status": {
+        "basic_information": 1,
+        "operational_information": 1,
+        "menu_information": 1,
+        "bank_information": 1,
+        "incorporation_information": 1,
+        "signed_sla": 1,
+        "verify_phone": 1,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 5236135,
+          "vendor_id": 166786,
+          "group_id": 0,
+          "rank": 100,
+          "name": "tuwo abula",
+          "popular_name": "",
+          "description": "tuwo with gberi and ewedu with assorted ",
+          "menu_type": null,
+          "in_stock": true,
+          "is_published": true,
+          "is_active": true,
+          "price": 500000,
+          "currency": "NGN",
+          "price_description": "per plate",
+          "created_at": "2026-08-11T15:49:16.000Z",
+          "updated_at": "2026-09-01T17:07:40.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-166786-BA7NZD3Y6W",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-01T17:07:40.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": 0,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 126885062,
+              "path": "https://files.chowdeck.com/images/2026/2026-08-11/q9IBSU2ptg7J6Yp6FeYg1.PNG",
+              "rank": 1,
+              "menu_id": 5236135
+            }
+          ],
+          "tags": [
+            {
+              "name": "meal",
+              "id": 3274188
+            }
+          ],
+          "category": {
+            "id": 330672
+          }
+        }
+      ]
+    },
+    {
+      "id": 102283,
+      "name": "MasterQue Grills",
+      "slug": "masterque-grillsonikeszzmxx",
+      "logo_url": "https://files.chowdeck.com/images/k62xefaaqc5qayhyoqit/1697488542.png",
+      "cover_images": [
+        {
+          "path": "https://files.chowdeck.com/images/2026/2026-09-10/KHcpbsdM5PMYtqLdClX8F.PNG",
+          "original_filename": ""
+        }
+      ],
+      "vendor_type": "restaurant",
+      "vendor_class": "instant",
+      "average_rating": "4.31",
+      "number_of_rating": 140,
+      "location": "Alagomeji",
+      "minimum_order_amount": 100000,
+      "currency": "NGN",
+      "is_liked": 0,
+      "offers_pickup": false,
+      "likes": 95,
+      "liked_by_customer": 0,
+      "is_open": false,
+      "available_hours": {
+        "default": {
+          "opening": "1200",
+          "closing": "2215",
+          "is_open": true
+        },
+        "monday": {
+          "opening": "1200",
+          "closing": "2215",
+          "is_open": true
+        },
+        "tuesday": {
+          "opening": "1200",
+          "closing": "2215"
+        },
+        "wednesday": {
+          "opening": "1200",
+          "closing": "2215"
+        },
+        "thursday": {
+          "opening": "1200",
+          "closing": "2215",
+          "is_open": true
+        },
+        "friday": {
+          "opening": "1200",
+          "closing": "2215",
+          "is_open": true
+        },
+        "saturday": {
+          "opening": "1200",
+          "closing": "2215",
+          "is_open": true
+        },
+        "sunday": {
+          "opening": "1200",
+          "closing": "2250",
+          "is_open": true
+        }
+      },
+      "preorder_configuration": {},
+      "tag": [
+        "Chicken ",
+        "Unilag",
+        "Yaba",
+        "Fast food",
+        "Grilled ",
+        "Fries",
+        "Asun",
+        "Grilled and fries",
+        "Adds",
+        "chowsmart",
+        "lovedeal"
+      ],
+      "discounts": [
+        {
+          "id": 433072,
+          "title": "Happy Hour",
+          "description": "Happy Hour",
+          "reference": "xy6x1_m3egibr7u-245303",
+          "source": 102283,
+          "type": "percentage_off",
+          "value": 10,
+          "target_service": "menus",
+          "target_service_id": 245303,
+          "source_service": "vendors",
+          "source_service_id": 102283,
+          "created_by": 80556,
+          "maximum_usage_times": 50,
+          "expiry_date": "2026-10-07T11:09:00.000Z",
+          "published_date": "2026-09-09T17:14:48.000Z",
+          "currency": "NGN",
+          "apply_at": "[]",
+          "is_active": true,
+          "is_published": true,
+          "minimum_order_amount": 0,
+          "minimum_number_of_menu": 1,
+          "created_at": "2026-09-09T17:14:35.000Z",
+          "updated_at": "2026-09-09T17:14:48.000Z",
+          "settings": "{\"source\":\"vendor\",\"banner_title\":\"Happy Hour\",\"start_date\":\"2026-09-09T11:09:00.000Z\",\"type\":\"price_slash_off_menu\"}",
+          "is_auto_applied": true,
+          "coordinate": null,
+          "minimum_distance_radius": 0,
+          "maximum_distance_radius": 0,
+          "shared_percent": "0.00",
+          "capped_amount_per_user": null,
+          "total_capped_amount": null,
+          "max_usage_capped_amount": 0,
+          "campaign_id": null,
+          "discount_image_url": null
+        },
+        {
+          "id": 433073,
+          "title": "Happy Hour",
+          "description": "Happy Hour",
+          "reference": "4xqt097bhr31iav-47584",
+          "source": 102283,
+          "type": "percentage_off",
+          "value": 10,
+          "target_service": "menus",
+          "target_service_id": 47584,
+          "source_service": "vendors",
+          "source_service_id": 102283,
+          "created_by": 80556,
+          "maximum_usage_times": 50,
+          "expiry_date": "2026-10-07T11:09:00.000Z",
+          "published_date": "2026-09-09T17:16:57.000Z",
+          "currency": "NGN",
+          "apply_at": "[]",
+          "is_active": true,
+          "is_published": true,
+          "minimum_order_amount": 0,
+          "minimum_number_of_menu": 1,
+          "created_at": "2026-09-09T17:16:49.000Z",
+          "updated_at": "2026-09-09T17:16:57.000Z",
+          "settings": "{\"source\":\"vendor\",\"banner_title\":\"Happy Hour\",\"start_date\":\"2026-09-09T11:09:00.000Z\",\"type\":\"price_slash_off_menu\"}",
+          "is_auto_applied": true,
+          "coordinate": null,
+          "minimum_distance_radius": 0,
+          "maximum_distance_radius": 0,
+          "shared_percent": "0.00",
+          "capped_amount_per_user": null,
+          "total_capped_amount": null,
+          "max_usage_capped_amount": 0,
+          "campaign_id": null,
+          "discount_image_url": null
+        }
+      ],
+      "discount_text": "Happy Hour",
+      "is_chowpass_vendor": true,
+      "is_temporarily_unavailable": false,
+      "temporarily_unavailable_tag": "Kitchen is full",
+      "opening_time_text": "closed",
+      "can_pre_order": false,
+      "current_is_open_state": 0,
+      "delivery_price": 130000,
+      "minimum_delivery_time": 16,
+      "maximum_delivery_time": 26,
+      "distance": 7.56,
+      "registration_status": {
+        "bank_information": 1,
+        "menu_information": 1,
+        "basic_information": 1,
+        "operational_information": 1,
+        "incorporation_information": 0,
+        "verify_business_information": 1
+      },
+      "verification_status": "verified",
+      "is_shopper": false,
+      "free_gift_config": {
+        "enabled": false
+      },
+      "products": [
+        {
+          "id": 47952,
+          "vendor_id": 102283,
+          "group_id": 0,
+          "rank": 100,
+          "name": "1 plate of Tuwo with gbegiri and ewedu",
+          "popular_name": "",
+          "description": "Tuwo(3)meat (3)with gbegiri and ewedu",
+          "menu_type": null,
+          "in_stock": false,
+          "is_published": true,
+          "is_active": true,
+          "price": 100000,
+          "currency": "NGN",
+          "price_description": "1000",
+          "created_at": "2023-07-18T17:53:48.000Z",
+          "updated_at": "2026-09-30T09:36:16.000Z",
+          "container_type_id": null,
+          "menu_group_ids": null,
+          "reference": "SKU-107299-365602",
+          "volume_per_portion": "0.00",
+          "maximum_quantity": null,
+          "maximum_quantity_as_side": 0,
+          "size_description": null,
+          "menu_sub_category_id": null,
+          "listing_price_factor": "1.00",
+          "mark_up_price": null,
+          "average_rating": null,
+          "rating_count": 0,
+          "commission_percent": 0,
+          "review_status": null,
+          "reviewed_at": null,
+          "reviewed_by": null,
+          "review_reason": null,
+          "vendor_price": null,
+          "prep_time": null,
+          "existing_menu_ids": null,
+          "order_limits": null,
+          "stock_status_confirmed_at": "2026-09-30T09:36:16.000Z",
+          "estimated_prep_time": null,
+          "estimated_prep_time_last_refreshed_at": null,
+          "menu_parent_id": null,
+          "menu_class_id": null,
+          "stock": null,
+          "is_variation_parent": false,
+          "cost_price": null,
+          "track_stock": false,
+          "low_stock_alert": null,
+          "sourcing_status": "always_in_stock",
+          "images": [
+            {
+              "id": 263338,
+              "path": "https://files.chowdeck.com/images/s45rkc7qfnqlhe8d4w5e/1689702826.png",
+              "rank": 1,
+              "menu_id": 47952
+            }
+          ],
+          "discount": null,
+          "discounts": [],
+          "discount_price": 100000,
+          "discount_rank": 100,
+          "tags": [
+            {
+              "name": "Swallow",
+              "id": 77114
+            }
+          ],
+          "category": {
+            "id": 7476
+          }
+        }
+      ]
+    }
+  ]
+}

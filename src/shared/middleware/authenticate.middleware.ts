@@ -107,6 +107,27 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 }
 
 /**
+ * Authenticates IF a token was sent, and carries on either way.
+ *
+ * For routes that serve everybody but serve a signed-in person better: the
+ * decide flow reads their kitchen and uses a looser rate-limit bucket, while a
+ * guest gets the anonymous path. Both reach the same handler.
+ *
+ * A BAD token is still rejected. Only the ABSENCE of one is tolerated —
+ * quietly ignoring an expired or forged token would mean somebody whose
+ * session lapsed silently became a stranger, which looks like data loss rather
+ * than a sign-in prompt.
+ */
+export function optionalAuthenticate(req: Request, res: Response, next: NextFunction): void {
+  const header = req.header('authorization');
+  if (header === undefined || !header.startsWith(BEARER)) {
+    next();
+    return;
+  }
+  authenticate(req, res, next);
+}
+
+/**
  * Reads the actor a preceding `authenticate` established. Throwing rather than
  * returning undefined is deliberate: reaching this without `authenticate` in
  * front is a wiring bug, and it should fail loudly in development rather than

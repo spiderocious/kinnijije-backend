@@ -1,14 +1,32 @@
-import { Router, type Express } from 'express';
+import { Router, type Express, type RequestHandler } from 'express';
+
+import { getContext } from '@lib/http/request-context.js';
 
 import { RATE_LIMITS } from '@lib/ratelimit/index.js';
 import { asyncHandler } from '@shared/middleware/async-handler.js';
 import { byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
+import { optionalAuthenticate } from '@shared/middleware/authenticate.middleware.js';
+
 import { decideController } from './decide.controller.js';
 import { DecideSchema } from './decide.schema.js';
 
 const router = Router();
+
+/**
+ * Picks the bucket from whether a session was presented.
+ *
+ * Two limiters rather than one with a clever resolver: the policies differ in
+ * both key and rate, and a single `rateLimit` call cannot express that.
+ */
+const anonLimiter = rateLimit(RATE_LIMITS.DECIDE_ANON, byIp);
+const userLimiter = rateLimit(RATE_LIMITS.DECIDE_USER);
+
+const decideRateLimit: RequestHandler = (req, res, next) => {
+  const handler = getContext()?.user_id === undefined ? anonLimiter : userLimiter;
+  handler(req, res, next);
+};
 
 /**
  * PUBLIC and unauthenticated, both of them.
@@ -37,10 +55,18 @@ router.get(
   asyncHandler(decideController.stats),
 );
 
-// The expensive one: unauthenticated AND it can spend money at OpenAI.
+/**
+ * The expensive one: it can spend money at OpenAI.
+ *
+ * OPTIONALLY authenticated. A guest is keyed by IP on the tight anonymous
+ * policy; somebody signed in is keyed by user id on a looser one, because a
+ * household behind one address should not share a stranger's bucket. Both hit
+ * the same handler — the only difference is which bucket and whose kitchen.
+ */
 router.post(
   '/decide',
-  rateLimit(RATE_LIMITS.DECIDE_ANON, byIp),
+  optionalAuthenticate,
+  decideRateLimit,
   validate(DecideSchema),
   asyncHandler(decideController.decide),
 );

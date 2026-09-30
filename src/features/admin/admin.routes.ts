@@ -69,6 +69,10 @@ router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 // question and a constant buried in a function cannot be answered empirically.
 // Visibility into the anonymous decide flow: what people submit, what we
 // answer, and how often the model actually contributes.
+// Literal, and registered before '/admin/ai/:logId' so "stats" is not read
+// as a log id.
+router.get('/admin/ai/stats', ...guard, asyncHandler(adminController.aiStats));
+
 router.get('/admin/decide/overview', ...guard, asyncHandler(adminController.decideOverview));
 router.get('/admin/decide/logs', ...guard, asyncHandler(adminController.decideLogs));
 // Parameterised LAST: '/decide/logs' and '/decide/overview' are literals and

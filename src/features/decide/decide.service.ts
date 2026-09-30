@@ -59,19 +59,29 @@ export class DecideService {
     return (await MealModel.find({ status: 'published' }).lean().exec()) as unknown as MealDocument[];
   }
 
-  async decide(input: DecideInput, ip = 'unknown'): Promise<ServiceResult<DecideVerdictView>> {
+  /**
+   * @param userId set when a session was presented. Their own stock is used
+   *   when the client sent no kitchen items, so a signed-in cook is never
+   *   asked for something the app already knows.
+   */
+  async decide(
+    input: DecideInput,
+    ip = 'unknown',
+    userId?: string,
+  ): Promise<ServiceResult<DecideVerdictView>> {
     const started = Date.now();
+    const resolved = await this.withKitchenOf(input, userId);
     const meals = await this.publishedMeals();
     const [weather, config] = await Promise.all([
-      this.weatherFor(input.city),
+      this.weatherFor(resolved.city),
       rankingSettings.current(),
     ]);
 
-    const candidates = rankCandidates(meals, input, { weather, limit: POOL_SIZE, config });
+    const candidates = rankCandidates(meals, resolved, { weather, limit: POOL_SIZE, config });
 
     // Nothing fits. A real answer, not an error — the client widens a filter.
     if (candidates.length === 0) {
-      this.record(input, ip, null, 0, 'deterministic', Date.now() - started, 'no candidates');
+      this.record(resolved, ip, null, 0, 'deterministic', Date.now() - started, 'no candidates');
       return ok({
         verdict: EMPTY_VERDICT,
         alternates: [],
@@ -85,8 +95,8 @@ export class DecideService {
       });
     }
 
-    const views = candidates.map((c) => toMealView(c, input));
-    const framed = await this.frame(candidates.slice(0, CANDIDATES_FOR_MODEL), input);
+    const views = candidates.map((c) => toMealView(c, resolved));
+    const framed = await this.frame(candidates.slice(0, CANDIDATES_FOR_MODEL), resolved);
 
     // The model may promote a different candidate to the top.
     const winnerIndex =
@@ -102,7 +112,7 @@ export class DecideService {
     const rest = views.filter((_, i) => i !== index);
 
     this.record(
-      input,
+      resolved,
       ip,
       verdict,
       views.length,
@@ -115,9 +125,43 @@ export class DecideService {
       verdict,
       alternates: rest.slice(0, 2),
       pool: rest,
-      framing: framed?.framing ?? templatedFraming(input, candidates[index]),
+      framing: framed?.framing ?? templatedFraming(resolved, candidates[index]),
       provenance: framed !== null && winnerIndex >= 0 ? 'ai_framed' : 'deterministic',
     });
+  }
+
+  /**
+   * Fills the kitchen from a signed-in cook's stock, when they sent none.
+   *
+   * Their STOCK, not their onboarding answers: onboarding is a snapshot from
+   * the day they joined, stock is what they have now, and it is what every
+   * other screen already trusts.
+   *
+   * An explicit list always wins — somebody who overrode the pre-fill meant it.
+   * A failure falls back to the empty kitchen rather than failing the
+   * decision, because a worse suggestion beats no suggestion.
+   */
+  private async withKitchenOf(input: DecideInput, userId?: string): Promise<DecideInput> {
+    if (userId === undefined) return input;
+    if (input.kitchenItems.length > 0 || input.kitchenSkipped) return input;
+
+    try {
+      const { StockItemModel } = await import('@features/stock/stock.model.js');
+      const rows = await StockItemModel.find(
+        { ownerId: userId, quantity: { $gt: 0 } },
+        { name: 1 },
+      )
+        .lean()
+        .exec();
+
+      if (rows.length === 0) return input;
+      return { ...input, kitchenItems: rows.map((r) => r.name) };
+    } catch (error) {
+      logger.warn('could not read stock for a signed-in decision', {
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+      return input;
+    }
   }
 
   /**

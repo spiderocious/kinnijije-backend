@@ -20,6 +20,7 @@ import {
 import { adminAiService } from './ai/admin-ai.service.js';
 import { adminAuthService } from './auth/admin-auth.service.js';
 import { adminDashboardService } from './dashboard/admin-dashboard.service.js';
+import { adminAiStatsService } from './ai/admin-ai-stats.service.js';
 import { adminDecideService } from './decide/admin-decide.service.js';
 import type { MailProvider } from '@lib/mail/index.js';
 
@@ -440,6 +441,16 @@ export const adminController = {
   decideLog: async (req: Request, res: Response): Promise<void> => {
     const { logId } = req.params as { logId: string };
     const result = await adminDecideService.detail(logId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+
+  /** Cost, health and volume for every prompt. Aggregated from `ai_logs`. */
+  aiStats: async (req: Request, res: Response): Promise<void> => {
+    const { days } = req.query as { days?: string };
+    const window = days === undefined ? 30 : Math.min(Math.max(Number(days) || 30, 1), 90);
+    const result = await adminAiStatsService.stats(window);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },

@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Open App — Plan &amp; Design</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only, tokens lifted from web/src/index.css.
+   THE BLADE: one sharp corner, three round. Pills and circles excepted.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7; --scrim:rgba(19,36,48,.46);
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7; --sky-500:#38b6f0;
+  --sky-600:#1798d6; --sky-700:#127bae; --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-soft:var(--sky-100);
+  --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --neutral-border:#cfdde7;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px;
+  --r-pill:999px; --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --shadow-modal:0 18px 50px rgba(19,36,48,.22);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink-2);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 120px}
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,6vw,58px);font-weight:800}
+h2{font-size:clamp(24px,3.4vw,34px);font-weight:800}
+h3{font-size:19px;font-weight:700}
+h4{font-size:15.5px;font-weight:700}
+p{margin:.6em 0}
+code{font-family:var(--mono);font-size:.87em;background:var(--paper-2);border:1.5px solid var(--line);padding:1px 6px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.mono{font-family:var(--mono)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+svg{display:inline-block;vertical-align:middle}
+
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.masthead{padding:56px 0 36px;border-bottom:var(--bw) solid var(--ink)}
+.brandrow{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.logomark{width:42px;height:42px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.deck{font-size:clamp(16px,2.1vw,20px);max-width:64ch;margin-top:16px;color:var(--ink-2)}
+.metastrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.chip.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.chip.info{background:var(--info-soft);border-color:var(--info-border);color:var(--info-onsoft)}
+
+section{padding-top:68px}
+.sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px;flex:none}
+.lede{font-size:16.5px;max-width:74ch;margin:12px 0 26px;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);max-width:72ch;margin-top:10px}
+
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:22px}
+.card.soft{background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.card.flat{box-shadow:none;border-color:var(--line-2);border-width:var(--bw-hair)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:940px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:var(--paper-2);text-align:left;padding:11px 14px;font-size:10.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+.callout{border:var(--bw-hair) solid var(--line-2);border-left:5px solid var(--sky);background:var(--white);border-radius:var(--blade-xs);padding:15px 17px;margin:18px 0;font-size:14px}
+.callout.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.callout.crit{border-left-color:var(--critical);background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.callout.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.callout.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.callout .lbl{font-weight:800;font-family:var(--display);font-size:14px;display:block;margin-bottom:3px}
+
+ul.clean{list-style:none;padding:0;margin:.5em 0}
+ul.clean li{position:relative;padding-left:21px;margin:.4em 0;font-size:13.8px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.6em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+ul.clean.ok li::before{background:var(--success)}
+ul.clean.crit li::before{background:var(--critical)}
+ol.steps{padding-left:0;list-style:none;counter-reset:s;margin:.5em 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin:.55em 0;font-size:13.8px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:22px;height:22px;background:var(--ink);color:var(--paper);border-radius:7px 2px 7px 2px;display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;font-weight:600}
+
+pre{background:var(--ink);color:#dce9f2;border-radius:var(--blade-sm);padding:15px 17px;overflow-x:auto;font-family:var(--mono);font-size:11.8px;line-height:1.6;margin:14px 0;border:var(--bw) solid var(--ink)}
+pre .c{color:#7a97a8}pre .k{color:#7ad3fa}pre .s{color:#a9e5d2}pre .n{color:#f6bd5f}pre .kw{color:#a394f8}
+
+.rule{height:var(--bw);background:var(--ink);border:0;margin:0}
+.rule.soft{height:var(--bw-hair);background:var(--line)}
+
+/* ── phone mock ─────────────────────────────────────────────────────── */
+.rack{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:30px;align-items:start}
+.phone{width:100%;max-width:348px;margin:0 auto;background:var(--paper);border:var(--bw-bold) solid var(--ink);border-radius:32px 10px 32px 10px;box-shadow:var(--drop-lg);overflow:hidden;position:relative}
+.phone .notch{height:24px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;justify-content:center}
+.phone .notch i{display:block;width:32px;height:4px;border-radius:999px;background:var(--line-2)}
+.screen{padding:14px;min-height:500px;display:flex;flex-direction:column;gap:11px;background:var(--paper);position:relative}
+.framecap{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap}
+.framecap .n{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-4);padding-top:2px}
+.framecap .t{font-family:var(--display);font-weight:800;font-size:14.5px;color:var(--ink)}
+.framecap .d{font-size:12.5px;color:var(--ink-3);max-width:54ch}
+
+/* ── app primitives ─────────────────────────────────────────────────── */
+.btn{border:var(--bw) solid var(--ink);font-family:var(--sans);font-weight:800;font-size:14px;min-height:44px;padding:0 18px;border-radius:var(--blade-xs);background:var(--sky);color:#fff;box-shadow:var(--drop-sm);display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;cursor:pointer}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.btn.quiet{background:transparent;color:var(--ink-3);border-color:transparent;box-shadow:none;min-height:36px;font-weight:700}
+.btn.sm{min-height:34px;font-size:12.5px;padding:0 12px}
+.btn.auto{width:auto}
+.field{display:flex;align-items:center;gap:8px;background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:0 12px;min-height:44px;font-size:13.5px;color:var(--ink-4)}
+.label{font-size:10.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.qtitle{font-family:var(--display);font-weight:800;font-size:23px;color:var(--ink);line-height:1.08;letter-spacing:-.018em}
+
+/* ── modal ──────────────────────────────────────────────────────────── */
+.scrim{position:absolute;inset:0;background:var(--scrim);display:grid;place-items:end center;padding:12px;z-index:5}
+.sheet{width:100%;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-lg);box-shadow:var(--shadow-modal);padding:16px;display:flex;flex-direction:column;gap:11px}
+.grabber{width:38px;height:4px;border-radius:999px;background:var(--line-2);margin:0 auto 2px}
+
+/* ── nav mock ───────────────────────────────────────────────────────── */
+.tabbar{display:flex;border-top:var(--bw) solid var(--ink);background:var(--white);margin:0 -14px -14px;padding:7px 4px 9px}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;font-weight:800;color:var(--ink-4)}
+.tabbar .tab.on{color:var(--sky-deep)}
+.tabbar .tab .ic{width:22px;height:22px;display:grid;place-items:center}
+.tabbar .tab.on .ic{background:var(--sky-soft);border-radius:8px 3px 8px 3px}
+
+/* ── stat + chart ───────────────────────────────────────────────────── */
+.stat{border:var(--bw-hair) solid var(--line-2);background:var(--white);border-radius:var(--blade-xs);padding:11px}
+.stat .lbl{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.stat .num{font-family:var(--display);font-weight:800;font-size:23px;color:var(--ink);line-height:1;margin-top:4px}
+.stat .sub{font-size:11px;color:var(--ink-3);margin-top:3px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:84px;padding-top:6px}
+.bars i{flex:1;background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:5px 2px 0 0;display:block}
+.bars i.alt{background:var(--grape)}
+.rankrow{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0}
+.rankrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.rankrow .bar{width:84px;height:6px;border-radius:999px;background:var(--skeleton);overflow:hidden;flex:none}
+.rankrow .bar i{display:block;height:100%;background:var(--sky);border-radius:999px}
+.rankrow .v{width:38px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+
+/* ── flow diagram ───────────────────────────────────────────────────── */
+.pipe{display:flex;flex-wrap:wrap;gap:0;margin:20px 0}
+.pnode{flex:1 1 148px;min-width:140px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);padding:12px;margin:0 9px 11px 0;display:flex;flex-direction:column;gap:5px}
+.pnode .k{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600}
+.pnode .v{font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.2}
+.pnode .s{font-size:11px;color:var(--ink-3);line-height:1.4}
+.pnode.guest{background:var(--sky-soft);border-color:var(--sky-press)}
+.pnode.user{background:var(--success-soft);border-color:var(--success-onsoft)}
+.pnode.gate{background:var(--caution-soft);border-color:var(--caution-onsoft)}
+
+.toc{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:var(--bw-hair) solid var(--line);padding:9px 0}
+.toc .inner{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;gap:6px;overflow-x:auto}
+.toc a{font-size:11.5px;font-weight:800;color:var(--ink-3);text-decoration:none;padding:5px 11px;border-radius:999px;border:var(--bw-hair) solid transparent;white-space:nowrap}
+.toc a:hover{background:var(--sky-soft);color:var(--sky-on);border-color:var(--sky-edge)}
+footer{margin-top:80px;padding-top:24px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="toc"><div class="inner">
+  <a href="#shape">The shape</a><a href="#modal">1 · The invite</a><a href="#signedin">2 · Signed in</a>
+  <a href="#nav">3 · The open app</a><a href="#audit">4 · AI audit</a>
+  <a href="#api">API</a><a href="#build">Build order</a><a href="#risks">Risks</a>
+</div></nav>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="brandrow">
+    <div class="logomark">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 14h16a8 8 0 0 1-8 7 8 8 0 0 1-8-7Z"/><path d="M12 5v2"/>
+      </svg>
+    </div>
+    <div><div style="font-family:var(--display);font-weight:800;font-size:18px;color:var(--ink)">KinniJije</div><div class="eyebrow">Sky Kitchen · v2</div></div>
+  </div>
+  <div class="eyebrow" style="margin-bottom:10px">Plan &amp; design · backend/docs/v2</div>
+  <h1>The Open App</h1>
+  <p class="deck">
+    The product stops being a walled garden. <strong>Deciding is the front door
+    for everyone</strong>, signed in or not; an account changes what the app
+    remembers, not whether you may use it. Four changes, one shape.
+  </p>
+  <div class="metastrip">
+    <span class="chip sky"><span class="dot"></span>Signup moves into the flow</span>
+    <span class="chip ok"><span class="dot"></span>Signed in skips the kitchen step</span>
+    <span class="chip grape"><span class="dot"></span>Decide becomes the default tab</span>
+    <span class="chip warn"><span class="dot"></span>AI audit gets real numbers</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════ THE SHAPE ══════════════════════════════ -->
+<section id="shape">
+  <div class="sechead"><span class="secnum">00</span><h2>One idea behind all four</h2></div>
+  <p class="lede">
+    These read as four separate asks. They are one: <strong>the account stops
+    being a gate and becomes an upgrade.</strong> Everything below follows from
+    that, which is why they should ship together rather than as four patches.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="chip crit" style="margin-bottom:10px"><span class="dot"></span>Today</span>
+      <h3>An account is a toll gate</h3>
+      <ul class="clean crit">
+        <li><code>/kitchen</code> and everything past it demand a session. A visitor who wants to look gets a login screen.</li>
+        <li>Signup is offered <strong>once</strong>, after the verdict. Somebody who bounces at step two is never asked.</li>
+        <li>A signed-in cook is asked what is in their kitchen, which the app <em>already knows</em> from their stock.</li>
+        <li>The kitchen dashboard is the landing surface, so the one thing the product does best is two taps from the front door.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="chip ok" style="margin-bottom:10px"><span class="dot"></span>After</span>
+      <h3>An account is an upgrade</h3>
+      <ul class="clean ok">
+        <li>The flow is the front door for everybody. Signed in, it is the default tab.</li>
+        <li>Signup is offered <strong>inside</strong> the flow, at the moment there is something to lose, and it never interrupts.</li>
+        <li>A signed-in cook's kitchen is pre-filled from their stock. The step becomes a confirmation, not data entry.</li>
+        <li>The dashboard stays, one tap away, for the people who want it.</li>
+      </ul>
+      <div class="callout ok" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The measurable claim</span>
+        Two new conversion points (the in-flow invite, and the nav for a
+        returning guest) and one removed step for signed-in cooks. Every one is
+        already instrumented by <code>decide_logs</code>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 1 · THE INVITE ═════════════════════════ -->
+<section id="modal">
+  <div class="sechead"><span class="secnum">01</span><h2>The invite, inside the flow</h2></div>
+  <p class="lede">
+    A popup during a flow is usually a mistake: it interrupts somebody who is
+    mid-task to ask for something they have no reason to give yet. This one
+    works only if it obeys three rules — it arrives <strong>after</strong> value
+    has landed, it never blocks, and it never asks twice.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="min-height:520px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="label">Step 3 of 4</span>
+            <span class="mono" style="font-size:10px;color:var(--ink-4)">3 / 4</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--sky)"></i>
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--sky)"></i>
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--sky)"></i>
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--skeleton)"></i>
+          </div>
+          <h2 class="qtitle">What are you in the mood for?</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;opacity:.5">
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:12px;background:var(--white);font-size:12px;font-weight:700">Something solid</div>
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:12px;background:var(--white);font-size:12px;font-weight:700">Light</div>
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:12px;background:var(--white);font-size:12px;font-weight:700">Soupy</div>
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:12px;background:var(--white);font-size:12px;font-weight:700">Swallow</div>
+          </div>
+
+          <div class="scrim">
+            <div class="sheet">
+              <div class="grabber"></div>
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <span style="width:40px;height:40px;flex:none;background:var(--dish-fill);border:var(--bw) solid var(--ink);border-radius:11px 3px 11px 3px;display:grid;place-items:center;font-size:20px">🍲</span>
+                <div>
+                  <h3 style="font-size:17px">Want this remembered?</h3>
+                  <p style="font-size:12.5px;margin:3px 0 0;color:var(--ink-2)">Takes ten seconds. You keep going right after.</p>
+                </div>
+                <button class="btn quiet auto" style="min-height:26px;padding:0 6px;font-size:16px;color:var(--ink-4)">✕</button>
+              </div>
+
+              <ul class="clean ok" style="margin:2px 0">
+                <li>Your kitchen saved, so you never tap it again</li>
+                <li>A fresh idea every morning, before you ask</li>
+                <li>The full recipe and method, step by step</li>
+              </ul>
+
+              <div class="field">you@example.com</div>
+              <button class="btn">Save my spot</button>
+              <button class="btn quiet">Not now, keep deciding</button>
+              <p style="font-size:10.5px;color:var(--ink-4);text-align:center;margin:0">
+                Free. No card. Your answers so far are kept either way.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">01</span>
+        <div><div class="t">The invite</div>
+        <div class="d">A bottom sheet, not a centred modal: it sits where the thumb is, and
+        it visibly does not replace the screen underneath. The step behind stays legible.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>The three rules</h3>
+        <ol class="steps" style="margin-top:10px">
+          <li><strong>Never before value.</strong> It cannot appear on the hero or on step one. The earliest is after the mood answer, when they have invested something.</li>
+          <li><strong>Never blocking.</strong> Dismiss, tap the scrim, or press Escape and the flow continues exactly where it was. No answer is lost.</li>
+          <li><strong>Never twice.</strong> One dismissal ends it for the session. A second ask is how a helpful offer becomes a nuisance.</li>
+        </ol>
+        <hr class="rule soft" style="margin:16px 0">
+        <h4>When it fires</h4>
+        <div class="scroll">
+          <table style="font-size:12.5px">
+            <thead><tr><th>Trigger</th><th>Why there</th></tr></thead>
+            <tbody>
+              <tr><td><strong>After step 3</strong><div style="color:var(--ink-3)">the default</div>
+                  <td>They have answered three questions. Sunk cost is real, the verdict is one tap away, and losing it now would sting.</td></tr>
+              <tr><td><strong>On a second decision</strong></td>
+                  <td>Somebody who decides twice in one session is the likeliest to want it remembered.</td></tr>
+              <tr><td><strong>Never on the verdict</strong></td>
+                  <td>The verdict already has its own keep-band. Two asks on one screen is nagging.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout warn" style="margin-top:16px">
+        <span class="lbl">The honest risk</span>
+        An interstitial mid-flow is exactly the pattern that makes people leave.
+        It is worth doing ONLY because it is dismissible, single-shot, and
+        arrives after investment. <strong>Ship it behind a flag</strong> and
+        compare step-3→verdict completion with and without it. If completion
+        drops more than signups rise, it is a bad trade and it comes out.
+      </div>
+
+      <div class="card soft" style="margin-top:16px">
+        <div class="eyebrow" style="margin-bottom:8px">What it stores</div>
+        <p style="font-size:13px;margin:0">
+          One key in <code>sessionStorage</code>, beside the draft:
+          <code>kj.invite_dismissed</code>. Session-scoped for the same reason
+          the draft is — a shared laptop should not carry one person's choice
+          into the next person's visit.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:36px">Signing up without leaving</h3>
+  <p class="lede" style="margin-bottom:18px">
+    The sheet holds the real register form, not a link to one. Navigating away
+    mid-flow to sign up and then finding your way back is the friction this is
+    supposed to remove.
+  </p>
+  <div class="pipe">
+    <div class="pnode guest"><div class="k">1</div><div class="v">Email + password</div><div class="s">Two fields. Name and city are asked later, in settings, or inferred from the draft.</div></div>
+    <div class="pnode guest"><div class="k">2</div><div class="v">POST /auth/register</div><div class="s">The existing endpoint. Unchanged.</div></div>
+    <div class="pnode user"><div class="k">3</div><div class="v">Carry over</div><div class="s">The draft replays onto the new account: <code>carryOverDraft</code>, already built.</div></div>
+    <div class="pnode user"><div class="k">4</div><div class="v">Sheet closes</div><div class="s">Same step, same answers, now signed in. A toast confirms rather than a redirect.</div></div>
+  </div>
+  <div class="callout ok">
+    <span class="lbl">Nothing new on the backend</span>
+    Register, onboarding patch, onboarding complete and the carry-over service
+    all exist and are already wired for the post-verdict path. This is the same
+    sequence, triggered from a different place.
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 2 · SIGNED IN ══════════════════════════ -->
+<section id="signedin">
+  <div class="sechead"><span class="secnum">02</span><h2>What a signed-in cook sees</h2></div>
+  <p class="lede">
+    Two changes, both removals. No invite, and no kitchen step — because the
+    app already knows what they have, and asking again is the clearest possible
+    signal that it does not remember them.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="label">Step 1 of 3</span>
+            <span class="chip ok" style="font-size:10px;padding:2px 8px"><span class="dot"></span>Signed in</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--sky)"></i>
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--skeleton)"></i>
+            <i style="flex:1;height:5px;border-radius:999px;background:var(--skeleton)"></i>
+          </div>
+
+          <h2 class="qtitle">How's your day going?</h2>
+          <p style="font-size:12.5px;color:var(--ink-3);margin:0">Honestly. It changes what we pick.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px">
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:14px 8px;background:var(--white);text-align:center;font-size:12px;font-weight:700">Drained</div>
+            <div style="border:var(--bw) solid var(--sky);background:var(--sky-soft);border-radius:var(--blade-xs);padding:14px 8px;text-align:center;font-size:12px;font-weight:700;color:var(--sky-on);box-shadow:var(--drop-sm)">In a hurry</div>
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:14px 8px;background:var(--white);text-align:center;font-size:12px;font-weight:700">Up for it</div>
+            <div style="border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:14px 8px;background:var(--white);text-align:center;font-size:12px;font-weight:700">Need comfort</div>
+          </div>
+
+          <div style="margin-top:auto;display:flex;gap:9px;align-items:center;background:var(--success-soft);border:var(--bw-hair) solid var(--success-border);border-radius:var(--blade-xs);padding:10px 11px">
+            <span style="color:var(--success-onsoft);font-size:15px">✓</span>
+            <div style="font-size:11.5px;color:var(--success-onsoft)">
+              <b style="display:block">Using your kitchen</b>
+              <span style="color:var(--ink-3)">14 things · rice, beans, ugu…</span>
+            </div>
+            <button class="btn quiet auto sm" style="margin-left:auto;color:var(--sky-on)">Change</button>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost auto" style="width:auto;padding:0 16px">←</button>
+            <button class="btn">Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">02</span>
+        <div><div class="t">Signed in: three steps, not four</div>
+        <div class="d">The kitchen becomes a confirmation strip at the bottom, with a way
+        to override. Stated rather than silent, so nobody wonders what it used.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>Where their kitchen comes from</h3>
+        <p style="font-size:13.5px;margin-top:6px">
+          Their stock, not their onboarding answers. Onboarding is a snapshot
+          from the day they joined; stock is what they actually have now, and it
+          is what every other screen already trusts.
+        </p>
+<pre><span class="c">// GET /api/v1/stock  →  the names, deduped</span>
+<span class="kw">const</span> mine = stock.items
+  .filter((i) =&gt; i.quantity &gt; <span class="n">0</span>)
+  .map((i) =&gt; i.name);</pre>
+        <ul class="clean">
+          <li><strong>Pre-filled, never forced.</strong> "Change" reopens the normal picker with their stock pre-selected.</li>
+          <li><strong>Stated on screen.</strong> A count and three examples, so it is obvious what the answer was built from.</li>
+          <li><strong>Empty stock falls back.</strong> A signed-in cook with nothing recorded sees the ordinary step. Four steps, same as a guest.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>The step count changes</h3>
+        <div class="scroll">
+          <table style="font-size:12.5px">
+            <thead><tr><th></th><th>Guest</th><th>Signed in</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Kitchen</strong></td><td>Step 1</td><td><span class="chip ok" style="font-size:10px;padding:2px 7px">pre-filled</span></td></tr>
+              <tr><td><strong>Mood</strong></td><td>Step 2</td><td>Step 1</td></tr>
+              <tr><td><strong>Weight</strong></td><td>Step 3</td><td>Step 2</td></tr>
+              <tr><td><strong>Time &amp; place</strong></td><td>Step 4</td><td>Step 3</td></tr>
+              <tr><td><strong>Invite</strong></td><td>after step 3</td><td><span class="chip crit" style="font-size:10px;padding:2px 7px">never</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          The progress rail reads <code>1 / 3</code> rather than <code>2 / 4</code>,
+          so the count matches what they will actually be asked.
+        </p>
+      </div>
+
+      <div class="callout grape" style="margin-top:16px">
+        <span class="lbl">The rate limit changes too</span>
+        <code>DECIDE_ANON</code> is 8/hour keyed by IP, which is right for a
+        stranger and wrong for a paying-attention cook behind a shared NAT. A
+        signed-in request should key by <strong>user id</strong> and use a
+        looser policy. Same endpoint, different bucket — the middleware's
+        <code>byIdentity</code> resolver already does exactly this.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 3 · THE OPEN APP ═══════════════════════ -->
+<section id="nav">
+  <div class="sechead"><span class="secnum">03</span><h2>The app stops living behind login</h2></div>
+  <p class="lede">
+    <code>/</code> is the flow for everybody. What an account adds is a nav bar
+    and a set of screens that remember things — not permission to be here.
+  </p>
+
+  <div class="grid g3">
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Public</div>
+      <h4>No session needed</h4>
+      <ul class="clean" style="margin-top:6px">
+        <li><code>/</code> the decide flow</li>
+        <li><code>/decide</code> the same screen</li>
+        <li><code>/why</code> the marketing page</li>
+        <li><code>/login</code> <code>/register</code></li>
+      </ul>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Better signed in</div>
+      <h4>Works either way</h4>
+      <ul class="clean" style="margin-top:6px">
+        <li><code>/meals/:id</code> a recipe, readable by anyone</li>
+        <li>Guests see the method; saving and cooking prompt a signup</li>
+      </ul>
+      <p class="note">Opening the catalogue is the single biggest SEO win available here: 380 recipe pages that currently return a login screen to Google.</p>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Account only</div>
+      <h4>Needs a session</h4>
+      <ul class="clean" style="margin-top:6px">
+        <li><code>/kitchen</code> <code>/stock</code> <code>/market</code></li>
+        <li><code>/week</code> <code>/favourites</code> <code>/chat</code> <code>/settings</code></li>
+      </ul>
+      <p class="note">All of these are about <em>their</em> data. There is nothing to show a stranger.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:34px">The navigation</h3>
+  <div class="rack" style="margin-top:16px">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="min-height:420px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <b style="font-family:var(--display);font-size:15px;color:var(--ink)">Decide</b>
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--berry-fill);border:var(--bw-hair) solid var(--ink)"></span>
+          </div>
+          <div style="flex:1;display:grid;place-items:center;text-align:center;gap:10px">
+            <div>
+              <div style="font-size:44px">🍲</div>
+              <h2 class="qtitle" style="margin-top:8px">What do you want<br>to eat today?</h2>
+              <p style="font-size:12.5px;color:var(--ink-3);margin-top:6px">Your kitchen is ready. Three quick questions.</p>
+            </div>
+            <button class="btn" style="max-width:220px">Decide for me</button>
+          </div>
+
+          <div class="tabbar">
+            <span class="tab on"><span class="ic">🍲</span>Decide</span>
+            <span class="tab"><span class="ic">🧺</span>Kitchen</span>
+            <span class="tab"><span class="ic">🔖</span>Saved</span>
+            <span class="tab"><span class="ic">🛒</span>Market</span>
+            <span class="tab"><span class="ic">👤</span>You</span>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">03</span>
+        <div><div class="t">Signed in, default tab</div>
+        <div class="d">Decide takes the first slot and the pot icon. Kitchen keeps the
+        basket and moves to second — present, not primary.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>What changes in the nav</h3>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Slot</th><th>Now</th><th>After</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Kitchen</td><td><strong>Decide</strong> <span class="chip ok" style="font-size:10px;padding:2px 7px">new, default</span></td></tr>
+              <tr><td>2</td><td>Saved</td><td>Kitchen</td></tr>
+              <tr><td>3</td><td>Market</td><td>Saved</td></tr>
+              <tr><td>4</td><td>Ask</td><td>Market</td></tr>
+              <tr><td>5</td><td>You</td><td>You</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Five slots is the phone maximum. "Ask" moves into the Kitchen screen
+          rather than being dropped — it is a tool, not a destination.
+        </p>
+
+        <hr class="rule soft" style="margin:16px 0">
+        <h4>Where sign-in lands</h4>
+        <ul class="clean">
+          <li><strong>Sign in → <code>/</code></strong>, the flow, not the kitchen. It is the default tab, so landing anywhere else contradicts that.</li>
+          <li><strong>Onboarding still runs</strong> for a fresh account with no draft. A guest who converts skips it, because their draft already answered it.</li>
+          <li><strong><code>?next=</code> still wins.</strong> Somebody bounced off <code>/market</code> returns to <code>/market</code>.</li>
+        </ul>
+      </div>
+
+      <div class="callout crit" style="margin-top:16px">
+        <span class="lbl">The one thing to get right</span>
+        <code>RouteGuard</code> currently sends an unauthenticated visitor to
+        <code>/login</code>. After this change that is correct for
+        <code>/kitchen</code> and <strong>wrong for a recipe page</strong>. The
+        guard needs a third mode — <em>public, better signed in</em> — or every
+        recipe URL keeps 302-ing Google to a login form.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 4 · AI AUDIT ═══════════════════════════ -->
+<section id="audit">
+  <div class="sechead"><span class="secnum">04</span><h2>The AI audit, with numbers</h2></div>
+  <p class="lede">
+    <code>/admin/ai</code> is a list of rows. A list answers "what happened";
+    it cannot answer "what is this costing me", "which prompt is failing" or
+    "is it getting slower" — which are the only reasons to open the page.
+  </p>
+
+  <div class="card" style="padding:16px;background:var(--paper-2);border-color:var(--line-2);box-shadow:none">
+    <div class="grid g4" style="gap:10px">
+      <div class="stat"><div class="lbl">Calls · 30d</div><div class="num tnum">12,480</div><div class="sub" style="color:var(--success-onsoft)">98.2% parsed</div></div>
+      <div class="stat"><div class="lbl">Tokens</div><div class="num tnum">4.1M</div><div class="sub">2.9M in · 1.2M out</div></div>
+      <div class="stat"><div class="lbl">Est. spend</div><div class="num tnum">$38.20</div><div class="sub">≈ $1.27 / day</div></div>
+      <div class="stat" style="border-color:var(--critical-border);background:var(--critical-soft)"><div class="lbl" style="color:var(--critical-onsoft)">Rejected</div><div class="num tnum" style="color:var(--critical-onsoft)">224</div><div class="sub" style="color:var(--critical-onsoft)">1.8% · mostly chat.answer</div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:12px;gap:12px">
+      <div class="card flat" style="padding:14px">
+        <div class="eyebrow" style="margin-bottom:8px">Calls per day · 14 days</div>
+        <div class="bars">
+          <i style="height:34%"></i><i style="height:52%"></i><i style="height:41%"></i><i style="height:68%"></i>
+          <i style="height:60%"></i><i style="height:78%"></i><i style="height:55%"></i><i style="height:84%"></i>
+          <i style="height:72%"></i><i style="height:91%"></i><i style="height:66%"></i><i style="height:100%"></i>
+          <i style="height:83%"></i><i class="alt" style="height:47%"></i>
+        </div>
+        <p class="note" style="margin-top:6px">The last bar is today, so a part-day never reads as a collapse.</p>
+      </div>
+
+      <div class="card flat" style="padding:14px">
+        <div class="eyebrow" style="margin-bottom:8px">By prompt</div>
+        <div class="rankrow"><span class="nm">decide.verdict</span><span class="bar"><i style="width:100%"></i></span><span class="v tnum">6,204</span></div>
+        <div class="rankrow"><span class="nm">chat.answer</span><span class="bar"><i style="width:47%"></i></span><span class="v tnum">2,910</span></div>
+        <div class="rankrow"><span class="nm">ingredients.from_photo</span><span class="bar"><i style="width:28%"></i></span><span class="v tnum">1,740</span></div>
+        <div class="rankrow"><span class="nm">recipe.generate</span><span class="bar"><i style="width:14%"></i></span><span class="v tnum">880</span></div>
+        <div class="rankrow"><span class="nm">image.verify</span><span class="bar"><i style="width:9%"></i></span><span class="v tnum">560</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:20px">
+    <div class="card">
+      <h4>Cost, per prompt</h4>
+      <p style="font-size:13px">
+        Tokens × the model's own rate. <code>lib/analytics/ai-cost.ts</code>
+        already exists, so this is a read rather than new maths.
+      </p>
+      <ul class="clean">
+        <li>Spend by prompt id, so the expensive one is obvious</li>
+        <li>Spend by model, so a tier change is visible</li>
+        <li>Cost per decision — the only cost figure that means anything</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Health, per prompt</h4>
+      <ul class="clean">
+        <li><strong>Parse rate.</strong> A prompt that stops parsing is a prompt that broke.</li>
+        <li><strong>p50 and p95 duration.</strong> The mean hides the timeouts; p95 is what people feel.</li>
+        <li><strong>Self-graded metrics.</strong> <code>outputConfidence</code> and <code>ambiguity</code> are already stored and never surfaced.</li>
+      </ul>
+      <p class="note">Rising ambiguity on one prompt is the earliest signal a prompt needs work.</p>
+    </div>
+    <div class="card">
+      <h4>Provider and model</h4>
+      <ul class="clean">
+        <li>Split by provider, so a mock-vs-live mix is visible at a glance</li>
+        <li>Split by model, so a silent fallback to a cheaper tier is caught</li>
+        <li>Fallback count: how often a call failed and the deterministic path answered</li>
+      </ul>
+      <div class="callout warn" style="margin-bottom:0;font-size:12.5px">
+        <span class="lbl">Mock in production</span>
+        If <code>provider: mock</code> ever appears on a production chart,
+        something is badly wrong and nothing currently says so.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">All of it is already in the database</span>
+    <code>ai_logs</code> stores prompt id, provider, model, token counts,
+    duration, parse outcome and the self-graded metrics on every call. This
+    section is aggregation and presentation — <strong>no new writes, no new
+    collection, no schema change.</strong>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ API ════════════════════════════════════ -->
+<section id="api">
+  <div class="sechead"><span class="secnum">05</span><h2>What it costs to build</h2></div>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:28%">Change</th><th style="width:12%">Where</th><th style="width:16%">New?</th><th style="width:44%">Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Invite sheet</strong></td><td>web</td><td><span class="chip warn">1 component</span></td><td>Reuses the register form and <code>carryOverDraft</code>. One sessionStorage key.</td></tr>
+        <tr><td><strong>Flag it</strong></td><td>backend</td><td><span class="chip warn">1 flag</span></td><td><code>features/config</code> already serves public booleans. Needed to measure the trade.</td></tr>
+        <tr><td><strong>Skip the kitchen step</strong></td><td>web</td><td><span class="chip ok">none</span></td><td>Reads <code>GET /stock</code>, which exists. Branch in <code>decide-screen</code>.</td></tr>
+        <tr><td><strong>Signed-in decide</strong></td><td>backend</td><td><span class="chip warn">1 policy</span></td><td><code>DECIDE_USER</code>, keyed by identity. The route becomes optionally-authenticated.</td></tr>
+        <tr><td><strong>Nav reorder</strong></td><td>web</td><td><span class="chip ok">none</span></td><td>Two arrays in <code>app-shell.tsx</code>, plus the post-login destination.</td></tr>
+        <tr><td><strong>Public recipe pages</strong></td><td>web + backend</td><td><span class="chip crit">real work</span></td><td>A third guard mode, and <code>GET /meals/:id</code> must answer without a session. The biggest item here.</td></tr>
+        <tr><td><strong>AI audit stats</strong></td><td>backend</td><td><span class="chip warn">1 endpoint</span></td><td><code>GET /admin/ai/stats</code>, aggregating <code>ai_logs</code>. No new writes.</td></tr>
+        <tr><td><strong>AI audit UI</strong></td><td>web</td><td><span class="chip warn">1 screen</span></td><td>Stat tiles, one bar chart, two ranked lists. Same shapes as the decide dashboard.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g2" style="margin-top:20px">
+    <div>
+      <h3>The one genuinely new endpoint</h3>
+<pre><span class="c">// GET /api/v1/admin/ai/stats?days=30</span>
+{
+  <span class="k">"totals"</span>: { <span class="k">"calls"</span>: <span class="n">12480</span>, <span class="k">"failed"</span>: <span class="n">224</span>,
+               <span class="k">"tokens_in"</span>: <span class="n">2900000</span>, <span class="k">"tokens_out"</span>: <span class="n">1200000</span>,
+               <span class="k">"estimated_usd"</span>: <span class="n">38.2</span>,
+               <span class="k">"p50_ms"</span>: <span class="n">1420</span>, <span class="k">"p95_ms"</span>: <span class="n">4890</span> },
+  <span class="k">"daily"</span>:  [{ <span class="k">"date"</span>: <span class="s">"2026-09-30"</span>, <span class="k">"calls"</span>: <span class="n">412</span>,
+              <span class="k">"failed"</span>: <span class="n">6</span>, <span class="k">"tokens"</span>: <span class="n">138000</span> }],
+  <span class="k">"by_prompt"</span>: [{ <span class="k">"prompt_id"</span>: <span class="s">"decide.verdict"</span>,
+                 <span class="k">"calls"</span>: <span class="n">6204</span>, <span class="k">"failed"</span>: <span class="n">31</span>,
+                 <span class="k">"tokens"</span>: <span class="n">1840000</span>, <span class="k">"estimated_usd"</span>: <span class="n">17.1</span>,
+                 <span class="k">"p95_ms"</span>: <span class="n">5200</span>,
+                 <span class="k">"avg_confidence"</span>: <span class="n">0.86</span>,
+                 <span class="k">"avg_ambiguity"</span>: <span class="n">0.19</span> }],
+  <span class="k">"by_model"</span>:    [{ <span class="k">"model"</span>: <span class="s">"gpt-4o-mini"</span>, <span class="k">"calls"</span>: <span class="n">9100</span> }],
+  <span class="k">"by_provider"</span>: [{ <span class="k">"provider"</span>: <span class="s">"openai"</span>, <span class="k">"calls"</span>: <span class="n">12470</span> }]
+}</pre>
+      <p class="note">
+        One aggregation pipeline over an indexed range. <code>ai_logs</code>
+        already has <code>{ promptId, createdAt }</code> and
+        <code>{ parsed, createdAt }</code> indexes.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>The guard's third mode</h3>
+      <p style="font-size:13.5px;margin-top:4px">
+        Today it is binary: signed in, or go to login. A recipe page is neither.
+      </p>
+<pre><span class="c">// route-guard.tsx</span>
+<span class="kw">type</span> <span class="k">Access</span> =
+  | <span class="s">'private'</span>   <span class="c">// kitchen, stock, market</span>
+  | <span class="s">'public'</span>    <span class="c">// the flow, marketing</span>
+  | <span class="s">'open'</span>;    <span class="c">// a recipe: renders either way,</span>
+               <span class="c">// and the ACTIONS ask for a signup</span></pre>
+      <ul class="clean">
+        <li><strong>private</strong> — unchanged behaviour</li>
+        <li><strong>open</strong> — never redirects; the screen decides what a guest may do</li>
+      </ul>
+      <div class="callout crit" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">Audit every private route deliberately</span>
+        Opening routes is a one-way door: a screen that leaks another person's
+        data cannot be un-leaked. Each route moves to <code>open</code> only
+        after somebody has decided what a stranger may see on it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ BUILD ══════════════════════════════════ -->
+<section id="build">
+  <div class="sechead"><span class="secnum">06</span><h2>Build order</h2></div>
+  <p class="lede">
+    Sequenced so the cheap, reversible things ship first and the one-way door
+    is opened last, with the most review.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:6%">#</th><th style="width:24%">Stage</th><th style="width:38%">Contains</th><th style="width:32%">Done when</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">1</td><td><strong>AI audit</strong></td>
+            <td>The stats endpoint and the new screen. Read-only, admin-only.</td>
+            <td>The page answers what it costs and which prompt is failing. <em>Zero risk to anything public.</em></td></tr>
+        <tr><td class="mono">2</td><td><strong>Nav reorder</strong></td>
+            <td>Decide first, Kitchen second, sign-in lands on the flow.</td>
+            <td>A signed-in cook lands on Decide. Nothing else moved.</td></tr>
+        <tr><td class="mono">3</td><td><strong>Skip the kitchen step</strong></td>
+            <td>Pre-fill from stock, the confirmation strip, the 3-step rail, <code>DECIDE_USER</code>.</td>
+            <td>A signed-in cook is never asked what they already told us.</td></tr>
+        <tr><td class="mono">4</td><td><strong>The invite, behind a flag</strong></td>
+            <td>The sheet, the dismissal key, in-sheet register, carry-over.</td>
+            <td>Flag on: it appears once, dismissible, and signup keeps the draft. Flag off: nothing changes.</td></tr>
+        <tr><td class="mono">5</td><td><strong>Measure it</strong></td>
+            <td>Compare step-3→verdict completion, flag on vs off, in <code>decide_logs</code>.</td>
+            <td>A decision to keep it or drop it, made on numbers rather than taste.</td></tr>
+        <tr><td class="mono">6</td><td><strong>Open the recipe pages</strong></td>
+            <td>The guard's third mode, public <code>GET /meals/:id</code>, a per-route audit.</td>
+            <td>A recipe URL renders for a stranger, and every remaining private route was checked on purpose.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">Why the audit page goes first</span>
+    It is the only item with no public blast radius, it is entirely additive,
+    and it is the thing that tells you what stages 2–6 did to your AI spend.
+    Shipping it first means the rest is measurable from day one.
+  </div>
+</section>
+
+<!-- ═══════════════════════════ RISKS ══════════════════════════════════ -->
+<section id="risks">
+  <div class="sechead"><span class="secnum">07</span><h2>What I would push back on</h2></div>
+  <p class="lede">
+    Three of these four are straightforwardly good. One is a real trade, and one
+    has a failure mode worth naming before it is built rather than after.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="chip warn" style="margin-bottom:10px"><span class="dot"></span>The trade</span>
+      <h3>A mid-flow popup costs completions</h3>
+      <p style="font-size:13.5px">
+        Interrupting a four-step flow to ask for an email is the pattern people
+        describe when they say a site is annoying. It will convert some people,
+        and it will lose others at step three who would have reached a verdict.
+      </p>
+      <p style="font-size:13.5px">
+        <strong>I am not arguing against it</strong> — the sunk-cost timing is
+        genuinely the right moment, and it is dismissible. But it must ship
+        behind a flag with the completion rate watched, because "it felt like it
+        helped" is not something you can tell without the number.
+      </p>
+      <div class="callout warn" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The number that decides it</span>
+        step-3 → verdict completion, flag on versus flag off. If it drops more
+        than signups rise, the popup is costing more than it earns.
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="chip crit" style="margin-bottom:10px"><span class="dot"></span>The one-way door</span>
+      <h3>Opening routes cannot be undone</h3>
+      <p style="font-size:13.5px">
+        Once a URL has served a stranger, assume it is indexed and archived.
+        The mitigation is not caution in general but a <strong>route-by-route
+        decision</strong>: for each one, what may a stranger see, and what must
+        still ask for a signup.
+      </p>
+      <ul class="clean crit">
+        <li>A recipe page is safe: the catalogue is the product's public face.</li>
+        <li><code>/meals/:id</code> must not leak <em>favourited</em> or <em>cooked</em> state for the owner.</li>
+        <li><code>/kitchen</code>, <code>/stock</code>, <code>/market</code>, <code>/week</code> stay private. There is nothing in them that is not somebody's own data.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:18px">
+    <div class="callout">
+      <span class="lbl">A smaller thing worth deciding now</span>
+      With Decide as the default tab, <strong>what does a returning cook see
+      when they have already decided today?</strong> Re-asking four questions
+      is worse than useless. The flow should recognise a decision made in the
+      last few hours and open on it, with "decide again" as the secondary
+      action. That is a small change now and an awkward retrofit later.
+    </div>
+    <div class="callout grape">
+      <span class="lbl">And the product tour</span>
+      <code>product-tour.tsx</code> starts at <code>ROUTES.KITCHEN</code> and
+      walks through the kitchen dashboard. If Decide becomes the default tab and
+      the tour still opens on Kitchen, a new account is told the wrong thing is
+      the point. The tour needs rewriting in stage 2, not later.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <strong style="color:var(--ink);font-family:var(--display)">The Open App</strong> — plan &amp; design<br>
+    <span style="color:var(--ink-4)">backend/docs/v2/open-app-plan.html</span>
+  </div>
+  <div style="text-align:right">
+    Sky Kitchen · KinniJije v2<br>
+    <span style="color:var(--ink-4)">Companions: <code>system-design.html</code> · <code>design.html</code></span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

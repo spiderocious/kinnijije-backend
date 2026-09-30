@@ -81,7 +81,9 @@ export const decideController = {
 
     const started = Date.now();
     // The IP is hashed inside the service; it is never stored raw.
-    const result = await decideService.decide(input, req.ip ?? 'unknown');
+    // The actor is present only when a token was sent: optionalAuthenticate
+    // lets a guest through without one.
+    const result = await decideService.decide(input, req.ip ?? 'unknown', req.actor?.userId);
     if (!result.success) return bail(result);
 
     /**
