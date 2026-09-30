@@ -9,6 +9,7 @@ import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
+import type { UserRole, UserStatus } from '@shared/constants/roles.js';
 import {
   DEFAULT_RANKING_CONFIG,
   RANKING_CONFIG_ID,
@@ -101,6 +102,20 @@ export const adminController = {
     ResponseUtil.noContent(res);
   },
 
+  setRecipesStatus: async (req: Request, res: Response): Promise<void> => {
+    const { ids, status } = req.body as { ids: string[]; status: 'draft' | 'published' };
+    const result = await adminRecipesService.setStatusMany(ids, status);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  deleteRecipes: async (req: Request, res: Response): Promise<void> => {
+    const { ids } = req.body as { ids: string[] };
+    const result = await adminRecipesService.removeMany(ids);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
   deleteRecipe: async (req: Request, res: Response): Promise<void> => {
     const { mealId } = req.params as { mealId: string };
     const result = await adminRecipesService.remove(mealId);
@@ -129,9 +144,15 @@ export const adminController = {
   },
 
   setUserStatus: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
     const { userId } = req.params as { userId: string };
-    const { status } = req.body as { status: string };
-    const result = await adminUsersService.setStatus(userId, status);
+    const { status, reason } = req.body as { status: UserStatus; reason?: string };
+    const result = await adminUsersService.setStatus(
+      userId,
+      status,
+      actor.userId,
+      reason ?? null,
+    );
     if (!result.success) return bail(result);
 
     // Moderation load, and it keeps the `status` profile property honest so
@@ -146,9 +167,11 @@ export const adminController = {
   },
 
   setUserRole: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
     const { userId } = req.params as { userId: string };
-    const { role } = req.body as { role: string };
-    const result = await adminUsersService.setRole(userId, role);
+    const { role } = req.body as { role: UserRole };
+    // The actor's OWN role is what bounds what they may grant.
+    const result = await adminUsersService.setRole(userId, role, actor.userId, actor.role);
     if (!result.success) return bail(result);
     ResponseUtil.noContent(res);
   },

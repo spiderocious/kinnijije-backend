@@ -1,3 +1,4 @@
+import { registerScriptJobs } from '@features/admin/scripts/scripts.jobs.js';
 import { registerChowdeckHandlers } from '@features/chowdeck/chowdeck.jobs.js';
 import { registerExtractionHandlers } from '@features/extraction/extraction.jobs.js';
 import { registerInsightHandlers } from '@features/insights/insights.jobs.js';
@@ -20,4 +21,5 @@ export function registerJobHandlers(): void {
   registerInsightHandlers();
   registerNotificationHandlers();
   registerChowdeckHandlers();
+  registerScriptJobs();
 }

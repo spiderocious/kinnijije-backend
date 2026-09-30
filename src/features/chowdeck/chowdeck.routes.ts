@@ -4,7 +4,7 @@ import { RATE_LIMITS } from '@lib/ratelimit/index.js';
 import { USER_ROLES, USER_STATUSES } from '@shared/constants/roles.js';
 import { asyncHandler } from '@shared/middleware/async-handler.js';
 import { authenticate } from '@shared/middleware/authenticate.middleware.js';
-import { requireRole, requireStatus } from '@shared/middleware/authorize.middleware.js';
+import { requireRole, requireStatus, requireScope } from '@shared/middleware/authorize.middleware.js';
 import { byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
@@ -77,87 +77,77 @@ const action = [...admin, rateLimit(RATE_LIMITS.CHOWDECK_ADMIN_ACTION)];
  * (`/autocomplete`, `/import`, `/clear`) is registered before the
  * parameterised route that would swallow it.
  */
-router.get('/admin/chowdeck/overview', ...read, asyncHandler(chowdeckController.overview));
-router.post('/admin/chowdeck/breaker/reset', ...action, chowdeckController.resetBreaker);
-router.get('/admin/chowdeck/coverage', ...read, asyncHandler(chowdeckController.coverage));
+router.get('/admin/chowdeck/overview', ...read, requireScope('chowdeck:read'), asyncHandler(chowdeckController.overview));
+router.post('/admin/chowdeck/breaker/reset', ...action, requireScope('chowdeck:write'), chowdeckController.resetBreaker);
+router.get('/admin/chowdeck/coverage', ...read, requireScope('chowdeck:read'), asyncHandler(chowdeckController.coverage));
 router.post(
-  '/admin/chowdeck/fetch-ahead',
-  ...action,
+  '/admin/chowdeck/fetch-ahead', ...action, requireScope('chowdeck:write'),
   validate(FetchAheadSchema),
   asyncHandler(chowdeckController.fetchAhead),
 );
 
 // Places
-router.get('/admin/chowdeck/places', ...read, asyncHandler(chowdeckController.listPlaces));
+router.get('/admin/chowdeck/places', ...read, requireScope('chowdeck:read'), asyncHandler(chowdeckController.listPlaces));
 router.post(
-  '/admin/chowdeck/places/autocomplete',
-  ...action,
+  '/admin/chowdeck/places/autocomplete', ...action, requireScope('chowdeck:write'),
   validate(AutocompleteSchema),
   asyncHandler(chowdeckController.autocomplete),
 );
 router.post(
-  '/admin/chowdeck/places/import',
-  ...action,
+  '/admin/chowdeck/places/import', ...action, requireScope('chowdeck:write'),
   validate(ImportPlacesSchema),
   asyncHandler(chowdeckController.importPlaces),
 );
 // Every place and its cache, gone. The console asks for a typed confirmation first.
-router.post('/admin/chowdeck/places/purge', ...action, asyncHandler(chowdeckController.purgePlaces));
+router.post('/admin/chowdeck/places/purge', ...action, requireScope('chowdeck:delete'), asyncHandler(chowdeckController.purgePlaces));
 // The chosen ones only — the console's multi-select.
 router.post(
-  '/admin/chowdeck/places/delete',
-  ...action,
+  '/admin/chowdeck/places/delete', ...action, requireScope('chowdeck:delete'),
   validate(DeletePlacesSchema),
   asyncHandler(chowdeckController.deletePlaces),
 );
-router.post('/admin/chowdeck/places', ...action, validate(SavePlaceSchema), asyncHandler(chowdeckController.savePlace));
+router.post('/admin/chowdeck/places', ...action, requireScope('chowdeck:write'), validate(SavePlaceSchema), asyncHandler(chowdeckController.savePlace));
 router.patch(
-  '/admin/chowdeck/places/:placeId',
-  ...action,
+  '/admin/chowdeck/places/:placeId', ...action, requireScope('chowdeck:write'),
   validate(PlaceParamSchema, 'params'),
   validate(UpdatePlaceSchema),
   asyncHandler(chowdeckController.updatePlace),
 );
 router.delete(
-  '/admin/chowdeck/places/:placeId',
-  ...action,
+  '/admin/chowdeck/places/:placeId', ...action, requireScope('chowdeck:delete'),
   validate(PlaceParamSchema, 'params'),
   asyncHandler(chowdeckController.deletePlace),
 );
 
 // Cache
-router.post('/admin/chowdeck/cache/clear', ...action, validate(ClearCacheSchema), asyncHandler(chowdeckController.clearCache));
-router.get('/admin/chowdeck/cache', ...read, validate(ListCacheSchema, 'query'), asyncHandler(chowdeckController.listCache));
+router.post('/admin/chowdeck/cache/clear', ...action, requireScope('chowdeck:write'), validate(ClearCacheSchema), asyncHandler(chowdeckController.clearCache));
+router.get('/admin/chowdeck/cache', ...read, requireScope('chowdeck:read'), validate(ListCacheSchema, 'query'), asyncHandler(chowdeckController.listCache));
 router.post(
-  '/admin/chowdeck/cache/:id/refresh',
-  ...action,
+  '/admin/chowdeck/cache/:id/refresh', ...action, requireScope('chowdeck:write'),
   validate(IdParamSchema, 'params'),
   asyncHandler(chowdeckController.refreshCache),
 );
 router.get(
-  '/admin/chowdeck/cache/:id',
-  ...read,
+  '/admin/chowdeck/cache/:id', ...read, requireScope('chowdeck:read'),
   validate(IdParamSchema, 'params'),
   asyncHandler(chowdeckController.cacheDetail),
 );
 
 // The request log
-router.get('/admin/chowdeck/calls', ...read, validate(ListCallsSchema, 'query'), asyncHandler(chowdeckController.listCalls));
+router.get('/admin/chowdeck/calls', ...read, requireScope('chowdeck:read'), validate(ListCallsSchema, 'query'), asyncHandler(chowdeckController.listCalls));
 router.post(
-  '/admin/chowdeck/calls/:id/replay',
-  ...action,
+  '/admin/chowdeck/calls/:id/replay', ...action, requireScope('chowdeck:write'),
   validate(IdParamSchema, 'params'),
   asyncHandler(chowdeckController.replay),
 );
 router.get(
-  '/admin/chowdeck/calls/:id',
-  ...read,
+  '/admin/chowdeck/calls/:id', ...read, requireScope('chowdeck:read'),
   validate(IdParamSchema, 'params'),
   asyncHandler(chowdeckController.callDetail),
 );
 
 // Clicks
-router.get('/admin/chowdeck/clicks', ...read, validate(ListClicksSchema, 'query'), asyncHandler(chowdeckController.listClicks));
+router.get('/admin/chowdeck/clicks', ...read, requireScope('chowdeck:read'), validate(ListClicksSchema, 'query'), asyncHandler(chowdeckController.listClicks));
 
 export function register(app: Express): void {
   app.use('/api/v1', router);

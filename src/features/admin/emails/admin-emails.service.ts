@@ -1,5 +1,6 @@
 import { UserModel } from '@features/users/users.model.js';
 import { isoOrNull } from '@lib/dates.js';
+import { record } from '@lib/audit/index.js';
 import { logger } from '@lib/logger/index.js';
 import {
   adminBroadcastEmail,
@@ -125,6 +126,17 @@ export class AdminEmailsService {
     }
 
     logger.info('admin email sent', { by: actorId, audience: input.audience, sent, failed });
+
+    // The highest-blast-radius action in the console: it reaches customers'
+    // inboxes and cannot be undone. Subject only — never the body, which is in
+    // `email_logs` already.
+    record({
+      action: 'emails.broadcast.sent',
+      resource: 'emails',
+      resourceId: null,
+      meta: { audience: input.audience, subject: input.subject, sent, failed },
+    });
+
     return ok({ sent, failed });
   }
 

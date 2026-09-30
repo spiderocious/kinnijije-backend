@@ -1,3 +1,4 @@
+import { record } from '@lib/audit/index.js';
 import { logger } from '@lib/logger/index.js';
 import { isoOrNull } from '@lib/dates.js';
 
@@ -152,6 +153,13 @@ export class FlagsService {
     cache = null;
 
     logger.info('feature flag switched', { flag: key, enabled, by: actorId, reason });
+    record({
+      action: 'flags.changed',
+      resource: 'flags',
+      resourceId: key,
+      changes: [{ field: 'enabled', from: !enabled, to: enabled }],
+      meta: reason === undefined ? null : { reason },
+    });
   }
 }
 

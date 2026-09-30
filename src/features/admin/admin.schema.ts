@@ -50,8 +50,24 @@ export const BulkRecipesSchema = z.object({
   recipes: z.array(recipeBody).min(1, 'Nothing to import').max(100),
 });
 
+/** The recipes list's multi-select. Capped like the import above. */
+export const DeleteRecipesSchema = z.object({
+  ids: z.array(z.string().min(1).max(60)).min(1, 'Nothing selected').max(200),
+});
+
+/**
+ * The body IS `{ status }`. `validate` parses `req.body` itself, so this was
+ * once written with an extra `body:` wrapper that no client ever sent —
+ * which rejected every publish and unpublish with "body: Required".
+ */
 export const SetRecipeStatusSchema = z.object({
-  body: z.object({ status: z.enum(['draft', 'published']) }),
+  status: z.enum(['draft', 'published']),
+});
+
+/** The recipes list's multi-select, publishing or unpublishing in one go. */
+export const SetRecipesStatusSchema = z.object({
+  ids: z.array(z.string().min(1).max(60)).min(1, 'Nothing selected').max(200),
+  status: z.enum(['draft', 'published']),
 });
 
 export const ListUsersSchema = z.object({
@@ -63,6 +79,11 @@ export const ListUsersSchema = z.object({
 
 export const SetUserStatusSchema = z.object({
   status: z.enum(['active', 'pending', 'suspended', 'banned', 'deleted']),
+  /**
+   * Why. Optional, but it is emailed to the person and shown in the console —
+   * so a suspension with no reason is one nobody can explain later.
+   */
+  reason: z.string().trim().min(1).max(500).optional(),
 });
 
 export const SetUserRoleSchema = z.object({

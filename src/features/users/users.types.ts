@@ -1,4 +1,6 @@
 import type { Difficulty, UserRole, UserStatus } from '@shared/constants/roles.js';
+import { ALL_SCOPES, expand } from '@shared/constants/permissions.js';
+import { USER_ROLES } from '@shared/constants/roles.js';
 import { isoOrNull } from '@lib/dates.js';
 
 import type { UserDocument } from './users.model.js';
@@ -16,6 +18,8 @@ export interface UserView {
   name: string;
   role: UserRole;
   status: UserStatus;
+  /** Effective scopes. Lets the console hide what it cannot offer. */
+  permissions: string[];
   email_verified_at: string | null;
   last_login_at: string | null;
   /**
@@ -49,6 +53,19 @@ export const toUserView = (doc: UserDocument): UserView => ({
   name: doc.name,
   role: doc.role,
   status: doc.status,
+  /**
+   * EFFECTIVE scopes — implications already resolved.
+   *
+   * Sent so the console can hide what a person cannot use. A COURTESY, never a
+   * control: every route is independently enforced server-side, so a client
+   * that ignores this gains nothing.
+   *
+   * A super admin bypasses scope checks rather than holding them all, so it is
+   * given the full set here — otherwise the console would hide everything from
+   * the one account that can do anything.
+   */
+  permissions:
+    doc.role === USER_ROLES.SUPER_ADMIN ? [...ALL_SCOPES] : expand(doc.permissions ?? []),
   // Dates cross the wire as ISO-8601 UTC, always. The conversion belongs here,
   // in the mapper, not at each callsite.
   email_verified_at: isoOrNull(doc.emailVerifiedAt),

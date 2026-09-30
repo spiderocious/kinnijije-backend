@@ -26,6 +26,9 @@ export const ID_PREFIXES = {
   chat: 'chat',
   insight: 'ins',
   decideLog: 'dlog',
+  audit: 'audit',
+  invite: 'inv',
+  permissionGroup: 'grp',
   /** One saved decision, owned by a signed-in cook. */
   decideHistory: 'dhist',
   /** One outbound request to Chowdeck, kept for the console. */

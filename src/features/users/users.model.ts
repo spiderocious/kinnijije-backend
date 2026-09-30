@@ -36,7 +36,17 @@ const userSchema = new Schema(
     // `select: false` keeps the hash out of every query result by default, so
     // it cannot leak into a response through a forgotten projection. The auth
     // repo opts back in explicitly where it needs to verify.
-    passwordHash: { type: String, required: true, select: false },
+    /**
+     * OPTIONAL, because an invited staff member has no password yet.
+     *
+     * Was `required: true`, which made an invite impossible to represent —
+     * the row has to exist before they choose a password so the console can
+     * show "invited, not yet accepted". Anything that verifies a password must
+     * therefore handle its absence; `auth.service.login` does, and treats a
+     * missing hash as ordinary invalid credentials so this cannot be used to
+     * discover which addresses have a pending invite.
+     */
+    passwordHash: { type: String, default: null, select: false },
 
     name: { type: String, required: true, trim: true, maxlength: 120 },
 
@@ -63,6 +73,26 @@ const userSchema = new Schema(
 
     /** Reason an admin gave when suspending or banning. Shown in admin tooling. */
     statusReason: { type: String, default: null },
+
+    /**
+     * Permission scopes, FLATTENED from whatever groups were assigned.
+     *
+     * This array is the single source of truth for what a staff member may do.
+     * Groups are a convenience for granting, not an indirection resolved at
+     * request time: resolving them per request would mean every authorisation
+     * check needs a second lookup, and editing a group would silently change
+     * what nine people can do with nothing in the audit trail naming them.
+     *
+     * Empty for an ordinary customer, and ignored entirely for a super admin,
+     * who bypasses scope checks rather than holding every scope.
+     */
+    permissions: { type: [String], default: [] },
+
+    /**
+     * Which groups were applied. DISPLAY ONLY — never consulted when
+     * authorising, so a stale group reference cannot confer access.
+     */
+    permissionGroupKeys: { type: [String], default: [] },
 
     /**
      * When the person finished setting up. Null means they still owe us
@@ -165,7 +195,7 @@ export interface UserPrefs {
 export interface UserAttributes {
   _id: string;
   email: string;
-  passwordHash: string;
+  passwordHash: string | null;
   name: string;
   role: UserRole;
   status: UserStatus;
@@ -174,6 +204,10 @@ export interface UserAttributes {
   failedLoginCount: number;
   lockedUntil: Date | null;
   statusReason: string | null;
+  /** Flattened scopes. The authority on what this account may do. */
+  permissions: string[];
+  /** Groups applied, for display. Never consulted when authorising. */
+  permissionGroupKeys: string[];
   onboardingCompletedAt: Date | null;
   prefs: UserPrefs;
   kitchenItems: string[];

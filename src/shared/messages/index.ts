@@ -106,6 +106,9 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.common.NOT_FOUND]: 'That resource does not exist.',
   [MESSAGE_KEYS.common.INTERNAL]: 'Something went wrong on our side. Please try again.',
   [MESSAGE_KEYS.common.UPSTREAM_FAILURE]: 'A service we depend on is unavailable right now.',
+  [MESSAGE_KEYS.scripts.ALREADY_RUNNING]:
+    'That operation is already running. Wait for it to finish before starting another.',
+  [MESSAGE_KEYS.scripts.NOT_FOUND]: 'That operation does not exist.',
   [MESSAGE_KEYS.common.HEALTHY]: 'Service is healthy.',
 };
 

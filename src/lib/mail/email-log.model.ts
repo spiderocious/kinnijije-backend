@@ -16,6 +16,15 @@ export const EMAIL_KINDS = {
   WEEKLY_SUMMARY: 'weekly_summary',
   HAVE_YOU_EATEN: 'have_you_eaten',
   ADMIN_BROADCAST: 'admin_broadcast',
+  /**
+   * An invitation to join the console.
+   *
+   * Added to this enum FIRST, deliberately: `kind` is enum-validated by the
+   * schema and the log row is written AFTER the mail is handed to the
+   * provider, so sending an unregistered kind would deliver the email and then
+   * throw on the log write.
+   */
+  STAFF_INVITE: 'staff_invite',
 } as const;
 
 export type EmailKind = (typeof EMAIL_KINDS)[keyof typeof EMAIL_KINDS];

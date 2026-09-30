@@ -89,6 +89,11 @@ export const MESSAGE_KEYS = {
     ANSWERED: 'chat.answered',
     FAILED: 'chat.failed',
   },
+  scripts: {
+    /** A second run of the same script while one is still going. */
+    ALREADY_RUNNING: 'scripts.already_running',
+    NOT_FOUND: 'scripts.not_found',
+  },
   jobs: {
     FETCHED: 'jobs.fetched',
     NOT_FOUND: 'jobs.not_found',

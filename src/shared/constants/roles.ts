@@ -30,6 +30,14 @@ export const roleAtLeast = (role: UserRole, minimum: UserRole): boolean =>
   ROLE_RANK[role] >= ROLE_RANK[minimum];
 
 export const USER_STATUSES = {
+  /**
+   * Staff who have been invited but have not set a password yet.
+   *
+   * Deliberately NOT in `SESSION_ALLOWED_STATUSES`: the row exists so the
+   * console can show "invited, not yet accepted", but it cannot hold a
+   * session and it has no `passwordHash` to authenticate against.
+   */
+  INVITED: 'invited',
   /** Registered, email not yet confirmed. Can read; cannot write. */
   PENDING: 'pending',
   ACTIVE: 'active',
@@ -60,6 +68,9 @@ export const SESSION_ALLOWED_STATUSES: readonly UserStatus[] = [
  * A status arriving from a client is untrusted until checked against this.
  */
 const VALID_STATUS_TRANSITIONS: Record<UserStatus, readonly UserStatus[]> = {
+  // An invite either gets accepted (→ active) or abandoned. It cannot be
+  // suspended or banned, because there is nobody there yet to restrict.
+  [USER_STATUSES.INVITED]: [USER_STATUSES.ACTIVE, USER_STATUSES.DELETED],
   [USER_STATUSES.PENDING]: [USER_STATUSES.ACTIVE, USER_STATUSES.BANNED, USER_STATUSES.DELETED],
   [USER_STATUSES.ACTIVE]: [USER_STATUSES.SUSPENDED, USER_STATUSES.BANNED, USER_STATUSES.DELETED],
   [USER_STATUSES.SUSPENDED]: [USER_STATUSES.ACTIVE, USER_STATUSES.BANNED, USER_STATUSES.DELETED],

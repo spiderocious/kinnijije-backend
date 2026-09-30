@@ -623,3 +623,50 @@ Feranmi
 KinniJije`,
   };
 };
+
+/**
+ * An invitation to the console.
+ *
+ * Says who invited them and what they will be able to do — somebody receiving
+ * an unexpected "set a password" email should be able to tell instantly
+ * whether it is legitimate, and a bare link cannot do that.
+ *
+ * `roleLabel` is the group's human name ("Content editor"), never a scope
+ * string: `recipes:write` means nothing to the person reading it.
+ */
+export const staffInviteEmail = (
+  name: string | null,
+  token: string,
+  invitedByName: string,
+  roleLabel: string,
+): EmailContent => {
+  const who = firstName(name);
+  const href = app(`/admin/accept-invite?token=${encodeURIComponent(token)}`);
+  return {
+    subject: 'Your KinniJije console account',
+    html: shell(
+      `${h('You have been given a console account')}
+       ${p(`Hello ${esc(who)},`)}
+       ${p(`${esc(invitedByName)} has set you up on the KinniJije console as <b>${esc(roleLabel)}</b>. Choose a password and you are in.`)}
+       <div style="margin:22px 0">${button('Set your password', href)}</div>
+       ${p('The link works once and stops working after seven days. If it has expired, ask whoever invited you to send another.')}
+       ${p('If you were not expecting this, please tell us rather than ignoring it — somebody has used your address to set up an account with access to real data.', { muted: true })}
+       ${signOff('Welcome aboard,')}`,
+    ),
+    text: `You have been given a console account
+
+Hello ${who},
+
+${invitedByName} has set you up on the KinniJije console as ${roleLabel}. Open this link to choose a password:
+
+${href}
+
+It works once and stops working after seven days. If it has expired, ask whoever invited you to send another.
+
+If you were not expecting this, please tell us rather than ignoring it — somebody has used your address to set up an account with access to real data.
+
+Welcome aboard,
+Feranmi
+KinniJije`,
+  };
+};

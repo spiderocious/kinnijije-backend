@@ -3,7 +3,14 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { AppError } from '@lib/errors.js';
 import { ERROR_CODES, type ErrorCode } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
-import { roleAtLeast, USER_STATUSES, type UserRole, type UserStatus } from '@shared/constants/roles.js';
+import { satisfies, type Scope } from '@shared/constants/permissions.js';
+import {
+  roleAtLeast,
+  USER_ROLES,
+  USER_STATUSES,
+  type UserRole,
+  type UserStatus,
+} from '@shared/constants/roles.js';
 import { MESSAGE_KEYS, type MessageKey } from '@shared/messages/keys.js';
 
 import { requireActor } from './authenticate.middleware.js';
@@ -62,6 +69,16 @@ export const requireOneOfRoles =
 
 const STATUS_REJECTION: Record<UserStatus, { code: ErrorCode; key: MessageKey } | null> = {
   [USER_STATUSES.ACTIVE]: null,
+  /**
+   * An invited staff member has no password yet, so they cannot hold a session
+   * and should never reach a status gate. Mapped anyway — the exhaustive
+   * Record is what guarantees a new status cannot be added without somebody
+   * deciding what it means here.
+   */
+  [USER_STATUSES.INVITED]: {
+    code: ERROR_CODES.ACCOUNT_PENDING_VERIFICATION,
+    key: MESSAGE_KEYS.access.ACCOUNT_PENDING_VERIFICATION,
+  },
   [USER_STATUSES.PENDING]: {
     code: ERROR_CODES.ACCOUNT_PENDING_VERIFICATION,
     key: MESSAGE_KEYS.access.ACCOUNT_PENDING_VERIFICATION,
@@ -123,3 +140,65 @@ export const requireStatus =
  * active account. Reads are generally happy with `requireStatus(ACTIVE, PENDING)`.
  */
 export const requireActiveAccount = (): RequestHandler => requireStatus(USER_STATUSES.ACTIVE);
+
+/**
+ * Scope gate. The per-action half of authorisation.
+ *
+ * `requireRole(ADMIN)` is the door — it says somebody belongs in the console at
+ * all. This is the room: it says whether they may do THIS.
+ *
+ * TWO DELIBERATE CHOICES:
+ *
+ * 1. **Read from the database, not the token.** The access token carries role
+ *    and status as claims so an ordinary request needs no lookup, and 15
+ *    minutes of stale role is tolerable because a ban also revokes sessions.
+ *    A revoked SCOPE that keeps working for 15 minutes is different: it is a
+ *    person still deleting recipes after you stopped them. Admin routes are a
+ *    handful of requests from a handful of people, so one indexed findById is
+ *    the right trade.
+ *
+ * 2. **Super admin bypasses rather than holding every scope.** That keeps "who
+ *    can lock everybody out" answerable by reading one field, and means a
+ *    scope added later cannot leave the owner unable to reach it.
+ */
+export const requireScope =
+  (needed: Scope): RequestHandler =>
+  (req: Request, _res: Response, next: NextFunction) => {
+    const actor = requireActor(req);
+
+    if (actor.role === USER_ROLES.SUPER_ADMIN) {
+      next();
+      return;
+    }
+
+    void (async () => {
+      try {
+        const { UserModel } = await import('@features/users/users.model.js');
+        const row = await UserModel.findById(actor.userId, { permissions: 1 }).lean().exec();
+        const held: readonly string[] = row?.permissions ?? [];
+
+        if (satisfies(held, needed)) {
+          next();
+          return;
+        }
+
+        const { auditDenial } = await import('@lib/audit/index.js');
+        auditDenial(req, needed);
+
+        next(
+          new AppError(
+            ERROR_CODES.FORBIDDEN,
+            HTTP_STATUS.FORBIDDEN,
+            `actor lacks scope ${needed}`,
+            MESSAGE_KEYS.access.FORBIDDEN,
+            undefined,
+            // Diagnostic only. Says WHICH scope was missing, so an operator
+            // reading a support ticket does not have to guess.
+            `missing_scope_${needed}`,
+          ),
+        );
+      } catch (error) {
+        next(error);
+      }
+    })();
+  };

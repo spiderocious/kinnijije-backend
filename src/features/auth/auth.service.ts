@@ -157,7 +157,19 @@ export class AuthService {
       );
     }
 
-    const matches = await argon2.verify(user.passwordHash, input.password).catch(() => false);
+    /**
+     * A null hash means an INVITED staff member who has not set a password.
+     *
+     * Treated as an ordinary wrong password — same branch, same error, same
+     * failed-login counter. Distinguishing it would turn this endpoint into a
+     * way to discover which addresses have a pending invite, which is a list
+     * worth having if you are trying to social-engineer your way into a
+     * console.
+     */
+    const matches =
+      user.passwordHash === null
+        ? false
+        : await argon2.verify(user.passwordHash, input.password).catch(() => false);
 
     if (!matches) {
       const shouldLock = user.failedLoginCount + 1 >= MAX_FAILED_LOGINS;
@@ -316,7 +328,12 @@ export class AuthService {
       return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.users.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     }
 
-    const matches = await argon2.verify(user.passwordHash, input.current_password).catch(() => false);
+    // Same null case as login: somebody who never set a password cannot
+    // "change" it, and must go through the invite or reset flow instead.
+    const matches =
+      user.passwordHash === null
+        ? false
+        : await argon2.verify(user.passwordHash, input.current_password).catch(() => false);
     if (!matches) {
       return fail(
         ERROR_CODES.INVALID_CREDENTIALS,

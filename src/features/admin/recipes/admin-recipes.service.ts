@@ -1,4 +1,5 @@
 import { MealModel } from '@features/meals/meals.model.js';
+import { record } from '@lib/audit/index.js';
 import { isoOrNull } from '@lib/dates.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
@@ -204,19 +205,126 @@ export class AdminRecipesService {
   }
 
   async setStatus(mealId: string, status: 'draft' | 'published'): Promise<ServiceResult<null>> {
-    const result = await MealModel.updateOne({ _id: mealId }, { $set: { status } }).exec();
-    if (result.matchedCount === 0) {
+    // `findOneAndUpdate` rather than `updateOne`: the trail needs the previous
+    // status, and reading it back costs the round trip this returns for free.
+    const before = await MealModel.findOneAndUpdate(
+      { _id: mealId },
+      { $set: { status } },
+      { projection: { status: 1, name: 1 } },
+    ).exec();
+
+    if (before === null) {
       return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.meals.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     }
+
+    record({
+      action: 'recipes.status.changed',
+      resource: 'recipes',
+      resourceId: mealId,
+      changes: [{ field: 'status', from: before.status, to: status }],
+      meta: { name: before.name },
+    });
+
     return ok(null);
   }
 
+  /**
+   * Publishes or unpublishes several recipes at once — the multi-select.
+   *
+   * Only recipes actually CHANGING are touched and audited: unpublishing ten
+   * where four were already drafts writes six entries, not ten, so the trail
+   * never claims a change that did not happen.
+   */
+  async setStatusMany(
+    ids: readonly string[],
+    status: 'draft' | 'published',
+  ): Promise<ServiceResult<{ changed: number; unchanged: number; missing: string[] }>> {
+    const unique = [...new Set(ids)];
+    const current = await MealModel.find({ _id: { $in: unique } }, { status: 1, name: 1 }).lean().exec();
+    const found = new Set(current.map((meal) => meal._id));
+    const changing = current.filter((meal) => meal.status !== status);
+
+    if (changing.length > 0) {
+      await MealModel.updateMany(
+        { _id: { $in: changing.map((meal) => meal._id) } },
+        { $set: { status } },
+      ).exec();
+    }
+
+    for (const meal of changing) {
+      record({
+        action: 'recipes.status.changed',
+        resource: 'recipes',
+        resourceId: meal._id,
+        changes: [{ field: 'status', from: meal.status, to: status }],
+        meta: { name: meal.name, in_bulk: true },
+      });
+    }
+
+    return ok({
+      changed: changing.length,
+      unchanged: current.length - changing.length,
+      missing: unique.filter((id) => !found.has(id)),
+    });
+  }
+
   async remove(mealId: string): Promise<ServiceResult<null>> {
+    // Captured before deletion: afterwards there is nothing left to name, and
+    // "which recipe was that?" is the first question anybody will ask.
+    const doomed = await MealModel.findById(mealId, { name: 1, slug: 1, status: 1 }).lean().exec();
+
     const result = await MealModel.deleteOne({ _id: mealId }).exec();
     if (result.deletedCount === 0) {
       return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.meals.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     }
+
+    record({
+      action: 'recipes.deleted',
+      resource: 'recipes',
+      resourceId: mealId,
+      meta: {
+        name: doomed?.name ?? null,
+        slug: doomed?.slug ?? null,
+        was_published: doomed?.status === 'published',
+      },
+    });
+
     return ok(null);
+  }
+
+  /**
+   * Deletes several recipes at once — the console's multi-select.
+   *
+   * Exactly what `remove` does, per recipe: the same delete, and one audit
+   * entry EACH, so "who deleted jollof rice" is answerable whether it went
+   * alone or in a batch of forty. Ids that no longer exist are reported back
+   * as missing rather than failing the whole batch — somebody else may have
+   * deleted one while this screen was open.
+   */
+  async removeMany(ids: readonly string[]): Promise<ServiceResult<{ deleted: number; missing: string[] }>> {
+    const unique = [...new Set(ids)];
+    const doomed = await MealModel.find({ _id: { $in: unique } }, { name: 1, slug: 1, status: 1 })
+      .lean()
+      .exec();
+    const found = new Set(doomed.map((meal) => meal._id));
+
+    const result = await MealModel.deleteMany({ _id: { $in: [...found] } }).exec();
+
+    for (const meal of doomed) {
+      record({
+        action: 'recipes.deleted',
+        resource: 'recipes',
+        resourceId: meal._id,
+        meta: {
+          name: meal.name,
+          slug: meal.slug,
+          was_published: meal.status === 'published',
+          in_bulk: true,
+        },
+      });
+    }
+
+    return ok({ deleted: result.deletedCount, missing: unique.filter((id) => !found.has(id)) });
   }
 }
 

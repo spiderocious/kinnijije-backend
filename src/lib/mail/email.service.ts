@@ -2,11 +2,25 @@ import { env, IS_PRODUCTION } from '@app/env.js';
 import { SERVER_EVENTS, analytics } from '@lib/analytics/index.js';
 import { logger } from '@lib/logger/index.js';
 
-import { EmailLogModel, type EmailKind } from './email-log.model.js';
+import { EMAIL_KINDS, EmailLogModel, type EmailKind } from './email-log.model.js';
 import { EmailSettingModel } from './email-settings.model.js';
 import type { MailProvider } from './mail-provider.model.js';
 import { mailer } from './mailer.js';
 import type { EmailContent } from './templates.js';
+
+/**
+ * Kinds that are a direct reply to something a person just did.
+ *
+ * Two consequences, both of them deliberate:
+ *   - no unsubscribe header (there is nothing to unsubscribe from)
+ *   - exempt from the per-kind operator kill switch, so switching off
+ *     marketing cannot silently strand somebody mid-flow
+ */
+const TRANSACTIONAL_KINDS = new Set<string>([
+  EMAIL_KINDS.PASSWORD_RESET,
+  EMAIL_KINDS.PASSWORD_CHANGED,
+  EMAIL_KINDS.STAFF_INVITE,
+]);
 
 export interface SendInput {
   readonly kind: EmailKind;
@@ -63,7 +77,15 @@ export class EmailService {
     // only way an email leaves, so this is the only place it can be stopped.
     // The attempt is still recorded, because "why did nobody get that?" is
     // exactly the question a blocked send has to be able to answer.
-    if (!(await this.isKindEnabled(input.kind))) {
+    /**
+     * Transactional mail is exempt from the operator kill switch.
+     *
+     * The per-kind switch exists so somebody can stop a marketing sweep. A
+     * password reset or a console invite is a reply to something a person just
+     * did, and switching those off silently strands them — an invite would be
+     * recorded `blocked` and nobody would know why the link never arrived.
+     */
+    if (!TRANSACTIONAL_KINDS.has(input.kind) && !(await this.isKindEnabled(input.kind))) {
       const blocked = await EmailLogModel.create({
         kind: input.kind,
         to: input.to,
@@ -100,7 +122,10 @@ export class EmailService {
       // Everything except a password reset gets the header. A reset is a
       // response to a request somebody just made, and offering to unsubscribe
       // from it makes no sense.
-      ...(input.kind !== 'password_reset' && {
+      // Transactional mail carries no unsubscribe link: there is nothing to
+      // unsubscribe FROM, and for an invite the /settings page it points at is
+      // one the recipient cannot even reach yet, having no account.
+      ...(!TRANSACTIONAL_KINDS.has(input.kind) && {
         unsubscribeUrl: `${env.APP_URL.replace(/\/+$/, '')}/settings`,
       }),
     });
