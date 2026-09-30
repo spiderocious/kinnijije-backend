@@ -39,6 +39,10 @@ export class ResponseUtil {
   }
 }
 
+function hasToObject(value: object): value is { toObject: () => unknown } {
+  return 'toObject' in value && typeof (value as { toObject?: unknown }).toObject === 'function';
+}
+
 /**
  * One walk of the body, in one file, instead of remembering at every callsite.
  * `JSON.stringify` throws a TypeError on bigint, so it is converted here: a
@@ -53,6 +57,11 @@ function serialise(value: unknown): unknown {
   }
 
   if (value instanceof Date) return isoOrNull(value);
+
+  if (value !== null && typeof value === 'object' && hasToObject(value)) {
+    return serialise(value.toObject());
+  }
+
   if (Array.isArray(value)) return value.map(serialise);
 
   if (value !== null && typeof value === 'object') {
