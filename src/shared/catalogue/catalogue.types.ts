@@ -71,4 +71,22 @@ export interface CatalogueItem {
    */
   readonly costNgn: number;
   readonly storage: StorageKind;
+  /**
+   * Assumed to be in the kitchen already.
+   *
+   * Salt is a REQUIRED ingredient in 83 of 100 seeded recipes, stock cubes in
+   * 72, cooking oil in 40. Nobody taps those on a "what do you have" screen, so
+   * counting them as missing penalised every meal equally and dragged every
+   * match score toward zero — which left the ranking nothing to discriminate
+   * on and produced "you have 1 of 8" for a dish somebody could basically cook.
+   *
+   * A pantry item is excluded from the match score and listed separately from
+   * the shopping list. It is NOT hidden: a cook with no salt still needs to
+   * know the recipe wants some.
+   *
+   * The bar is deliberately high: it must be something almost every Nigerian
+   * kitchen has almost always. Palm oil and crayfish are real purchases and are
+   * deliberately NOT flagged, however common they are.
+   */
+  readonly pantry?: boolean;
 }

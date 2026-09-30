@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide First — Visual Design</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only. Tokens lifted verbatim from web/src/index.css.
+   THE BLADE: one sharp corner, three round. Pills and circles are the only
+   two exceptions in the whole system.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7;
+  --scrim:rgba(19,36,48,.46);
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7;
+  --sky-400:#6bc8f4; --sky-500:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-press:var(--sky-700);
+  --sky-soft:var(--sky-100); --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --neutral:#6e8798; --neutral-soft:#eef4f8; --neutral-onsoft:#3a5567; --neutral-border:#cfdde7;
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px; --blade-xl:28px 8px 28px 8px;
+  --r-pill:999px;
+  --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --drop-sky:3px 4px 0 var(--sky-press);
+  --shadow-pop:0 8px 24px rgba(19,36,48,.14);
+  --shadow-modal:0 18px 50px rgba(19,36,48,.22);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+  --ease-out:cubic-bezier(.22,.8,.3,1);
+  --t-press:130ms; --t-fast:180ms; --t-base:260ms; --t-slow:380ms;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper-2);color:var(--ink-2);
+  font-family:var(--sans);font-size:14.5px;line-height:1.55;
+  letter-spacing:0;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,h5{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+p{margin:.6em 0}
+svg{display:inline-block;vertical-align:middle}
+code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);border:1.5px solid var(--line);padding:1px 5px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--sky)}
+
+/* ══════════ SPEC PAGE CHROME (the document around the screens) ═════════ */
+.sheet{max-width:1280px;margin:0 auto;padding:0 20px 130px}
+.docmast{padding:56px 0 34px;border-bottom:var(--bw) solid var(--ink);margin-bottom:0}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.docmast h1{font-size:clamp(34px,6vw,62px);font-weight:800;margin:14px 0 0}
+.docmast .deck{font-size:clamp(16px,2vw,20px);max-width:64ch;margin-top:16px;color:var(--ink-2)}
+.brandrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.logomark{width:44px;height:44px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink)}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.chip.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.metastrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+
+.specsec{padding-top:70px}
+.spechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px}
+.specsec h2{font-size:clamp(24px,3.4vw,34px);font-weight:800}
+.lede{font-size:16px;max-width:74ch;margin:12px 0 28px;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);max-width:70ch;margin-top:12px}
+.rule{height:var(--bw);background:var(--ink);border:0;margin:0}
+
+/* the caption strip under each screen */
+.framecap{display:flex;gap:10px;align-items:flex-start;margin-top:14px;flex-wrap:wrap}
+.framecap .n{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-4);flex:none;padding-top:2px}
+.framecap .t{font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)}
+.framecap .d{font-size:12.5px;color:var(--ink-3);max-width:56ch}
+
+/* ══════════ THE PHONE — every screen is drawn inside one ═══════════════ */
+.rack{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:34px;align-items:start}
+.phone{
+  width:100%;max-width:372px;margin:0 auto;
+  background:var(--paper);border:var(--bw-bold) solid var(--ink);
+  border-radius:34px 10px 34px 10px;box-shadow:var(--drop-lg);
+  overflow:hidden;position:relative;
+}
+.phone .notch{height:26px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;justify-content:center;gap:5px}
+.phone .notch i{display:block;width:34px;height:4px;border-radius:999px;background:var(--line-2)}
+.screen{padding:18px;min-height:560px;display:flex;flex-direction:column;gap:14px;background:var(--paper)}
+.screen.tall{min-height:640px}
+
+/* ══════════ APP PRIMITIVES (mirroring the real component library) ══════ */
+.btn{
+  appearance:none;border:var(--bw) solid var(--ink);cursor:pointer;
+  font-family:var(--sans);font-weight:800;font-size:14.5px;
+  min-height:46px;padding:0 20px;border-radius:var(--blade-xs);
+  background:var(--sky);color:#fff;box-shadow:var(--drop-sm);
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  transition:transform var(--t-press) var(--ease),box-shadow var(--t-press) var(--ease);
+}
+.btn:hover{background:var(--sky-deep)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.lg{min-height:56px;font-size:17px;border-radius:var(--blade-sm);box-shadow:var(--drop)}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.btn.ghost:hover{background:var(--paper-2);border-color:var(--ink)}
+.btn.quiet{background:transparent;color:var(--ink-3);border-color:transparent;box-shadow:none;font-weight:700;min-height:38px}
+.btn.quiet:hover{color:var(--ink);background:var(--paper-2)}
+.btn.auto{width:auto}
+
+.label{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.qtitle{font-family:var(--display);font-weight:800;font-size:26px;color:var(--ink);line-height:1.08;letter-spacing:-.018em}
+.qsub{font-size:13.5px;color:var(--ink-3);margin-top:-4px}
+
+/* progress rail — the blade applies even here */
+.rail{display:flex;gap:5px;align-items:center}
+.rail i{flex:1;height:6px;background:var(--skeleton);border-radius:999px;overflow:hidden}
+.rail i.on{background:var(--sky)}
+.rail i.half{background:linear-gradient(90deg,var(--sky) 50%,var(--skeleton) 50%)}
+.railtxt{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);font-weight:600;white-space:nowrap}
+
+/* the tap tile — the workhorse of the whole flow */
+.tiles{display:grid;gap:9px}
+.tiles.c2{grid-template-columns:repeat(2,1fr)}
+.tiles.c3{grid-template-columns:repeat(3,1fr)}
+.tile{
+  background:var(--white);border:var(--bw) solid var(--line-2);
+  border-radius:var(--blade-xs);padding:12px 8px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--ink-2);
+  text-align:center;transition:all var(--t-fast) var(--ease-out);position:relative;
+}
+.tile:hover{border-color:var(--ink);transform:translateY(-2px)}
+.tile .art{width:44px;height:44px;color:var(--ink-2);flex:none}
+.tile.on{
+  background:var(--sky-soft);border-color:var(--sky);color:var(--sky-on);
+  box-shadow:var(--drop-sm);
+}
+.tile.on .art{color:var(--sky-deep)}
+.tile.on::after{
+  content:'';position:absolute;top:-7px;right:-7px;width:22px;height:22px;
+  background:var(--sky);border:var(--bw) solid var(--ink);border-radius:50%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;
+}
+.tile.wide{flex-direction:row;justify-content:flex-start;gap:12px;text-align:left;padding:13px 14px}
+.tile.wide .art{width:36px;height:36px}
+.tile.big .art{width:56px;height:56px}
+.tile .cap{font-size:10.5px;font-weight:700;color:var(--ink-4);letter-spacing:.02em}
+.tile.on .cap{color:var(--sky-deep)}
+
+/* search field */
+.field{
+  display:flex;align-items:center;gap:9px;background:var(--white);
+  border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:0 13px;min-height:46px;
+}
+.field:focus-within{border-color:var(--sky);box-shadow:var(--drop-sm)}
+.field svg{color:var(--ink-4);flex:none}
+.field input{border:0;outline:none;background:transparent;font-family:var(--sans);font-size:14.5px;color:var(--ink);width:100%;padding:0}
+.field input::placeholder{color:var(--ink-4)}
+
+/* the picked-items tray */
+.tray{display:flex;flex-wrap:wrap;gap:6px}
+.picked{
+  display:inline-flex;align-items:center;gap:6px;background:var(--sky-soft);
+  border:var(--bw-hair) solid var(--sky-edge);color:var(--sky-on);
+  border-radius:var(--r-pill);padding:4px 6px 4px 10px;font-size:12px;font-weight:700;
+}
+.picked b{font-weight:800}
+.picked .x{width:17px;height:17px;border-radius:50%;background:var(--sky);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:10px;flex:none;border:0}
+
+/* pill row (time, city) */
+.pills{display:flex;gap:7px;flex-wrap:wrap}
+.pill{
+  background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--r-pill);
+  padding:9px 16px;font-weight:800;font-size:13px;color:var(--ink-2);cursor:pointer;
+  transition:all var(--t-fast) var(--ease-out);font-family:var(--sans);
+}
+.pill:hover{border-color:var(--ink)}
+.pill.on{background:var(--sky);border-color:var(--ink);color:#fff;box-shadow:var(--drop-sm)}
+
+/* callouts inside the app */
+.appnote{
+  display:flex;gap:10px;background:var(--white);border:var(--bw-hair) solid var(--line-2);
+  border-left:5px solid var(--sky);border-radius:var(--blade-xs);padding:11px 13px;font-size:12.5px;
+}
+.appnote.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.appnote.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.appnote.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.appnote svg{flex:none;margin-top:1px}
+.appnote b{font-weight:800;display:block}
+
+.spacer{flex:1}
+.stack{display:flex;flex-direction:column;gap:9px}
+.row{display:flex;gap:9px;align-items:center}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+/* ══════════ THE VERDICT — the payoff, needs its own weight ═════════════ */
+.verdict{
+  background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-lg);
+  box-shadow:var(--drop);overflow:hidden;
+}
+.verdict .plate{
+  background:var(--dish-fill);border-bottom:var(--bw) solid var(--ink);
+  padding:14px;display:grid;place-items:center;position:relative;min-height:158px;
+}
+.verdict .plate .prov{position:absolute;top:10px;left:10px}
+.verdict .plate .fit{position:absolute;top:10px;right:10px}
+.verdict .body{padding:15px}
+.verdict h3{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.08}
+.verdict .why{font-size:14px;color:var(--ink-2);margin:8px 0 0}
+.facts{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.fact{
+  display:inline-flex;align-items:center;gap:6px;background:var(--paper-2);
+  border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:6px 10px;font-size:12px;font-weight:700;color:var(--ink-2);
+}
+.fact svg{color:var(--ink-3)}
+
+/* have / need split */
+.hn{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.hnbox{border:var(--bw-hair) solid;border-radius:var(--blade-xs);padding:10px}
+.hnbox.have{background:var(--success-soft);border-color:var(--success-border)}
+.hnbox.need{background:var(--caution-soft);border-color:var(--caution-border)}
+.hnbox .h{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.hnbox.have .h{color:var(--success-onsoft)}
+.hnbox.need .h{color:var(--caution-onsoft)}
+.hnbox ul{list-style:none;margin:0;padding:0;font-size:12px;font-weight:700}
+.hnbox.have ul{color:var(--success-onsoft)}
+.hnbox.need ul{color:var(--caution-onsoft)}
+.hnbox li{padding:1.5px 0}
+
+/* alternates, deliberately subordinate */
+.alts{margin-top:13px;border-top:var(--bw-hair) solid var(--line);padding-top:11px}
+.alt{
+  display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--blade-xs);
+  cursor:pointer;border:var(--bw-hair) solid transparent;
+}
+.alt:hover{background:var(--paper-2);border-color:var(--line-2)}
+.alt .mini{width:34px;height:34px;flex:none;background:var(--greens-fill);border:var(--bw-hair) solid var(--ink);border-radius:8px 3px 8px 3px;display:grid;place-items:center}
+.alt .nm{font-weight:800;font-size:13px;color:var(--ink);line-height:1.2}
+.alt .mt{font-size:11px;color:var(--ink-3)}
+
+/* signup band */
+.keepband{
+  background:var(--sky-soft);border:var(--bw) solid var(--ink);border-radius:var(--blade);
+  box-shadow:var(--drop-sm);padding:15px;
+}
+.keepband h4{font-size:17px;font-weight:800;color:var(--sky-900)}
+.keepband p{font-size:12.5px;color:var(--sky-800);margin:5px 0 12px}
+
+/* the thinking state */
+.thinking{display:flex;flex-direction:column;align-items:center;gap:16px;padding:34px 0;text-align:center}
+.march{height:8px;background:var(--skeleton);border:var(--bw-hair) solid var(--line-2);border-radius:999px;overflow:hidden;width:100%;position:relative}
+.march i{position:absolute;inset:0 auto 0 0;width:26%;background:var(--sky);border-radius:999px;animation:march 1.5s var(--ease-out) infinite}
+@keyframes march{0%{transform:translateX(-100%)}100%{transform:translateX(420%)}}
+.blobwrap{width:104px;height:104px;animation:bob 2.4s var(--ease-out) infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.steam{animation:steam 1.6s var(--ease-out) infinite;transform-origin:bottom}
+@keyframes steam{0%,100%{opacity:0;transform:translateY(3px) scaleY(.9)}50%{opacity:1;transform:translateY(-4px) scaleY(1.1)}}
+
+/* ══════════ HERO (step 01) ═════════════════════════════════════════════ */
+.hero{display:flex;flex-direction:column;gap:16px;height:100%}
+.heroart{display:grid;place-items:center;padding:6px 0}
+.herotitle{font-family:var(--display);font-weight:800;font-size:33px;line-height:1.02;letter-spacing:-.025em;color:var(--ink)}
+.herotitle em{font-style:normal;color:var(--sky-deep)}
+.herosub{font-size:14.5px;color:var(--ink-2)}
+.miniproof{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-3);font-weight:700;justify-content:center}
+
+/* ══════════ SPEC-ONLY LAYOUT HELPERS ══════════════════════════════════ */
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:22px}
+.card.soft{background:var(--paper);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+ul.clean{list-style:none;padding:0;margin:.5em 0}
+ul.clean li{position:relative;padding-left:21px;margin:.4em 0;font-size:13.5px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.6em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--paper-2);text-align:left;padding:10px 13px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+/* swatches */
+.sw{display:flex;flex-direction:column;gap:7px}
+.swbox{height:60px;border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);box-shadow:var(--drop-sm)}
+.swmeta{font-size:11px}
+.swmeta b{display:block;color:var(--ink);font-size:12.5px;font-family:var(--display);font-weight:800}
+.swmeta span{font-family:var(--mono);color:var(--ink-4);font-size:10.5px}
+
+footer{margin-top:88px;padding-top:24px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<!-- ═══════════════════════════ MASTHEAD ═══════════════════════════════ -->
+<header class="docmast">
+  <div class="brandrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 14h16a8 8 0 0 1-8 7 8 8 0 0 1-8-7Z"/><path d="M12 5v2"/><path d="M8.5 7.2 9.6 8.8"/><path d="M15.5 7.2 14.4 8.8"/>
+      </svg>
+    </div>
+    <div><div class="brandname">KinniJije</div><div class="eyebrow">Sky Kitchen · v2</div></div>
+  </div>
+  <div class="eyebrow">Visual design · backend/docs/v2</div>
+  <h1>Decide First</h1>
+  <p class="deck">
+    Seven screens, drawn at phone width, in the app's own tokens. The law is
+    <strong>the Blade</strong> — one sharp corner, three round, on every surface.
+    Sky is the one action colour and always carries white text. Grape means
+    a machine wrote it. Nothing here is a mock of a mock: every value below
+    exists in <code>web/src/index.css</code>.
+  </p>
+  <div class="metastrip">
+    <span class="chip sky"><span class="dot"></span>Light mode only</span>
+    <span class="chip ok"><span class="dot"></span>Tap-only path end to end</span>
+    <span class="chip grape"><span class="dot"></span>Grape = AI provenance</span>
+    <span class="chip"><span class="dot"></span>Baloo 2 · Nunito · JetBrains Mono</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════ 01 · THE LAND ══════════════════════════ -->
+<section class="specsec" id="s1">
+  <div class="spechead"><span class="secnum">01</span><h2>Land</h2></div>
+  <p class="lede">
+    No nav, no pricing, no scroll required. One promise, one button, and an
+    illustration doing the work a paragraph used to do. The proof line is small
+    and factual — it earns trust without arguing for it.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="between">
+            <div class="row" style="gap:8px">
+              <div class="logomark" style="width:32px;height:32px;border-radius:11px 3px 11px 3px;box-shadow:none">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 14h16a8 8 0 0 1-8 7 8 8 0 0 1-8-7Z"/><path d="M12 5v2"/></svg>
+              </div>
+              <b style="font-family:var(--display);font-size:15px;color:var(--ink)">KinniJije</b>
+            </div>
+            <button class="btn quiet auto" style="font-size:12.5px">Sign in</button>
+          </div>
+
+          <div class="heroart">
+            <!-- ILLUSTRATION SLOT A · the open pot -->
+            <svg width="200" height="168" viewBox="0 0 200 168" fill="none" aria-label="A pot, a question, and three choices">
+              <!-- steam -->
+              <g class="steam" stroke="var(--sky-400)" stroke-width="3" stroke-linecap="round" opacity=".9">
+                <path d="M78 44c0-9 7-9 7-18"/><path d="M100 38c0-9 7-9 7-18"/><path d="M122 44c0-9 7-9 7-18"/>
+              </g>
+              <!-- question mark rising out of the pot -->
+              <g stroke="var(--sky-600)" stroke-width="4.2" stroke-linecap="round" fill="none">
+                <path d="M92 30c0-7 5.5-11 11-9.5 5 1.4 6.8 7 3.4 10.6-2.6 2.8-5.4 3.6-5.4 7.4"/>
+              </g>
+              <circle cx="101" cy="45" r="2.6" fill="var(--sky-600)"/>
+              <!-- pot body -->
+              <path d="M40 82h120c0 34-22 56-60 56s-60-22-60-56Z" fill="var(--dish-fill)" stroke="var(--ink)" stroke-width="3.4" stroke-linejoin="round"/>
+              <!-- pot rim -->
+              <rect x="32" y="70" width="136" height="16" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="3.4"/>
+              <!-- handles -->
+              <path d="M32 80c-10 0-14 4-14 10s5 9 12 9" stroke="var(--ink)" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+              <path d="M168 80c10 0 14 4 14 10s-5 9-12 9" stroke="var(--ink)" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+              <!-- contents suggestion -->
+              <circle cx="82" cy="104" r="7" fill="var(--greens-fill)" stroke="var(--greens-line)" stroke-width="2.4"/>
+              <circle cx="104" cy="112" r="8.5" fill="var(--critical-soft)" stroke="var(--critical)" stroke-width="2.4"/>
+              <circle cx="124" cy="102" r="6" fill="var(--sky-200)" stroke="var(--sky-700)" stroke-width="2.4"/>
+              <!-- hob line -->
+              <path d="M52 146h96" stroke="var(--ink-4)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <h1 class="herotitle">What are you<br>eating <em>today?</em></h1>
+          <p class="herosub">
+            Four taps. No account. We'll tell you exactly what to cook
+            with what's already in your kitchen.
+          </p>
+
+          <div class="spacer"></div>
+
+          <button class="btn lg">
+            Show me what to eat
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <div class="miniproof">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            340 Nigerian recipes · no email needed
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">01</span>
+        <div><div class="t">The land</div>
+        <div class="d">The button is the only thing with <code>--drop</code> weight on this
+        screen, so the eye has exactly one destination. "No account" is placed where a
+        pricing link used to be.</div></div>
+      </div>
+    </div>
+
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:12px">Design decisions</div>
+      <h3 style="font-size:19px">Why this replaces seven scroll sections</h3>
+      <ul class="clean" style="margin-top:12px">
+        <li><strong>The headline asks a question the visitor is already asking.</strong>
+          "What are you eating today?" is the internal monologue; the page just says it out loud.</li>
+        <li><strong>The illustration carries the mechanism</strong> — a pot with a question
+          mark rising from it says "we answer this" faster than any subhead.</li>
+        <li><strong>One CTA, no secondary.</strong> "Sign in" is a quiet text button
+          in the corner because returning users know to look there.</li>
+        <li><strong>The proof line is a count, not a claim.</strong> A number is checkable;
+          "loved by thousands" is not.</li>
+      </ul>
+      <hr class="rule" style="margin:18px 0;height:1.5px;background:var(--line)">
+      <div class="eyebrow" style="margin-bottom:10px">Token usage</div>
+      <div class="grid g2" style="gap:10px">
+        <div style="font-size:12.5px"><b style="color:var(--ink)">Title</b><br><code>--fs-3xl</code> Baloo 2 800</div>
+        <div style="font-size:12.5px"><b style="color:var(--ink)">CTA</b><br><code>--h-lg</code> · <code>--drop</code></div>
+        <div style="font-size:12.5px"><b style="color:var(--ink)">Accent word</b><br><code>--sky-600</code></div>
+        <div style="font-size:12.5px"><b style="color:var(--ink)">Plate</b><br><code>--dish-fill</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 02 · KITCHEN ═══════════════════════════ -->
+<section class="specsec" id="s2">
+  <div class="spechead"><span class="secnum">02</span><h2>What's in your kitchen</h2></div>
+  <p class="lede">
+    The one screen that earns the product its answer. Tiles first, search second,
+    and <strong>"I have nothing" as a real, equally-styled option</strong> — because an
+    empty kitchen is the most common honest answer at 7pm, and punishing it with a
+    dead end loses the person entirely.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen tall">
+          <div class="between">
+            <button class="btn quiet auto" style="padding:0 8px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="rail" style="flex:1"><i class="on"></i><i></i><i></i><i></i></div>
+            <span class="railtxt">1 / 4</span>
+          </div>
+
+          <div>
+            <div class="label" style="margin-bottom:6px">Step one</div>
+            <h2 class="qtitle">What's in your kitchen?</h2>
+            <p class="qsub">Tap what you've got. Rough is fine.</p>
+          </div>
+
+          <div class="field">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <input placeholder="Search — garri, ugu, panla…" aria-label="Search ingredients">
+          </div>
+
+          <div class="tray">
+            <span class="picked"><b>Rice</b><button class="x" aria-label="Remove rice">✕</button></span>
+            <span class="picked"><b>Beans</b><button class="x" aria-label="Remove beans">✕</button></span>
+            <span class="picked"><b>Onion</b><button class="x" aria-label="Remove onion">✕</button></span>
+            <span class="picked"><b>Palm oil</b><button class="x" aria-label="Remove palm oil">✕</button></span>
+          </div>
+
+          <div class="tiles c3">
+            <!-- ILLUSTRATION SLOT B1 · rice -->
+            <div class="tile on">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <path d="M13 17h22l3 22a3 3 0 0 1-3 3H13a3 3 0 0 1-3-3Z" fill="var(--dish-fill)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <path d="M13 17c0-5 5-8 11-8s11 3 11 8" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 26h2M24 26h2M30 26h2M21 32h2M27 32h2"/></g>
+              </svg>
+              Rice
+            </div>
+            <!-- ILLUSTRATION SLOT B2 · beans -->
+            <div class="tile on">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <path d="M12 18h24l2 20a3 3 0 0 1-3 3H13a3 3 0 0 1-3-3Z" fill="var(--greens-fill)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <path d="M12 18l4-8h16l4 8" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <g fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="19" cy="28" rx="4" ry="3" transform="rotate(-20 19 28)"/><ellipse cx="29" cy="31" rx="4" ry="3" transform="rotate(15 29 31)"/><ellipse cx="23" cy="36" rx="4" ry="3" transform="rotate(-8 23 36)"/></g>
+              </svg>
+              Beans
+            </div>
+            <!-- ILLUSTRATION SLOT B3 · yam -->
+            <div class="tile">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <path d="M17 8c6-2 11 1 12 7 1 7 3 10 3 16 0 6-4 9-9 9s-9-3-9-9c0-7 2-9 2-15 0-4 0-7 1-8Z" fill="var(--dish-fill)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 18h1M25 24h1M19 29h1M26 33h1"/></g>
+              </svg>
+              Yam
+            </div>
+            <!-- ILLUSTRATION SLOT B4 · tomato -->
+            <div class="tile">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="28" r="13" fill="var(--critical-soft)" stroke="currentColor" stroke-width="2.6"/>
+                <path d="M24 15c0-4-3-6-3-6M24 15c0-3 3-5 3-5M18 14l6 2 6-2" stroke="var(--greens-line)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+              Tomato
+            </div>
+            <!-- ILLUSTRATION SLOT B5 · onion -->
+            <div class="tile on">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <path d="M24 14c7 0 12 6 12 13s-5 12-12 12-12-5-12-12 5-13 12-13Z" fill="var(--berry-fill)" stroke="currentColor" stroke-width="2.6"/>
+                <path d="M24 14v25M18 17c-2 6-2 14 1 21M30 17c2 6 2 14-1 21" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                <path d="M22 13c-1-4 0-5 2-6 2 1 3 2 2 6" stroke="var(--greens-line)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+              </svg>
+              Onion
+            </div>
+            <!-- ILLUSTRATION SLOT B6 · fish -->
+            <div class="tile">
+              <svg class="art" viewBox="0 0 48 48" fill="none">
+                <path d="M8 24c5-7 12-10 19-10s13 4 15 10c-2 6-8 10-15 10S13 31 8 24Z" fill="var(--sky-100)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+                <path d="M42 24c-3-4-3-8-3-8s-5 2-7 6M42 24c-3 4-3 8-3 8s-5-2-7-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+                <circle cx="17" cy="22" r="2" fill="currentColor"/>
+              </svg>
+              Fish
+            </div>
+          </div>
+
+          <button class="btn ghost" style="min-height:38px;font-size:13px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            More groups
+          </button>
+
+          <div class="spacer"></div>
+
+          <div class="stack">
+            <button class="btn">Continue · 4 picked</button>
+            <button class="btn ghost">I have nothing — just decide for me</button>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">02</span>
+        <div><div class="t">Kitchen</div>
+        <div class="d">The tick badge sits <em>outside</em> the tile's corner, on the blade's
+        sharp edge, so a selected tile reads as stamped rather than merely tinted.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">The tile, specified</div>
+        <div class="grid g3" style="gap:14px;margin-bottom:18px">
+          <div style="text-align:center">
+            <div class="tile" style="cursor:default">
+              <svg class="art" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="28" r="13" fill="var(--critical-soft)" stroke="currentColor" stroke-width="2.6"/><path d="M24 15c0-4-3-6-3-6M24 15c0-3 3-5 3-5M18 14l6 2 6-2" stroke="var(--greens-line)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
+              Tomato
+            </div>
+            <div class="swmeta" style="margin-top:7px"><b>Rest</b><span>line-2 border</span></div>
+          </div>
+          <div style="text-align:center">
+            <div class="tile" style="cursor:default;border-color:var(--ink);transform:translateY(-2px)">
+              <svg class="art" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="28" r="13" fill="var(--critical-soft)" stroke="currentColor" stroke-width="2.6"/><path d="M24 15c0-4-3-6-3-6M24 15c0-3 3-5 3-5M18 14l6 2 6-2" stroke="var(--greens-line)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
+              Tomato
+            </div>
+            <div class="swmeta" style="margin-top:7px"><b>Hover</b><span>ink border · −2px</span></div>
+          </div>
+          <div style="text-align:center">
+            <div class="tile on" style="cursor:default">
+              <svg class="art" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="28" r="13" fill="var(--critical-soft)" stroke="currentColor" stroke-width="2.6"/><path d="M24 15c0-4-3-6-3-6M24 15c0-3 3-5 3-5M18 14l6 2 6-2" stroke="var(--greens-line)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
+              Tomato
+            </div>
+            <div class="swmeta" style="margin-top:7px"><b>Picked</b><span>sky-soft · drop-sm</span></div>
+          </div>
+        </div>
+        <ul class="clean">
+          <li><strong>Icons come from the real set.</strong> The app ships 187 re-stroked
+            koboyo glyphs via <code>illustrationFor(name)</code> — a tapped item that
+            was never catalogued still gets its <em>group's</em> icon, so nothing is ever blank.</li>
+          <li><strong>Search is secondary, not primary.</strong> A text field first
+            would make this feel like data entry. Tiles make it feel like pointing at a shelf.</li>
+          <li><strong>The count lives on the button.</strong> "Continue · 4 picked" confirms
+            the taps landed without a separate counter.</li>
+        </ul>
+      </div>
+
+      <div class="appnote ok" style="margin-top:18px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <div><b>"I have nothing" is not a skip link</b>
+        It is a full-width button with the same height as Continue, because it is a
+        legitimate answer that changes the engine's behaviour — not an escape hatch.
+        Styled <code>ghost</code> so it is clearly the second choice, not a lesser one.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 03 · MOOD ══════════════════════════════ -->
+<section class="specsec" id="s3">
+  <div class="spechead"><span class="secnum">03</span><h2>Mood</h2></div>
+  <p class="lede">
+    Four faces. This is the screen that makes the product feel like it is talking
+    to a person rather than querying a database — so it gets the most character and
+    the least text. Each face is a drawn expression, not an emoji.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="between">
+            <button class="btn quiet auto" style="padding:0 8px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="rail" style="flex:1"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+            <span class="railtxt">2 / 4</span>
+          </div>
+
+          <div>
+            <div class="label" style="margin-bottom:6px">Step two</div>
+            <h2 class="qtitle">How's your day going?</h2>
+            <p class="qsub">Honestly. It changes what we pick.</p>
+          </div>
+
+          <div class="tiles c2" style="gap:11px">
+            <!-- ILLUSTRATION SLOT C1 · drained -->
+            <div class="tile big">
+              <svg class="art" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="19" fill="var(--paper-2)" stroke="currentColor" stroke-width="2.8"/>
+                <path d="M19 24h7M30 24h7" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+                <path d="M21 37c2-2.6 5-2.6 7 0" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M40 16c0-5 4-5 4-9" stroke="var(--ink-4)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+              </svg>
+              Drained
+              <span class="cap">Nothing complicated</span>
+            </div>
+            <!-- ILLUSTRATION SLOT C2 · in a hurry -->
+            <div class="tile big on">
+              <svg class="art" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="19" fill="var(--sky-100)" stroke="currentColor" stroke-width="2.8"/>
+                <circle cx="21" cy="24" r="2.6" fill="currentColor"/><circle cx="35" cy="24" r="2.6" fill="currentColor"/>
+                <path d="M20 35c3 3 13 3 16 0" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M46 20l-6 8h5l-5 8" stroke="var(--caution)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+              In a hurry
+              <span class="cap">Fast as possible</span>
+            </div>
+            <!-- ILLUSTRATION SLOT C3 · up for it -->
+            <div class="tile big">
+              <svg class="art" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="30" r="18" fill="var(--success-soft)" stroke="currentColor" stroke-width="2.8"/>
+                <path d="M17 26c1.6-2.4 4.4-2.4 6 0M33 26c1.6-2.4 4.4-2.4 6 0" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M19 35c3.4 4.4 14.6 4.4 18 0" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M14 14h28l-2 -5H16Z" fill="var(--white)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+              </svg>
+              Up for it
+              <span class="cap">Give me a project</span>
+            </div>
+            <!-- ILLUSTRATION SLOT C4 · comfort -->
+            <div class="tile big">
+              <svg class="art" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="19" fill="var(--berry-fill)" stroke="currentColor" stroke-width="2.8"/>
+                <path d="M20 25c0-2.6 4-2.6 4 0M32 25c0-2.6 4-2.6 4 0" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M28 40c-4-3.4-7-5.4-7-8.6 0-2.4 2-3.8 3.8-3.8 1.6 0 2.6.8 3.2 1.8.6-1 1.6-1.8 3.2-1.8 1.8 0 3.8 1.4 3.8 3.8 0 3.2-3 5.2-7 8.6Z" fill="var(--critical-soft)" stroke="var(--berry-line)" stroke-width="2.4" stroke-linejoin="round"/>
+              </svg>
+              Need comfort
+              <span class="cap">Something familiar</span>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <button class="btn">Continue</button>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">03</span>
+        <div><div class="t">Mood</div>
+        <div class="d">A caption under each label states the <em>consequence</em>, so the
+        person can see the answer changing the outcome rather than guessing.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card soft">
+        <div class="eyebrow" style="margin-bottom:12px">Why drawn faces, not emoji</div>
+        <ul class="clean">
+          <li><strong>Emoji render differently on every platform</strong> and carry
+            their vendor's art style into a page with a strong one of its own.</li>
+          <li><strong>They take the brand's line weight.</strong> These use
+            <code>currentColor</code> and inherit the tile's state, so a picked face goes
+            sky-blue with everything else.</li>
+          <li><strong>Each face has a food cue</strong> — the chef's hat, the lightning bolt,
+            the heart — so the tile reads even with the label removed.</li>
+        </ul>
+        <hr class="rule" style="margin:16px 0;height:1.5px;background:var(--line)">
+        <div class="eyebrow" style="margin-bottom:10px">Motion</div>
+        <p style="font-size:13px;margin:0">
+          On tap: <code>kj-pop</code> — <code>scale(.9) → 1.04 → 1</code> over
+          <code>--t-base</code> with the overshoot ease. The tile arrives like a plate
+          set down. Nothing on this screen loops.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="eyebrow" style="margin-bottom:12px">Step 04 · preference</div>
+        <p style="font-size:13.5px;margin-top:0">
+          The weight screen reuses this exact tile at <code>c2</code> with a wide
+          variant — same component, different content, so there is one thing to maintain.
+        </p>
+        <div class="tiles c2" style="gap:9px;margin-top:12px">
+          <!-- ILLUSTRATION SLOT F1 · solid -->
+          <div class="tile wide on">
+            <svg class="art" viewBox="0 0 40 40" fill="none">
+              <rect x="7" y="12" width="26" height="18" rx="4" fill="var(--dish-fill)" stroke="currentColor" stroke-width="2.6"/>
+              <path d="M7 19h26M14 12v18M26 12v18" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <div style="text-align:left"><div>Something solid</div><div class="cap">Rice, yam, plantain</div></div>
+          </div>
+          <!-- ILLUSTRATION SLOT F2 · light -->
+          <div class="tile wide">
+            <svg class="art" viewBox="0 0 40 40" fill="none">
+              <path d="M8 16h24c0 9-5 14-12 14S8 25 8 16Z" fill="var(--greens-fill)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+              <path d="M14 13c0-3 2-4 2-6M20 12c0-3 2-4 2-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            </svg>
+            <div style="text-align:left"><div>Light</div><div class="cap">Won't weigh me down</div></div>
+          </div>
+          <!-- ILLUSTRATION SLOT F3 · soupy -->
+          <div class="tile wide">
+            <svg class="art" viewBox="0 0 40 40" fill="none">
+              <path d="M6 18h28c0 10-6 15-14 15S6 28 6 18Z" fill="var(--critical-soft)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+              <path d="M6 18c4-3 8 3 14 0s10 3 14 0" stroke="var(--critical)" stroke-width="2.2" fill="none"/>
+            </svg>
+            <div style="text-align:left"><div>Soupy</div><div class="cap">Pepper soup, stew</div></div>
+          </div>
+          <!-- ILLUSTRATION SLOT F4 · swallow -->
+          <div class="tile wide">
+            <svg class="art" viewBox="0 0 40 40" fill="none">
+              <ellipse cx="20" cy="26" rx="14" ry="7" fill="var(--paper-3)" stroke="currentColor" stroke-width="2.6"/>
+              <circle cx="20" cy="18" r="9" fill="var(--white)" stroke="currentColor" stroke-width="2.6"/>
+              <path d="M16 18c1.4-2 5.6-2 7 0" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            </svg>
+            <div style="text-align:left"><div>Swallow</div><div class="cap">Amala, eba, fufu</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 05 · TIME & PLACE ══════════════════════ -->
+<section class="specsec" id="s5">
+  <div class="spechead"><span class="secnum">04</span><h2>Time &amp; place</h2></div>
+  <p class="lede">
+    The last stop, and the only one with two questions on it — both cheap, both
+    skippable. The city field pays for itself twice: it buys the weather nudge now,
+    and it is the exact field <code>RegisterSchema</code> already accepts at signup.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="between">
+            <button class="btn quiet auto" style="padding:0 8px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <div class="rail" style="flex:1"><i class="on"></i><i class="on"></i><i class="on"></i><i class="half"></i></div>
+            <span class="railtxt">4 / 4</span>
+          </div>
+
+          <div>
+            <div class="label" style="margin-bottom:6px">Last one</div>
+            <h2 class="qtitle">How long have you got?</h2>
+          </div>
+
+          <div class="pills">
+            <button class="pill">15 min</button>
+            <button class="pill on">40 min</button>
+            <button class="pill">Take my time</button>
+          </div>
+
+          <hr class="rule" style="height:1.5px;background:var(--line);margin:4px 0">
+
+          <div>
+            <h3 style="font-size:19px;font-weight:800">Where are you?</h3>
+            <p class="qsub" style="margin-top:2px">Optional — it lets us read the weather.</p>
+          </div>
+
+          <div class="field">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>
+            <input placeholder="Your city" value="Lagos" aria-label="City">
+          </div>
+          <div class="pills">
+            <button class="pill on" style="padding:7px 13px;font-size:12px">Lagos</button>
+            <button class="pill" style="padding:7px 13px;font-size:12px">Abuja</button>
+            <button class="pill" style="padding:7px 13px;font-size:12px">Ibadan</button>
+            <button class="pill" style="padding:7px 13px;font-size:12px">Kano</button>
+          </div>
+
+          <div class="appnote">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--sky-deep)" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg>
+            <div><b>31°C and humid in Lagos</b>
+            <span style="color:var(--ink-3)">We'll lean lighter and soupier.</span></div>
+          </div>
+
+          <div class="spacer"></div>
+          <div class="stack">
+            <button class="btn lg">
+              Decide what I eat
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <button class="btn quiet">Skip — decide without this</button>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">04</span>
+        <div><div class="t">Time &amp; place</div>
+        <div class="d">The weather note appears the moment a city resolves. It is the first
+        time the app shows it knows something real — a small, well-timed proof.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="justify-content:center">
+          <div class="thinking">
+            <!-- ILLUSTRATION SLOT D · the thinking pot -->
+            <div class="blobwrap">
+              <svg width="104" height="104" viewBox="0 0 104 104" fill="none">
+                <g class="steam" stroke="var(--grape)" stroke-width="3.4" stroke-linecap="round">
+                  <path d="M38 30c0-7 6-7 6-14"/><path d="M52 26c0-7 6-7 6-14"/><path d="M66 30c0-7 6-7 6-14"/>
+                </g>
+                <path d="M20 48h64c0 20-13 32-32 32S20 68 20 48Z" fill="var(--grape-soft)" stroke="var(--grape-onsoft)" stroke-width="3.4" stroke-linejoin="round"/>
+                <rect x="14" y="40" width="76" height="11" rx="5" fill="var(--white)" stroke="var(--grape-onsoft)" stroke-width="3.4"/>
+                <circle cx="40" cy="60" r="4.4" fill="var(--grape)"/>
+                <circle cx="54" cy="66" r="5.4" fill="var(--grape-border)"/>
+                <circle cx="66" cy="59" r="3.8" fill="var(--grape)"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="qtitle" style="font-size:22px">Reading your kitchen…</h2>
+              <p class="qsub" style="margin-top:6px">Four seconds, maximum.</p>
+            </div>
+            <div class="march"><i></i></div>
+            <div style="font-size:11.5px;color:var(--ink-4);font-family:var(--mono)">
+              340 recipes → 27 you can cook → 3 → 1
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">04b</span>
+        <div><div class="t">Thinking</div>
+        <div class="d">Grape, because a machine is working. The band <em>marches</em>
+        (<code>kj-march</code>) rather than claiming a percentage it cannot know. The
+        funnel line underneath shows real narrowing, which makes the wait feel earned.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="appnote warn" style="margin-top:26px;max-width:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 9v5M12 17.5h.01"/><path d="M10.3 4.3 2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"/></svg>
+    <div><b>The four-second ceiling is a design commitment, not a hope</b>
+    The service hard-times-out the model call and falls back to the deterministic winner.
+    This screen therefore <em>cannot</em> hang — which is why it is allowed to promise
+    "four seconds, maximum" in plain text.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 06 · THE VERDICT ═══════════════════════ -->
+<section class="specsec" id="s6">
+  <div class="spechead"><span class="secnum">05</span><h2>The verdict</h2></div>
+  <p class="lede">
+    Everything above exists to make this screen land. One meal owns it. The
+    alternates are present but visually quiet — a second equal option would hand
+    the decision back, which is the problem the whole flow just solved.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen tall">
+          <div class="between">
+            <div class="label">Tonight</div>
+            <div class="row" style="gap:2px">
+              <button class="btn quiet auto" style="font-size:12.5px;padding:0 9px">Change an answer</button>
+              <button class="btn quiet auto" style="font-size:12.5px;padding:0 9px">Start again</button>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="plate">
+              <span class="chip grape prov" style="font-size:10.5px;padding:3px 9px">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2.1 2.1M15.6 15.6l2.1 2.1M17.7 6.3l-2.1 2.1M8.4 15.6l-2.1 2.1"/></svg>
+                Chosen for you
+              </span>
+              <span class="chip ok fit" style="font-size:10.5px;padding:3px 9px">5 of 7</span>
+              <!-- ILLUSTRATION SLOT E · the hero dish -->
+              <svg width="168" height="124" viewBox="0 0 168 124" fill="none" style="margin-top:14px">
+                <g class="steam" stroke="var(--dish-line)" stroke-width="3" stroke-linecap="round" opacity=".85">
+                  <path d="M62 30c0-8 6-8 6-15"/><path d="M84 26c0-8 6-8 6-15"/><path d="M106 30c0-8 6-8 6-15"/>
+                </g>
+                <!-- plate -->
+                <ellipse cx="84" cy="96" rx="68" ry="18" fill="var(--white)" stroke="var(--ink)" stroke-width="3.2"/>
+                <!-- beans mound -->
+                <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32Z" fill="var(--dish-line)" opacity=".18"/>
+                <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32" stroke="var(--ink)" stroke-width="3.2" fill="none" stroke-linejoin="round"/>
+                <g stroke="var(--dish-line)" stroke-width="2.2" fill="none">
+                  <ellipse cx="55" cy="76" rx="5" ry="3.6" transform="rotate(-18 55 76)"/>
+                  <ellipse cx="72" cy="70" rx="5" ry="3.6" transform="rotate(12 72 70)"/>
+                  <ellipse cx="88" cy="78" rx="5" ry="3.6" transform="rotate(-8 88 78)"/>
+                  <ellipse cx="64" cy="85" rx="5" ry="3.6" transform="rotate(22 64 85)"/>
+                  <ellipse cx="82" cy="88" rx="5" ry="3.6" transform="rotate(-14 82 88)"/>
+                </g>
+                <!-- dodo slices -->
+                <g fill="var(--caution-soft)" stroke="var(--ink)" stroke-width="3">
+                  <ellipse cx="120" cy="84" rx="15" ry="10" transform="rotate(-22 120 84)"/>
+                  <ellipse cx="132" cy="92" rx="15" ry="10" transform="rotate(-8 132 92)"/>
+                </g>
+              </svg>
+            </div>
+            <div class="body">
+              <h3>Ewa agoyin<br>with dodo</h3>
+              <p class="why">
+                Hot afternoon, forty minutes on your hands, and the beans
+                and palm oil are already sitting in your kitchen.
+              </p>
+
+              <div class="facts">
+                <span class="fact">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3.5 2"/></svg>
+                  40 min
+                </span>
+                <span class="fact">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 18h16M6 18a6 6 0 0 1 12 0M12 5v3"/></svg>
+                  Easy
+                </span>
+                <span class="fact">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-5.4 6-5.4s6 2 6 5.4"/><path d="M16 11.5a3 3 0 1 0 0-6"/><path d="M18 20c0-2.6-1-4.2-2.6-5"/></svg>
+                  Serves 4
+                </span>
+              </div>
+
+              <div class="hn">
+                <div class="hnbox have">
+                  <div class="h">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    You have
+                  </div>
+                  <ul><li>Beans</li><li>Palm oil</li><li>Onion</li><li>Plantain</li><li>Pepper</li></ul>
+                </div>
+                <div class="hnbox need">
+                  <div class="h">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    You'll need
+                  </div>
+                  <ul><li>Atarodo</li><li>Iru</li></ul>
+                </div>
+              </div>
+
+              <div class="alts">
+                <div class="between" style="margin-bottom:5px">
+                  <span class="label">Or one of these</span>
+                  <span style="font-size:11px;color:var(--ink-4);font-family:var(--mono)">tap to swap</span>
+                </div>
+                <div class="alt">
+                  <div class="mini">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--greens-line)" stroke-width="2.4" stroke-linecap="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M9 9c0-2 2-2 2-4"/></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div class="nm">Jollof rice</div>
+                    <div class="mt">45 min · you have 6 of 8</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+                </div>
+                <div class="alt">
+                  <div class="mini" style="background:var(--critical-soft)">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--critical-onsoft)" stroke-width="2.4" stroke-linecap="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M12 8c0-2 2-2 2-4"/></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div class="nm">Efo riro</div>
+                    <div class="mt">35 min · you have 4 of 7</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack">
+            <button class="btn lg">
+              Cook this
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <button class="btn ghost">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>
+              Not feeling it? Try again
+            </button>
+          </div>
+
+          <div class="keepband">
+            <h4>Keep this one?</h4>
+            <p>Make a free account and we'll remember your kitchen, save this
+               recipe, and have tomorrow's ready before you ask.</p>
+            <div class="stack">
+              <button class="btn" style="min-height:44px">Save it — free</button>
+              <button class="btn quiet" style="color:var(--sky-800)">No thanks, just cooking</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">05</span>
+        <div><div class="t">The verdict</div>
+        <div class="d">The single tallest screen in the flow, and the only one that scrolls.
+        Everything above the fold is the answer; the signup band sits deliberately below it.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">The anatomy</div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Element</th><th>Why it is there</th></tr></thead>
+            <tbody>
+              <tr><td><strong>"Chosen for you"</strong><br><span style="font-size:11px;color:var(--ink-3)">grape chip</span></td>
+                  <td>Grape is reserved system-wide for AI provenance — never a status, never a button. It tells the truth about who wrote the sentence below.</td></tr>
+              <tr><td><strong>"5 of 7"</strong><br><span style="font-size:11px;color:var(--ink-3)">success chip</span></td>
+                  <td>The deterministic match score, stated as a fraction. Checkable, and it comes from <code>matchMeal()</code>, not the model.</td></tr>
+              <tr><td><strong>The name</strong><br><span style="font-size:11px;color:var(--ink-3)">24px Baloo 2 800</span></td>
+                  <td>The largest text on the screen. No hedging verbs — the product's job is to decide, so it decides.</td></tr>
+              <tr><td><strong>The why</strong><br><span style="font-size:11px;color:var(--ink-3)">model-written, ≤200 chars</span></td>
+                  <td>Must reference at least one real thing they told us. This is what separates a recommendation from a random pick.</td></tr>
+              <tr><td><strong>Have / need</strong><br><span style="font-size:11px;color:var(--ink-3)">green / amber split</span></td>
+                  <td>Two boxes side by side, never one list with icons — the shopping decision is "how much is missing", answerable at a glance.</td></tr>
+              <tr><td><strong>Alternates</strong><br><span style="font-size:11px;color:var(--ink-3)">34px minis, no art</span></td>
+                  <td>Subordinate by construction: small, no hero plate, no why. Tapping re-ranks locally and spends no model call.</td></tr>
+              <tr><td><strong>Not feeling it?</strong><br><span style="font-size:11px;color:var(--ink-3)">ghost, under primary</span></td>
+                  <td>Rejects this dish and promotes the next from the shortlist the response already carried. Costs no model call, so the commonest "no" is free.</td></tr>
+              <tr><td><strong>Change an answer</strong><br><span style="font-size:11px;color:var(--ink-3)">quiet, in the header</span></td>
+                  <td>Reopens one step rather than the whole flow. Also free — the candidate pool is re-ranked locally against the new answer.</td></tr>
+              <tr><td><strong>Keep band</strong><br><span style="font-size:11px;color:var(--ink-3)">sky-soft, below CTA</span></td>
+                  <td>The first ask in the entire flow, and it arrives after the value. "No thanks" is present and unpunished.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="appnote grape" style="margin-top:18px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
+        <div><b>What is deliberately absent</b>
+        No steps, no quantities, no star rating, no "87% match". The verdict proves we can
+        decide; the recipe is what an account buys. And a percentage implies a precision
+        the matcher does not have — "5 of 7" is the honest version of the same fact.</div>
+      </div>
+
+      <div class="card soft" style="margin-top:18px">
+        <div class="eyebrow" style="margin-bottom:10px">Rate-limit refusal, as a screen</div>
+        <p style="font-size:13.5px;margin-top:0">
+          On <code>429</code> the flow does not show an error. It shows the offer, with the
+          real wait from <code>Retry-After</code>:
+        </p>
+        <div class="appnote warn" style="margin-top:12px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3.5 2"/></svg>
+          <div><b>That's a few decisions in one go</b>
+          <span>Another one in 12 minutes — or make an account and we'll stop counting.</span></div>
+        </div>
+        <p class="note" style="margin-top:12px">
+          The limit becomes the pitch. A refusal that routes somewhere useful is not a
+          dead end, and it costs nothing to build — the header is already exposed
+          through CORS in <code>app.ts</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 07 · KEEP IT ═══════════════════════════ -->
+<section class="specsec" id="s7">
+  <div class="spechead"><span class="secnum">06</span><h2>Keep it</h2></div>
+  <p class="lede">
+    The signup screen's whole job is to look like a continuation, not a gate. The meal
+    they chose is pinned to the top of it — so the form is visibly in service of
+    something they already hold.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="between">
+            <button class="btn quiet auto" style="padding:0 8px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <span class="label">Almost yours</span>
+            <span style="width:18px"></span>
+          </div>
+
+          <!-- the carried verdict, pinned -->
+          <div class="row" style="background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);padding:10px;gap:11px">
+            <div style="width:46px;height:46px;flex:none;background:var(--dish-fill);border:var(--bw) solid var(--ink);border-radius:11px 3px 11px 3px;display:grid;place-items:center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dish-line)" stroke-width="2.4" stroke-linecap="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M9 9c0-2 2-2 2-4"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:var(--display);font-weight:800;font-size:14.5px;color:var(--ink);line-height:1.15">Ewa agoyin with dodo</div>
+              <div style="font-size:11.5px;color:var(--ink-3)">Saved the moment you're in</div>
+            </div>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+
+          <h2 class="qtitle" style="font-size:24px">Keep your kitchen</h2>
+
+          <div class="appnote ok">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div><b>Nothing to re-enter</b>
+            <span>Your 4 ingredients, your taste and Lagos are already saved.</span></div>
+          </div>
+
+          <div class="stack">
+            <div class="field">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8.4" r="3.6"/><path d="M5 20c0-4 3.2-6.4 7-6.4s7 2.4 7 6.4"/></svg>
+              <input placeholder="Your name" aria-label="Name">
+            </div>
+            <div class="field">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+              <input placeholder="Email" aria-label="Email">
+            </div>
+            <div class="field">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+              <input type="password" placeholder="Password" value="········" aria-label="Password">
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <div class="stack">
+            <button class="btn lg">Save my kitchen</button>
+            <p style="font-size:11.5px;color:var(--ink-4);text-align:center;margin:0">
+              Free. No card. We'll email you tomorrow's suggestion —
+              stop any time.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">06</span>
+        <div><div class="t">Keep it</div>
+        <div class="d">Three fields, because <code>RegisterSchema</code> needs exactly three
+        (city came from step 4). The green note removes the fear of redoing the work.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">Post-signup, immediately</div>
+        <h3 style="font-size:19px">The promise is honoured before anything else is asked</h3>
+        <p style="font-size:13.5px">
+          Register → <code>PATCH /onboarding</code> → <code>POST /onboarding/complete</code>
+          → land on <code>ROUTES.MEAL(id)</code>. The new account <strong>never sees the
+          onboarding flow</strong>, because the draft already answered every question it asks.
+        </p>
+        <div class="appnote ok" style="margin-top:14px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <div><b>First screen after signup is the recipe</b>
+          <span>Not a welcome tour, not a verify-your-email wall. <code>PENDING</code>
+          accounts can already read and cook.</span></div>
+        </div>
+        <hr class="rule" style="margin:18px 0;height:1.5px;background:var(--line)">
+        <div class="eyebrow" style="margin-bottom:10px">The three entry points</div>
+        <div class="grid g3" style="gap:10px">
+          <div class="card soft" style="padding:13px">
+            <span class="chip sky" style="font-size:10.5px;margin-bottom:7px">A</span>
+            <div style="font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink)">After the verdict</div>
+            <div style="font-size:11.5px;color:var(--ink-3)">"Keep this" — the main path</div>
+          </div>
+          <div class="card soft" style="padding:13px">
+            <span class="chip warn" style="font-size:10.5px;margin-bottom:7px">B</span>
+            <div style="font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink)">At the limit</div>
+            <div style="font-size:11.5px;color:var(--ink-3)">The 429 becomes the offer</div>
+          </div>
+          <div class="card soft" style="padding:13px">
+            <span class="chip grape" style="font-size:10.5px;margin-bottom:7px">C</span>
+            <div style="font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink)">At the recipe</div>
+            <div style="font-size:11.5px;color:var(--ink-3)">"Cook this" — highest intent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ STORIES & VOICE ═══════════════════════ -->
+<section class="specsec" id="stories">
+  <div class="spechead"><span class="secnum">07</span><h2>Changing your mind, and the story upgrade</h2></div>
+  <p class="lede">
+    Two things the verdict screen needs beyond the verdict: a way to say
+    <strong>"not that"</strong> that does not feel like starting over, and — once meal
+    photography exists — the same three candidates as a swipeable set instead of one
+    card with a list under it.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="between">
+            <div class="label">Tonight</div>
+            <div class="row" style="gap:2px">
+              <button class="btn quiet auto" style="font-size:12.5px;padding:0 9px">Change an answer</button>
+              <button class="btn quiet auto" style="font-size:12.5px;padding:0 9px">Start again</button>
+            </div>
+          </div>
+
+          <div class="appnote ok">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div><b>Noted — not ewa agoyin</b>
+            <span style="color:var(--ink-3)">Here's the next one.</span></div>
+          </div>
+
+          <div class="verdict">
+            <div class="plate" style="background:var(--critical-soft);min-height:132px">
+              <span class="chip prov" style="font-size:10.5px;padding:3px 9px;background:var(--white)">Next best</span>
+              <span class="chip ok fit" style="font-size:10.5px;padding:3px 9px">6 of 8</span>
+              <svg width="140" height="104" viewBox="0 0 168 124" fill="none" style="margin-top:12px">
+                <g class="steam" stroke="var(--critical)" stroke-width="3" stroke-linecap="round" opacity=".8">
+                  <path d="M66 32c0-8 6-8 6-15"/><path d="M88 28c0-8 6-8 6-15"/>
+                </g>
+                <ellipse cx="84" cy="96" rx="66" ry="17" fill="var(--white)" stroke="var(--ink)" stroke-width="3.2"/>
+                <path d="M36 90c0-19 16-32 34-32 20 0 36 13 36 32Z" fill="var(--critical)" opacity=".22"/>
+                <path d="M36 90c0-19 16-32 34-32 20 0 36 13 36 32" stroke="var(--ink)" stroke-width="3.2" fill="none" stroke-linejoin="round"/>
+                <g stroke="var(--critical-onsoft)" stroke-width="2" fill="none" opacity=".7">
+                  <path d="M56 78h3M70 72h3M86 80h3M64 86h3M82 88h3"/>
+                </g>
+              </svg>
+            </div>
+            <div class="body">
+              <h3 style="font-size:22px">Jollof rice</h3>
+              <p class="why">
+                Everybody's favourite for a reason, and you're only missing
+                stock cubes and thyme.
+              </p>
+              <div class="facts">
+                <span class="fact">45 min</span>
+                <span class="fact">Easy</span>
+                <span class="fact">Serves 4</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <div class="stack">
+            <button class="btn lg">Cook this</button>
+            <button class="btn ghost">Not this one either</button>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">05b</span>
+        <div><div class="t">After a rejection</div>
+        <div class="d">The acknowledgement names the dish that was refused, so it reads as
+        listening rather than reshuffling. The grape chip is <strong>gone</strong> — a
+        promoted meal shows a templated line, never the AI "why" written about a
+        different dish.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">The four ways out</div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Control</th><th>Does</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Not feeling it?</strong></td>
+                  <td>Excludes this dish, promotes the next candidate. Never offers it again this session.</td>
+                  <td><span class="chip ok" style="font-size:11px">free</span></td></tr>
+              <tr><td><strong>Tap an alternate</strong></td>
+                  <td>Swaps that one into the hero slot; the current winner drops into the list.</td>
+                  <td><span class="chip ok" style="font-size:11px">free</span></td></tr>
+              <tr><td><strong>Change an answer</strong></td>
+                  <td>Reopens one step — usually mood or time. Everything else is kept.</td>
+                  <td><span class="chip ok" style="font-size:11px">free</span></td></tr>
+              <tr><td><strong>Start again</strong></td>
+                  <td>Back to step 1, keeping only the rejections.</td>
+                  <td><span class="chip warn" style="font-size:11px">1 token</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="appnote" style="margin-top:14px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--sky-deep)" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
+          <div><b>Three of the four are free</b>
+          The decide response carries the whole ranked shortlist, not just the winner.
+          Re-ranking six objects already in the browser is arithmetic — so the things a
+          person is most likely to do cost nothing, and only a full restart spends a token.</div>
+        </div>
+      </div>
+
+      <div class="card soft" style="margin-top:18px">
+        <div class="eyebrow" style="margin-bottom:10px">When the shortlist runs out</div>
+        <div class="appnote warn" style="margin-top:0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 9v5M12 17.5h.01"/><path d="M10.3 4.3 2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><b>That's everything that fits</b>
+          <span>Nothing left for 40 minutes with what you have. Loosen the time, or add
+          one more thing from your kitchen.</span></div>
+        </div>
+        <p class="note" style="margin-top:12px">
+          Routes back to a <em>step</em>, not to a dead end — widening the filter is
+          exactly what produces new candidates, so the suggestion is actionable.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:46px">The story carousel</h3>
+  <p class="lede" style="margin-bottom:20px">
+    Ships with meal photography, not before. Three cards, swipeable, each arguing for
+    its dish — so an undecided person is <em>comparing</em> rather than accepting or
+    rejecting. Card one is still the recommendation.
+  </p>
+
+  <div class="rack">
+    <div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="padding:0">
+          <div style="display:flex;gap:3px;padding:12px 14px 0">
+            <i style="flex:1;height:3px;border-radius:999px;background:var(--sky)"></i>
+            <i style="flex:1;height:3px;border-radius:999px;background:var(--line-2)"></i>
+            <i style="flex:1;height:3px;border-radius:999px;background:var(--line-2)"></i>
+          </div>
+          <div style="padding:14px">
+            <div class="between" style="margin-bottom:12px">
+              <span class="label">1 of 3 · swipe</span>
+              <span class="chip grape" style="font-size:10px;padding:2px 8px">Illustration</span>
+            </div>
+
+            <div style="background:var(--dish-fill);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden">
+              <div style="height:210px;display:grid;place-items:center;border-bottom:var(--bw) solid var(--ink)">
+                <svg width="186" height="140" viewBox="0 0 168 124" fill="none">
+                  <g class="steam" stroke="var(--dish-line)" stroke-width="3" stroke-linecap="round" opacity=".85">
+                    <path d="M62 30c0-8 6-8 6-15"/><path d="M84 26c0-8 6-8 6-15"/><path d="M106 30c0-8 6-8 6-15"/>
+                  </g>
+                  <ellipse cx="84" cy="96" rx="68" ry="18" fill="var(--white)" stroke="var(--ink)" stroke-width="3.2"/>
+                  <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32Z" fill="var(--dish-line)" opacity=".18"/>
+                  <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32" stroke="var(--ink)" stroke-width="3.2" fill="none" stroke-linejoin="round"/>
+                  <g stroke="var(--dish-line)" stroke-width="2.2" fill="none">
+                    <ellipse cx="55" cy="76" rx="5" ry="3.6" transform="rotate(-18 55 76)"/>
+                    <ellipse cx="72" cy="70" rx="5" ry="3.6" transform="rotate(12 72 70)"/>
+                    <ellipse cx="88" cy="78" rx="5" ry="3.6" transform="rotate(-8 88 78)"/>
+                    <ellipse cx="64" cy="85" rx="5" ry="3.6" transform="rotate(22 64 85)"/>
+                  </g>
+                  <g fill="var(--caution-soft)" stroke="var(--ink)" stroke-width="3">
+                    <ellipse cx="120" cy="84" rx="15" ry="10" transform="rotate(-22 120 84)"/>
+                    <ellipse cx="132" cy="92" rx="15" ry="10" transform="rotate(-8 132 92)"/>
+                  </g>
+                </svg>
+              </div>
+              <div style="padding:14px;background:var(--white)">
+                <h3 style="font-size:23px;font-weight:800">Ewa agoyin with dodo</h3>
+                <p style="font-size:13.5px;margin:7px 0 0;color:var(--success-onsoft);font-weight:800">
+                  You have 5 of 7.
+                </p>
+                <p style="font-size:13.5px;margin:4px 0 0;color:var(--ink-2)">
+                  Soft, peppery, and forgiving — hard to get wrong on a tired evening.
+                </p>
+                <div class="facts">
+                  <span class="fact">40 min</span><span class="fact">Easy</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack" style="margin-top:13px">
+              <button class="btn lg">Cook this one</button>
+              <button class="btn quiet">Not feeling it? Try again</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap">
+        <span class="n">07</span>
+        <div><div class="t">Story card 1 of 3</div>
+        <div class="d">The image earns most of the screen. The bolded line is a
+        <em>deterministic fact</em> about their kitchen; the line under it is the
+        model's one-sentence pitch.</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">What each card carries</div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Slot</th><th>Source</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Image</strong></td><td>Generated hero</td>
+                  <td>Falls back to the drawn glyph on a tinted plate when absent — the carousel works with no imagery at all.</td></tr>
+              <tr><td><strong>Name</strong></td><td><code>meal.name</code></td><td>Never truncated.</td></tr>
+              <tr><td><strong>The hook</strong></td><td><code>matchMeal()</code></td>
+                  <td>Bolded, deterministic. "You have 5 of 7" · "Two shops away" · "Fastest of the three". Arithmetic, never a guess.</td></tr>
+              <tr><td><strong>The pitch</strong></td><td>Model, ≤120 chars</td><td>One line on why you'd want it. No exclamation marks.</td></tr>
+              <tr><td><strong>The cost</strong></td><td>Derived</td>
+                  <td>Only when one genuinely exists — missing items, long cook time. <strong>Omitted entirely</strong> when the dish is cookable now.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="appnote grape" style="margin-top:18px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
+        <div><b>Pros and cons, but not symmetrically</b>
+        A balanced pros/cons list on three dishes hands the decision straight back — the
+        thing this flow exists to prevent — and "cons" on food reads as talking someone
+        out of dinner. So: an upside always, a cost <em>only where real</em>, and nothing
+        invented for symmetry. A dish with no cost line is making the strongest argument
+        on the screen by omission. Same rule as <code>UserFacingNotesSchema</code>:
+        omit what has nothing to say.</div>
+      </div>
+
+      <div class="card soft" style="margin-top:18px">
+        <div class="eyebrow" style="margin-bottom:10px">Three, hard maximum</div>
+        <p style="font-size:13.5px;margin:0">
+          A carousel of equals is a menu, and a menu is the problem the person arrived
+          with. Card one keeps the largest treatment and the only fully model-written
+          <em>why</em>; cards two and three are arguments, not peers.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:46px">The voice</h3>
+  <p class="lede" style="margin-bottom:20px">
+    The person is undecided, a little tired, probably hungry. The register is a friend
+    who cooks — warm, quick, faintly funny, never in the way. Two failure modes to
+    avoid: the perky app mascot, and the try-hard brand voice.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <div class="scroll">
+        <table>
+          <thead><tr><th style="width:24%">Moment</th><th style="width:38%">Too flat</th><th style="width:38%">Right</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Landing</strong></td><td style="color:var(--ink-4)">Get meal recommendations based on your ingredients</td><td><strong style="color:var(--ink)">What are you eating today?</strong></td></tr>
+            <tr><td><strong>Kitchen</strong></td><td style="color:var(--ink-4)">Select your available ingredients</td><td><strong style="color:var(--ink)">What's in there? Rough is fine.</strong></td></tr>
+            <tr><td><strong>Empty kitchen</strong></td><td style="color:var(--ink-4)">No ingredients selected</td><td><strong style="color:var(--ink)">Nothing? Respect. We'll work with that.</strong></td></tr>
+            <tr><td><strong>Mood</strong></td><td style="color:var(--ink-4)">Select your current preference</td><td><strong style="color:var(--ink)">How's your day going? Honestly.</strong></td></tr>
+            <tr><td><strong>Thinking</strong></td><td style="color:var(--ink-4)">Processing your request…</td><td><strong style="color:var(--ink)">Reading your kitchen…</strong></td></tr>
+            <tr><td><strong>Verdict</strong></td><td style="color:var(--ink-4)">Recommended: Ewa Agoyin</td><td><strong style="color:var(--ink)">Tonight, you're eating ewa agoyin.</strong></td></tr>
+            <tr><td><strong>Rejection</strong></td><td style="color:var(--ink-4)">Generate new recommendation</td><td><strong style="color:var(--ink)">Not feeling it? Try again.</strong></td></tr>
+            <tr><td><strong>Rate limited</strong></td><td style="color:var(--ink-4)">Error 429: too many requests</td><td><strong style="color:var(--ink)">That's a lot of deciding. 12 minutes, or make an account.</strong></td></tr>
+            <tr><td><strong>Signup</strong></td><td style="color:var(--ink-4)">Create an account to save</td><td><strong style="color:var(--ink)">Keep this one?</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px">Do</div>
+        <ul class="clean ok" style="margin-top:0">
+          <li><strong>Short beats clever.</strong> "Not feeling it?" over "Let's find you something more your vibe!" Length is what makes copy annoying, not wit.</li>
+          <li><strong>Be playful about the situation, never the food.</strong> Teasing an empty kitchen is warm; teasing someone's dinner is not.</li>
+          <li><strong>The verdict declares.</strong> The product's value is deciding, so it must sound decided.</li>
+          <li><strong>One joke per screen, maximum.</strong> Usually zero — playfulness is seasoning, and a whole flow of it is exhausting to walk twice.</li>
+        </ul>
+        <hr class="rule" style="margin:16px 0;height:1.5px;background:var(--line)">
+        <div class="eyebrow" style="margin-bottom:10px">Don't</div>
+        <ul class="clean crit" style="margin-top:0">
+          <li><strong>No exclamation marks</strong> in model-written text — it is what separates warm from perky, and it is already in the prompt.</li>
+          <li><strong>No emoji in product copy.</strong> 187 drawn icons with a consistent line weight; emoji break it.</li>
+          <li><strong>Never joke in an error.</strong> Someone whose upload failed wants the fact and the fix.</li>
+          <li><strong>No pet names.</strong> No "chef", no "foodie", no "fam".</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ TOKENS ════════════════════════════════ -->
+<section class="specsec" id="tokens">
+  <div class="spechead"><span class="secnum">08</span><h2>The palette, as used here</h2></div>
+  <p class="lede">
+    No new colours were invented for this flow. Each swatch below states the one job
+    it does — and the jobs it is forbidden from doing, which is what keeps the system legible.
+  </p>
+
+  <div class="grid g4">
+    <div class="sw">
+      <div class="swbox" style="background:var(--sky)"></div>
+      <div class="swmeta"><b>Sky 500</b><span>--sky · #38b6f0</span>
+      <p style="margin:5px 0 0;font-size:11.5px">Every action, always with white text. <strong>Never</strong> a status.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--grape)"></div>
+      <div class="swmeta"><b>Grape</b><span>--grape · #8b7cf6</span>
+      <p style="margin:5px 0 0;font-size:11.5px">AI provenance only. Never a severity, never a button.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--success)"></div>
+      <div class="swmeta"><b>Success</b><span>--success · #2fbf8f</span>
+      <p style="margin:5px 0 0;font-size:11.5px">"You have it." The verified half of the have/need split.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--caution)"></div>
+      <div class="swmeta"><b>Caution</b><span>--caution · #f2a93b</span>
+      <p style="margin:5px 0 0;font-size:11.5px">"You'll need it", and the rate-limit notice. Carries ink text.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--dish-fill);border-color:var(--dish-line)"></div>
+      <div class="swmeta"><b>Dish</b><span>--dish-fill · #ffe0b0</span>
+      <p style="margin:5px 0 0;font-size:11.5px">Food marks only — the hero plate. Never chrome.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--greens-fill);border-color:var(--greens-line)"></div>
+      <div class="swmeta"><b>Greens</b><span>--greens-fill · #cbefd2</span>
+      <p style="margin:5px 0 0;font-size:11.5px">Leaf and vegetable art. A food tint, not a status.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--berry-fill);border-color:var(--berry-line)"></div>
+      <div class="swmeta"><b>Berry</b><span>--berry-fill · #f9d2e4</span>
+      <p style="margin:5px 0 0;font-size:11.5px">Onion, fruit, the comfort face.</p></div>
+    </div>
+    <div class="sw">
+      <div class="swbox" style="background:var(--ink)"></div>
+      <div class="swmeta"><b>Ink</b><span>--ink · #132430</span>
+      <p style="margin:5px 0 0;font-size:11.5px">Every border, and the solid drop-edge. Not pure black.</p></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:32px">
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:12px">The Blade, demonstrated</div>
+      <p style="font-size:13.5px;margin-top:0">
+        One sharp corner, three round, clockwise from top-left:
+        <strong>round · sharp · round · sharp</strong>. It reads as a knife edge, a
+        chopping-board corner, a torn recipe card. Four round corners, or two sharp,
+        is not in this system.
+      </p>
+      <div class="row" style="gap:12px;margin-top:16px;flex-wrap:wrap">
+        <div style="width:72px;height:72px;background:var(--sky-soft);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--sky-on)">xs</div>
+        <div style="width:82px;height:82px;background:var(--sky-soft);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--sky-on)">sm</div>
+        <div style="width:92px;height:92px;background:var(--sky-soft);border:var(--bw) solid var(--ink);border-radius:var(--blade);display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--sky-on)">md</div>
+        <div style="width:102px;height:102px;background:var(--sky-soft);border:var(--bw) solid var(--ink);border-radius:var(--blade-lg);display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--sky-on)">lg</div>
+      </div>
+      <p class="note">
+        The sharp corner stays small and constant so the cut reads at every scale.
+        Pills and circles are the only exceptions — the chips and the tick badge.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:12px">Depth is a solid edge, not a blur</div>
+      <p style="font-size:13.5px;margin-top:0">
+        The object presses down onto its own edge. Blur is reserved for the overlay
+        layer only — which is why nothing in this flow has a soft shadow.
+      </p>
+      <div class="stack" style="margin-top:16px;gap:14px">
+        <div class="row" style="gap:14px;flex-wrap:wrap">
+          <div style="padding:12px 18px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);box-shadow:var(--drop-sm);font-family:var(--mono);font-size:11px">--drop-sm</div>
+          <div style="padding:12px 18px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);box-shadow:var(--drop);font-family:var(--mono);font-size:11px">--drop</div>
+          <div style="padding:12px 18px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);box-shadow:var(--drop-lg);font-family:var(--mono);font-size:11px">--drop-lg</div>
+        </div>
+        <div class="row" style="gap:14px">
+          <button class="btn auto" style="width:auto">Rest</button>
+          <button class="btn auto" style="width:auto;transform:translate(2px,3px);box-shadow:none">Pressed</button>
+        </div>
+      </div>
+      <p class="note">
+        A pressed button travels <code>2px, 3px</code> and loses its shadow — it meets
+        its own edge in <code>--t-press</code> (130ms). That is the whole press animation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ ACCESSIBILITY ═════════════════════════ -->
+<section class="specsec" id="a11y">
+  <div class="spechead"><span class="secnum">09</span><h2>Build notes</h2></div>
+  <div class="grid g3">
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:10px">Reachability</div>
+      <ul class="clean">
+        <li>Every tile is a real <code>&lt;button&gt;</code> with <code>aria-pressed</code>, not a styled div.</li>
+        <li>The focus ring is the system's: a 2px paper gap then 4px sky, so it survives on any background.</li>
+        <li>Each step is its own route, so Back is the browser's Back and needs no interception.</li>
+        <li>Tap targets are <code>--h-md</code> (46px) or larger throughout. No 32px targets on a phone.</li>
+      </ul>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:10px">Never colour alone</div>
+      <ul class="clean">
+        <li>A picked tile carries a <strong>tick badge</strong> as well as the sky fill.</li>
+        <li>Have/need are labelled in words, with different icons, not just green and amber.</li>
+        <li>The grape chip says "Chosen for you" — the colour reinforces, it does not inform.</li>
+        <li>The progress rail is paired with a <code>2 / 4</code> readout.</li>
+      </ul>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:10px">Motion</div>
+      <ul class="clean">
+        <li>Only two things loop: the thinking band and the steam. Both stop on arrival.</li>
+        <li><code>prefers-reduced-motion</code> collapses every duration to 0.01ms — already in <code>index.css</code>.</li>
+        <li>Step transitions are <code>kj-slide-left</code> forward, <code>kj-slide-right</code> back, so direction is legible.</li>
+        <li>No parallax, no scroll-jacking. The flow is taps, not scrolling.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="appnote" style="margin-top:24px;max-width:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sky-deep)" stroke-width="2.4" stroke-linecap="round"><path d="M12 3 4 6.5v5c0 4.6 3.4 8.4 8 9.5 4.6-1.1 8-4.9 8-9.5v-5Z"/><path d="M9.2 12l2 2 3.6-4"/></svg>
+    <div><b>Illustrations in this file are inline SVG placeholders</b>
+    They are correct in structure, colour and line weight, and shippable as-is. Where a
+    richer illustration is wanted — the hero pot, the four mood faces, the hero dish —
+    the <code>illustrations/</code> folder carries one self-contained, paste-ready prompt
+    file per slot, keyed to the <strong>ILLUSTRATION SLOT</strong> comments in this
+    file's source.</div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <strong style="color:var(--ink);font-family:var(--display)">Decide First</strong> — visual design<br>
+    <span style="color:var(--ink-4)">backend/docs/v2/design.html · light mode only</span>
+  </div>
+  <div style="text-align:right">
+    Sky Kitchen · KinniJije v2<br>
+    <span style="color:var(--ink-4)">Companions: <code>system-design.html</code> · <code>illustrations/</code></span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

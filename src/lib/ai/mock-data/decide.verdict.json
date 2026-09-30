@@ -1,0 +1,13 @@
+{
+  "chosenMealId": "__FIRST__",
+  "why": "Hot afternoon, forty minutes on your hands, and the beans and palm oil are already in your kitchen.",
+  "framing": "Forty minutes and a hot afternoon.",
+  "notes": {},
+  "metrics": {
+    "outputLevel": "complete",
+    "outputConfidence": 0.88,
+    "clarity": 0.9,
+    "ambiguity": 0.15,
+    "tuneSuggestion": "none"
+  }
+}

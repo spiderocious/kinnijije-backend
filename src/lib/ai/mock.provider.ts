@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { logger } from '@lib/logger/index.js';
 
-import type { AiProvider, RawCallInput, RawCallOutput } from './ai.provider.js';
+import type { AiProvider, RawCallInput, RawCallOutput, RawImageOutput } from './ai.provider.js';
 
 /**
  * Canned answers, keyed by prompt id.
@@ -46,6 +46,22 @@ function loadCanned(promptId: string): string | null {
 function promptIdFrom(userPrompt: string): string | null {
   const match = /\[\[prompt:([a-z._]+)\]\]/.exec(userPrompt);
   return match?.[1] ?? null;
+}
+
+/**
+ * Lets a canned answer name something from the prompt it was given.
+ *
+ * `decide.verdict` must return an id we actually sent, and a fixed id in a
+ * JSON file can never be one. Rather than special-casing the whole prompt, the
+ * canned file carries the marker `__FIRST__` and it is replaced with the first
+ * id the prompt offered — so the mock exercises the REAL success path instead
+ * of always tripping the validation fallback, which would leave that path
+ * untested until it met a live model.
+ */
+function substituteIds(canned: string, userPrompt: string): string {
+  if (!canned.includes('__FIRST__')) return canned;
+  const firstId = /\bid:\s*([A-Za-z0-9_-]+)/.exec(userPrompt)?.[1];
+  return canned.replace('__FIRST__', firstId ?? 'unknown');
 }
 
 export class MockAiProvider implements AiProvider {
@@ -96,11 +112,32 @@ export class MockAiProvider implements AiProvider {
     }
 
     return Promise.resolve({
-      text: canned,
+      text: substituteIds(canned, input.userPrompt),
       model: 'mock-deterministic',
       promptTokens: null,
       completionTokens: null,
       totalTokens: null,
+    });
+  }
+
+  /**
+   * A real, decodable 1x1 PNG.
+   *
+   * Not an empty buffer and not a thrown error: the derive step downstream has
+   * to actually read these bytes, so a mock that cannot be decoded would make
+   * the whole pipeline untestable without a live key. It is deliberately
+   * obvious rather than a plausible photograph — nobody should mistake a
+   * mocked image for a real one.
+   */
+  generateImage(_prompt: string): Promise<RawImageOutput> {
+    const onePixelPng = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    return Promise.resolve({
+      bytes: onePixelPng,
+      contentType: 'image/png',
+      model: 'mock-deterministic',
     });
   }
 

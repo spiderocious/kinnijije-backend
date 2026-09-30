@@ -1327,6 +1327,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 365,
     costNgn: 3500,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "coconut_oil",
@@ -1459,6 +1460,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: null,
     costNgn: 600,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "stock_cube",
@@ -1471,6 +1473,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 50,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "curry_powder",
@@ -1483,6 +1486,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 500,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "thyme_dry",
@@ -1495,6 +1499,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 400,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "bay_dry",
@@ -1507,6 +1512,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 600,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "nutmeg",
@@ -1531,6 +1537,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 900,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "white_pepper",
@@ -2047,6 +2054,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: null,
     costNgn: 200,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "zobo_leaf",
@@ -2779,6 +2787,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 800,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "chicken_seasoning",
@@ -2791,6 +2800,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 900,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "crayfish_powder",
@@ -3163,6 +3173,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 50,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "garri_ijebu",
@@ -4387,6 +4398,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: 540,
     costNgn: 500,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "salt_rock",
@@ -4399,6 +4411,7 @@ export const CATALOGUE: readonly CatalogueItem[] = [
     shelfLifeDays: null,
     costNgn: 800,
     storage: "shelf",
+    pantry: true,
   },
   {
     id: "pepper_soup_leaf",

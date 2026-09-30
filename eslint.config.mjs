@@ -38,4 +38,14 @@ export default tseslint.config(
     files: ['scripts/**/*.ts'],
     rules: { 'no-console': 'off' },
   },
+  {
+    /**
+     * `node:test` owns the promises its `describe` and `it` return — the runner
+     * awaits them itself, and the documented way to call them is bare. Marking
+     * every one `void` would be noise that hides a real floating promise inside
+     * a test body, which is the thing the rule exists to catch.
+     */
+    files: ['src/**/__tests__/*.test.ts'],
+    rules: { '@typescript-eslint/no-floating-promises': 'off' },
+  },
 );

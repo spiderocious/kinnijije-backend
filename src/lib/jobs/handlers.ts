@@ -1,5 +1,6 @@
 import { registerExtractionHandlers } from '@features/extraction/extraction.jobs.js';
 import { registerInsightHandlers } from '@features/insights/insights.jobs.js';
+import { registerMealHandlers } from '@features/meals/meals.jobs.js';
 import { registerNotificationHandlers } from '@features/notifications/notifications.jobs.js';
 
 /**
@@ -14,6 +15,7 @@ import { registerNotificationHandlers } from '@features/notifications/notificati
  */
 export function registerJobHandlers(): void {
   registerExtractionHandlers();
+  registerMealHandlers();
   registerInsightHandlers();
   registerNotificationHandlers();
 }

@@ -7,6 +7,13 @@ import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
+import {
+  DEFAULT_RANKING_CONFIG,
+  RANKING_CONFIG_ID,
+  RankingSettingsModel,
+  rankingSettings,
+  resolveRankingConfig,
+} from '@lib/ranking/index.js';
 
 import { adminAiService } from './ai/admin-ai.service.js';
 import { adminAuthService } from './auth/admin-auth.service.js';
@@ -317,4 +324,44 @@ export const adminController = {
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
+
+  /**
+   * How ranking is tuned.
+   *
+   * Returns the live config alongside the shipped defaults, so the console can
+   * show what has been changed and offer a reset without hardcoding a copy of
+   * the numbers.
+   */
+  rankingConfig: async (_req: Request, res: Response): Promise<void> => {
+    const doc = await RankingSettingsModel.findById(RANKING_CONFIG_ID).lean().exec();
+    ResponseUtil.ok(res, {
+      config: resolveRankingConfig(doc?.config ?? null),
+      defaults: DEFAULT_RANKING_CONFIG,
+      updated_at: doc?.updatedAt ?? null,
+      updated_by: doc?.updatedBy ?? null,
+    });
+  },
+
+  /**
+   * Saves tuned weights.
+   *
+   * The body is merged over the defaults and VALIDATED before it is stored, so
+   * a bad value is refused at the door rather than quietly ranking everything
+   * to zero. The in-memory cache is invalidated so the change is visible on the
+   * next request rather than up to a minute later.
+   */
+  saveRankingConfig: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const merged = resolveRankingConfig(req.body);
+
+    await RankingSettingsModel.findOneAndUpdate(
+      { _id: RANKING_CONFIG_ID },
+      { $set: { config: merged, updatedBy: actor.userId } },
+      { upsert: true, new: true },
+    ).exec();
+
+    rankingSettings.invalidate();
+    ResponseUtil.ok(res, { config: merged });
+  },
+
 };

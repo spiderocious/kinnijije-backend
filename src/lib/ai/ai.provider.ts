@@ -24,10 +24,25 @@ export interface RawCallOutput {
   readonly totalTokens: number | null;
 }
 
+/** A generated picture, as bytes. Never a URL — those expire. */
+export interface RawImageOutput {
+  readonly bytes: Uint8Array;
+  readonly contentType: string;
+  readonly model: string;
+}
+
 export interface AiProvider {
   readonly name: string;
   complete(input: RawCallInput): Promise<RawCallOutput>;
   transcribe(audio: Buffer, filename: string): Promise<{ text: string; model: string }>;
+  /**
+   * Generates one picture.
+   *
+   * Deliberately separate from `complete`: it returns bytes rather than text,
+   * costs an order of magnitude more, and is only ever called from a
+   * background job — never from a request path.
+   */
+  generateImage(prompt: string): Promise<RawImageOutput>;
 }
 
 export class OpenAiProvider implements AiProvider {
@@ -92,5 +107,25 @@ export class OpenAiProvider implements AiProvider {
       file: new File([new Uint8Array(audio)], filename),
     });
     return { text: response.text, model: env.OPENAI_WHISPER_MODEL };
+  }
+
+  async generateImage(prompt: string): Promise<RawImageOutput> {
+    const response = await this.client.images.generate({
+      model: env.OPENAI_IMAGE_MODEL,
+      prompt,
+      size: '1024x1024',
+      n: 1,
+    });
+
+    // Asked for as base64 rather than a URL: a generated URL expires, and this
+    // runs in a worker that must write the bytes to storage itself.
+    const encoded = response.data?.[0]?.b64_json;
+    if (encoded === undefined) throw new Error('image model returned no image data');
+
+    return {
+      bytes: Buffer.from(encoded, 'base64'),
+      contentType: 'image/png',
+      model: env.OPENAI_IMAGE_MODEL,
+    };
   }
 }

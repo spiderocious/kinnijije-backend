@@ -1,0 +1,1579 @@
+<!doctype html>
+<html lang="en" data-doc="v2-system-design">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide First — System Design</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — the app's own tokens, so the spec looks like the thing it
+   specifies. Lifted verbatim from web/src/index.css.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4; --white:#fff;
+  --line:#e3ecf2; --line-2:#cfdde7; --skeleton:#dbe6ef;
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky:#38b6f0; --sky-deep:#1798d6; --sky-press:#127bae;
+  --sky-soft:#e4f4fe; --sky-50:#f2fafe; --sky-on:#0b4e71; --sky-edge:#a8dcf7;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-on:#3f2e9e; --grape-edge:#cfc6fb;
+  --ok:#2fbf8f; --ok-soft:#e2f7f0; --ok-on:#10604a; --ok-edge:#a9e5d2;
+  --warn:#f2a93b; --warn-soft:#fef3e0; --warn-on:#7a4e08; --warn-edge:#f6d9a6;
+  --crit:#f0605d; --crit-soft:#fdebeb; --crit-on:#8c1f1d; --crit-edge:#f8c2c1;
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-on:#1d3d49; --info-edge:#b4cfd9;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px; --blade-xl:28px 8px 28px 8px;
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink-2);
+  font-family:var(--sans);font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 16px 120px}
+
+/* ── Type ───────────────────────────────────────────────────────────── */
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,6vw,60px);font-weight:800}
+h2{font-size:clamp(25px,3.6vw,36px);font-weight:800}
+h3{font-size:20px;font-weight:700}
+h4{font-size:16px;font-weight:700}
+p{margin:.65em 0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--paper-2);border:1.5px solid var(--line);padding:1px 6px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+a{color:var(--sky-deep)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+
+/* ── Overline / eyebrow ─────────────────────────────────────────────── */
+.eyebrow{
+  font-family:var(--sans);font-size:11px;font-weight:800;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+}
+
+/* ── Masthead ───────────────────────────────────────────────────────── */
+.masthead{padding:64px 0 40px;border-bottom:2px solid var(--ink)}
+.brandrow{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.logomark{
+  width:44px;height:44px;flex:none;background:var(--sky);color:#fff;
+  border:2px solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);
+  display:grid;place-items:center;
+}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink);letter-spacing:-.01em}
+.deck{font-size:clamp(17px,2.2vw,21px);color:var(--ink-2);max-width:62ch;margin-top:18px}
+.metastrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+
+/* ── Chips / pills ──────────────────────────────────────────────────── */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;
+  border:1.5px solid var(--line-2);background:var(--white);color:var(--ink-2);
+  white-space:nowrap;
+}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-edge);color:var(--grape-on)}
+.chip.ok{background:var(--ok-soft);border-color:var(--ok-edge);color:var(--ok-on)}
+.chip.warn{background:var(--warn-soft);border-color:var(--warn-edge);color:var(--warn-on)}
+.chip.crit{background:var(--crit-soft);border-color:var(--crit-edge);color:var(--crit-on)}
+.chip.info{background:var(--info-soft);border-color:var(--info-edge);color:var(--info-on)}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+
+/* ── Section rhythm ─────────────────────────────────────────────────── */
+section{padding-top:72px}
+.sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.secnum{
+  font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);
+  border:1.5px solid var(--sky-edge);background:var(--sky-soft);
+  padding:3px 9px;border-radius:6px 2px 6px 2px;flex:none;
+}
+.lede{font-size:17px;color:var(--ink-2);max-width:72ch;margin:12px 0 30px}
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
+.card{
+  background:var(--white);border:2px solid var(--ink);border-radius:var(--blade);
+  box-shadow:var(--drop);padding:24px;
+}
+.card.flat{box-shadow:none;border-color:var(--line-2);border-width:1.5px}
+.card.soft{background:var(--paper-2);border:1.5px solid var(--line-2);box-shadow:none}
+.cardhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:920px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── The step ribbon (the flow) ─────────────────────────────────────── */
+.ribbon{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:0;
+  border:2px solid var(--ink);border-radius:var(--blade-lg);
+  box-shadow:var(--drop);overflow:hidden;background:var(--white);margin-bottom:26px;
+}
+@media(max-width:980px){.ribbon{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:560px){.ribbon{grid-template-columns:repeat(2,1fr)}}
+.rstep{
+  padding:16px 12px;border-right:1.5px solid var(--line);position:relative;
+  display:flex;flex-direction:column;gap:7px;min-height:132px;
+}
+.rstep:last-child{border-right:0}
+.rstep .n{
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink-4);
+}
+.rstep .t{font-family:var(--display);font-weight:800;font-size:14.5px;color:var(--ink);line-height:1.2}
+.rstep .d{font-size:11.5px;color:var(--ink-3);line-height:1.45}
+.rstep .glyph{width:26px;height:26px;color:var(--sky-deep)}
+.rstep.anon{background:var(--sky-50)}
+.rstep.gate{background:var(--grape-soft)}
+.rstep.payoff{background:var(--ok-soft)}
+.rstep .tag{
+  margin-top:auto;font-size:9.5px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────── */
+.tablewrap{
+  border:2px solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);
+  overflow:hidden;background:var(--white);
+}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{
+  background:var(--paper-2);text-align:left;padding:11px 14px;
+  font-family:var(--sans);font-size:10.5px;font-weight:800;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-3);border-bottom:2px solid var(--ink);
+  white-space:nowrap;
+}
+tbody td{padding:11px 14px;border-bottom:1.5px solid var(--line);vertical-align:top;color:var(--ink-2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong,th strong{color:var(--ink)}
+td .mono{color:var(--ink);font-size:12px}
+.scroll{overflow-x:auto}
+
+/* ── Callout ────────────────────────────────────────────────────────── */
+.callout{
+  border:1.5px solid var(--line-2);border-left:5px solid var(--sky);
+  background:var(--white);border-radius:var(--blade-xs);padding:16px 18px;
+  margin:20px 0;font-size:14px;
+}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft);border-color:var(--warn-edge);color:var(--warn-on)}
+.callout.crit{border-left-color:var(--crit);background:var(--crit-soft);border-color:var(--crit-edge);color:var(--crit-on)}
+.callout.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-edge);color:var(--grape-on)}
+.callout.ok{border-left-color:var(--ok);background:var(--ok-soft);border-color:var(--ok-edge);color:var(--ok-on)}
+.callout .lbl{font-weight:800;color:inherit;font-family:var(--display);font-size:14px;display:block;margin-bottom:3px}
+
+/* ── Lists ──────────────────────────────────────────────────────────── */
+ul.clean{list-style:none;padding:0;margin:.6em 0}
+ul.clean li{position:relative;padding-left:22px;margin:.42em 0;font-size:14px}
+ul.clean li::before{
+  content:'';position:absolute;left:4px;top:.62em;width:7px;height:7px;
+  background:var(--sky);border-radius:50% 0 50% 50%;
+}
+ul.clean.ok li::before{background:var(--ok)}
+ul.clean.crit li::before{background:var(--crit)}
+ol.steps{padding-left:0;list-style:none;counter-reset:s;margin:.6em 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:34px;margin:.6em 0;font-size:14px}
+ol.steps li::before{
+  content:counter(s);position:absolute;left:0;top:-1px;width:23px;height:23px;
+  background:var(--ink);color:var(--paper);border-radius:7px 2px 7px 2px;
+  display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;
+}
+
+/* ── Wireframe blocks (visual first) ───────────────────────────────── */
+.wire{
+  background:var(--paper-2);border:1.5px solid var(--line-2);
+  border-radius:var(--blade);padding:16px;
+}
+.wf{
+  background:var(--white);border:2px solid var(--ink);border-radius:var(--blade-sm);
+  box-shadow:var(--drop-sm);padding:14px;display:flex;flex-direction:column;gap:9px;
+}
+.wf .bar{height:9px;border-radius:999px;background:var(--skeleton)}
+.wf .bar.w80{width:80%}.wf .bar.w60{width:60%}.wf .bar.w45{width:45%}.wf .bar.w30{width:30%}
+.wf .bar.ink{background:var(--ink-4)}
+.wf .btn{
+  height:32px;background:var(--sky);border:2px solid var(--ink);
+  border-radius:var(--blade-xs);box-shadow:var(--drop-sm);
+  display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;
+}
+.wf .btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.wf .tile{
+  border:1.5px solid var(--line-2);background:var(--paper);border-radius:var(--blade-xs);
+  padding:9px;display:flex;flex-direction:column;gap:5px;align-items:center;
+  font-size:10px;font-weight:700;color:var(--ink-3);text-align:center;
+}
+.wf .tile.on{background:var(--sky-soft);border-color:var(--sky);color:var(--sky-on)}
+.wf .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.wf .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.wfcap{font-size:11px;color:var(--ink-3);margin-top:9px;text-align:center;font-weight:700}
+
+/* ── Sequence / pipeline diagram ────────────────────────────────────── */
+.pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:22px 0}
+.pnode{
+  flex:1 1 150px;min-width:140px;background:var(--white);
+  border:2px solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);
+  padding:13px;display:flex;flex-direction:column;gap:6px;margin:0 9px 12px 0;
+}
+.pnode .k{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600}
+.pnode .v{font-family:var(--display);font-weight:800;font-size:14px;color:var(--ink);line-height:1.2}
+.pnode .s{font-size:11px;color:var(--ink-3);line-height:1.4}
+.pnode.ai{background:var(--grape-soft);border-color:var(--grape-on)}
+.pnode.det{background:var(--ok-soft);border-color:var(--ok-on)}
+.pnode.gate{background:var(--warn-soft);border-color:var(--warn-on)}
+
+/* ── Budget bars ────────────────────────────────────────────────────── */
+.meter{height:12px;background:var(--skeleton);border:1.5px solid var(--line-2);border-radius:999px;overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--sky)}
+.meter i.warn{background:var(--warn)}
+.meter i.crit{background:var(--crit)}
+.meter i.ok{background:var(--ok)}
+
+/* ── KV stat ────────────────────────────────────────────────────────── */
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .num{font-family:var(--display);font-weight:800;font-size:30px;color:var(--ink);line-height:1}
+.stat .lbl{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.stat .sub{font-size:12px;color:var(--ink-3)}
+
+/* ── Schema block ───────────────────────────────────────────────────── */
+pre{
+  background:var(--ink);color:#dce9f2;border-radius:var(--blade-sm);
+  padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12px;
+  line-height:1.62;margin:16px 0;border:2px solid var(--ink);
+}
+pre .c{color:#7a97a8}
+pre .k{color:#7ad3fa}
+pre .s{color:#a9e5d2}
+pre .n{color:#f6bd5f}
+pre .kw{color:#a394f8}
+
+/* ── Divider ────────────────────────────────────────────────────────── */
+.rule{height:2px;background:var(--ink);margin:0;border:0}
+.rule.soft{height:1.5px;background:var(--line)}
+
+/* ── Two-col text ───────────────────────────────────────────────────── */
+.cols{columns:2;column-gap:34px}
+@media(max-width:760px){.cols{columns:1}}
+
+/* ── Anchor nav ─────────────────────────────────────────────────────── */
+.toc{
+  position:sticky;top:0;z-index:50;background:var(--paper);
+  border-bottom:1.5px solid var(--line);padding:9px 0;margin-bottom:0;
+}
+.toc .inner{max-width:1140px;margin:0 auto;padding:0 16px;display:flex;gap:7px;overflow-x:auto}
+.toc a{
+  font-size:11.5px;font-weight:800;color:var(--ink-3);text-decoration:none;
+  padding:5px 11px;border-radius:999px;border:1.5px solid transparent;white-space:nowrap;
+}
+.toc a:hover{background:var(--sky-soft);color:var(--sky-on);border-color:var(--sky-edge)}
+footer{margin-top:90px;padding-top:26px;border-top:2px solid var(--ink);font-size:12.5px;color:var(--ink-3)}
+.foot-g{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<nav class="toc"><div class="inner">
+  <a href="#why">Why</a><a href="#flow">The flow</a><a href="#screens">Screens</a>
+  <a href="#draft">Draft model</a><a href="#api">API</a><a href="#decide">The decision</a>
+  <a href="#recompute">Recompute</a><a href="#limits">Rate limiting</a><a href="#abuse">Abuse</a><a href="#onboard">Carry-over</a>
+  <a href="#reuse">Reuse map</a><a href="#telemetry">Telemetry</a><a href="#build">Build order</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════ MASTHEAD ═══════════════════════ -->
+<header class="masthead">
+  <div class="brandrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 14h16a8 8 0 0 1-8 7 8 8 0 0 1-8-7Z"/><path d="M12 5v2"/><path d="M8.5 7.2 9.6 8.8"/><path d="M15.5 7.2 14.4 8.8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brandname">KinniJije</div>
+      <div class="eyebrow">Kitchen · v2</div>
+    </div>
+  </div>
+
+  <div class="eyebrow" style="margin-bottom:12px">System design · backend/docs/v2</div>
+  <h1>Decide First</h1>
+  <p class="deck">
+    The landing page stops selling and starts <strong>deciding</strong>. A stranger arrives,
+    answers four cheap questions, and gets one meal they can actually cook — before
+    we ask for an email. Signing up is then an <em>upgrade of something they already
+    hold</em>, not a toll gate in front of it.
+  </p>
+
+  <div class="metastrip">
+    <span class="chip sky"><span class="dot"></span>Anonymous-first</span>
+    <span class="chip grape"><span class="dot"></span>One AI call per decision</span>
+    <span class="chip ok"><span class="dot"></span>Deterministic shortlist</span>
+    <span class="chip warn"><span class="dot"></span>IP rate-limited</span>
+    <span class="chip info"><span class="dot"></span>Zero new DB collections for guests</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════ 1 · WHY ════════════════════════ -->
+<section id="why">
+  <div class="sechead"><span class="secnum">01</span><h2>What changes, and what does not</h2></div>
+  <p class="lede">
+    Today <code>/</code> is a marketing page: hero, conveyor, live-match, trust plate,
+    pricing, FAQ, closing hob — seven scroll sections between a hungry person and any
+    answer. The product's whole claim is "we tell you what to cook". The front door
+    should just do that.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <div class="cardhead">
+        <span class="chip crit"><span class="dot"></span>Today</span>
+        <h3 style="font-size:17px">Read, then trust, then maybe sign up</h3>
+      </div>
+      <div class="wire">
+        <div class="wf" style="gap:7px">
+          <div class="bar w60 ink"></div><div class="bar w80"></div><div class="bar w45"></div>
+          <div class="btn ghost">Get started</div>
+          <hr class="rule soft" style="margin:4px 0">
+          <div class="bar w30 ink"></div><div class="bar"></div><div class="bar w80"></div>
+          <hr class="rule soft" style="margin:4px 0">
+          <div class="bar w45 ink"></div><div class="row3">
+            <div class="tile">Tier</div><div class="tile">Tier</div><div class="tile">Tier</div>
+          </div>
+          <div class="bar w60"></div>
+        </div>
+        <div class="wfcap">7 sections · 0 answers · CTA = a form</div>
+      </div>
+      <ul class="clean crit" style="margin-top:14px">
+        <li>The value is <em>described</em>, never demonstrated.</li>
+        <li>First ask is an email, for a benefit not yet felt.</li>
+        <li>Pricing tiers argue before anyone is convinced there is a thing to buy.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="cardhead">
+        <span class="chip ok"><span class="dot"></span>v2</span>
+        <h3 style="font-size:17px">Decide, then keep it</h3>
+      </div>
+      <div class="wire">
+        <div class="wf" style="gap:7px">
+          <div class="bar w60 ink"></div>
+          <div class="btn">Show me what to eat</div>
+          <hr class="rule soft" style="margin:4px 0">
+          <div class="bar w45 ink"></div>
+          <div class="row3">
+            <div class="tile on">Rice</div><div class="tile on">Beans</div><div class="tile">Yam</div>
+          </div>
+          <div class="btn ghost">I have nothing — skip</div>
+          <hr class="rule soft" style="margin:4px 0">
+          <div class="row2"><div class="tile on">Light</div><div class="tile">Heavy</div></div>
+          <div class="btn">Decide</div>
+        </div>
+        <div class="wfcap">4 questions · 1 meal · CTA = keep this</div>
+      </div>
+      <ul class="clean ok" style="margin-top:14px">
+        <li>The value is <em>delivered</em> inside ~45 seconds, signed out.</li>
+        <li>First ask is a taste, not an identity.</li>
+        <li>Signup carries the answers forward — nothing is retyped.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">The load-bearing constraint</span>
+    Nothing in the existing app is rewritten. The deterministic matcher
+    (<code>meals.matcher.ts</code>), the AI envelope (<code>ai.contracts.ts</code>),
+    the token-bucket limiter (<code>lib/ratelimit</code>) and the onboarding
+    fields (<code>prefs.*</code>, <code>kitchenItems</code>) already exist and are
+    reused as-is. This design adds <strong>one public feature module</strong> and
+    <strong>one client-side draft</strong>.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 2 · FLOW ═══════════════════════ -->
+<section id="flow">
+  <div class="sechead"><span class="secnum">02</span><h2>The flow, end to end</h2></div>
+  <p class="lede">
+    Seven stops. Steps 1–5 are fully anonymous and hold state in the browser only.
+    Step 6 is the payoff. Step 7 is where identity finally becomes worth asking for —
+    and it is <em>optional</em>, reachable from three different places.
+  </p>
+
+  <div class="ribbon">
+    <div class="rstep anon">
+      <div class="n">01</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M12 6v2"/></svg>
+      <div class="t">Land</div>
+      <div class="d">One line, one button. No nav, no pricing, no scroll needed.</div>
+      <div class="tag">Anonymous</div>
+    </div>
+    <div class="rstep anon">
+      <div class="n">02</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 10h8M8 14h5"/></svg>
+      <div class="t">Kitchen</div>
+      <div class="d">Tap what you have. Or skip — "I have nothing" is a first-class answer.</div>
+      <div class="tag">Skippable</div>
+    </div>
+    <div class="rstep anon">
+      <div class="n">03</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M9 15c1.8 1.3 4.2 1.3 6 0"/></svg>
+      <div class="t">Mood</div>
+      <div class="d">How the day feels. Four faces, one tap.</div>
+      <div class="tag">Required</div>
+    </div>
+    <div class="rstep anon">
+      <div class="n">04</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h9"/></svg>
+      <div class="t">Weight</div>
+      <div class="d">Something solid? Light? Soupy? Swallow?</div>
+      <div class="tag">Required</div>
+    </div>
+    <div class="rstep anon">
+      <div class="n">05</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>
+      <div class="t">Time &amp; place</div>
+      <div class="d">Minutes on hand, and the city — which buys weather for free.</div>
+      <div class="tag">Skippable</div>
+    </div>
+    <div class="rstep payoff">
+      <div class="n">06</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 14h18a9 9 0 0 1-18 0Z"/><path d="M7 9c0-2 1.6-2 1.6-3.4M12 8.4c0-2 1.6-2 1.6-3.4M16.6 9c0-2 1.6-2 1.6-3.4"/></svg>
+      <div class="t">The verdict</div>
+      <div class="d">One meal, named, with why-this and have/need. Two alternates behind it.</div>
+      <div class="tag">Payoff</div>
+    </div>
+    <div class="rstep gate">
+      <div class="n">07</div>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3 4 6.5v5c0 4.6 3.4 8.4 8 9.5 4.6-1.1 8-4.9 8-9.5v-5Z"/><path d="M9.2 12l2 2 3.6-4"/></svg>
+      <div class="t">Keep it</div>
+      <div class="d">Save the verdict, the kitchen and the taste to a real account.</div>
+      <div class="tag">Optional</div>
+    </div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Hard rule</div>
+      <h4>No gate before step 6</h4>
+      <p style="font-size:13.5px;margin:6px 0 0">
+        A stranger reaches a named, cookable meal with <strong>zero</strong> account,
+        zero email and zero cookie consent banner. Signup is never in the critical path.
+      </p>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Hard rule</div>
+      <h4>Every step is answerable in one tap</h4>
+      <p style="font-size:13.5px;margin:6px 0 0">
+        No free-text is <em>required</em> anywhere in 2–5. Typing is offered
+        (kitchen search, city) but a tap-only path exists end to end.
+      </p>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Hard rule</div>
+      <h4>Back never destroys an answer</h4>
+      <p style="font-size:13.5px;margin:6px 0 0">
+        The draft is a single object; steps read and write slices of it.
+        Reversing to step 2 and forward again re-shows the taps as they were.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 3 · SCREENS ════════════════════ -->
+<section id="screens">
+  <div class="sechead"><span class="secnum">03</span><h2>The five asks, and what each one buys</h2></div>
+  <p class="lede">
+    Each question must pay for its own friction. A question that does not change the
+    answer is a question that should not be asked — so each row below states exactly
+    what the decision engine does with it.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr>
+        <th style="width:20%">Ask</th><th style="width:13%">Control</th>
+        <th style="width:24%">Values</th><th style="width:26%">What it changes</th>
+        <th style="width:9%">Skip?</th><th style="width:8%">Carries to</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>What's in your kitchen</strong><div style="font-size:12px;color:var(--ink-3)">Step 2</div></td>
+          <td>Group tiles + search</td>
+          <td><span class="mono">string[]</span> — catalogue ids where resolved, raw names otherwise. Backed by <code>CATALOGUE</code> + <code>suggest()</code>.</td>
+          <td>The <strong>only</strong> input to the deterministic matcher. Drives <span class="chip ok" style="padding:2px 8px;font-size:11px">have</span> / <span class="chip warn" style="padding:2px 8px;font-size:11px">need</span> on the verdict.</td>
+          <td><span class="chip">Yes</span></td>
+          <td><code>kitchenItems</code></td>
+        </tr>
+        <tr>
+          <td><strong>Mood</strong><div style="font-size:12px;color:var(--ink-3)">Step 3</div></td>
+          <td>4 face tiles</td>
+          <td><span class="mono">'tired' | 'fast' | 'proper' | 'comfort'</span></td>
+          <td>Caps <code>cookTimeMinutes</code> and <code>difficulty</code>; steers the model's framing line.</td>
+          <td><span class="chip crit">No</span></td>
+          <td>session only</td>
+        </tr>
+        <tr>
+          <td><strong>Preference / weight</strong><div style="font-size:12px;color:var(--ink-3)">Step 4</div></td>
+          <td>4–6 tiles</td>
+          <td><span class="mono">'solid' | 'light' | 'soupy' | 'swallow' | 'rice' | 'street'</span></td>
+          <td>Filters the candidate pool by cuisine/type tags before ranking.</td>
+          <td><span class="chip crit">No</span></td>
+          <td><code>prefs.cuisines</code> (hint)</td>
+        </tr>
+        <tr>
+          <td><strong>Time on hand</strong><div style="font-size:12px;color:var(--ink-3)">Step 5a</div></td>
+          <td>3 pills</td>
+          <td><span class="mono">15 | 40 | 90</span> minutes</td>
+          <td>Hard ceiling on <code>cookTimeMinutes</code>. A meal over the ceiling is dropped, never "suggested anyway".</td>
+          <td><span class="chip">Yes → 40</span></td>
+          <td><code>prefs.difficulty</code></td>
+        </tr>
+        <tr>
+          <td><strong>Where you are</strong><div style="font-size:12px;color:var(--ink-3)">Step 5b</div></td>
+          <td>Text + 4 city pills</td>
+          <td><span class="mono">string</span>, max 80</td>
+          <td>Feeds <code>lib/weather</code>. Hot + humid biases light and soupy; a cold harmattan evening biases pepper soup.</td>
+          <td><span class="chip">Yes</span></td>
+          <td><code>city</code> on register</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout grape">
+    <span class="lbl">Why mood and weight are the two required ones</span>
+    Kitchen can be empty, time can be unknown, city can be withheld — the engine
+    still has a defensible answer. But with neither mood nor weight there is nothing
+    to distinguish this person from a random pick, and a random pick is what the
+    product exists to replace.
+  </div>
+
+  <h3 style="margin-top:44px">Step composition, drawn</h3>
+  <div class="grid g4" style="margin-top:18px">
+    <div>
+      <div class="wire">
+        <div class="wf">
+          <div class="bar w45 ink"></div>
+          <div class="row3">
+            <div class="tile on">🍚<span>Rice</span></div><div class="tile on">🫘<span>Beans</span></div><div class="tile">🍠<span>Yam</span></div>
+            <div class="tile">🍅<span>Tomato</span></div><div class="tile on">🧅<span>Onion</span></div><div class="tile">🐟<span>Fish</span></div>
+          </div>
+          <div class="bar w60"></div>
+          <div class="btn">Continue · 3 picked</div>
+          <div class="btn ghost">I have nothing</div>
+        </div>
+      </div>
+      <div class="wfcap">02 · Kitchen — tiles, not a form</div>
+    </div>
+    <div>
+      <div class="wire">
+        <div class="wf">
+          <div class="bar w60 ink"></div>
+          <div class="row2">
+            <div class="tile" style="padding:16px 9px">😮‍💨<span>Drained</span></div>
+            <div class="tile on" style="padding:16px 9px">⚡<span>In a hurry</span></div>
+            <div class="tile" style="padding:16px 9px">👨‍🍳<span>Up for it</span></div>
+            <div class="tile" style="padding:16px 9px">🫂<span>Need comfort</span></div>
+          </div>
+          <div class="btn">Continue</div>
+        </div>
+      </div>
+      <div class="wfcap">03 · Mood — four faces</div>
+    </div>
+    <div>
+      <div class="wire">
+        <div class="wf">
+          <div class="bar w45 ink"></div>
+          <div class="row2">
+            <div class="tile on">Something solid</div><div class="tile">Light</div>
+            <div class="tile">Soupy</div><div class="tile">Swallow</div>
+          </div>
+          <div class="bar w30"></div>
+          <div class="btn">Continue</div>
+        </div>
+      </div>
+      <div class="wfcap">04 · Weight — the shape of the plate</div>
+    </div>
+    <div>
+      <div class="wire">
+        <div class="wf">
+          <div class="bar w60 ink"></div>
+          <div class="row3">
+            <div class="tile">15m</div><div class="tile on">40m</div><div class="tile">90m</div>
+          </div>
+          <div class="bar w45"></div>
+          <div class="row3">
+            <div class="tile">Lagos</div><div class="tile">Abuja</div><div class="tile">Kano</div>
+          </div>
+          <div class="btn">Decide what I eat</div>
+        </div>
+      </div>
+      <div class="wfcap">05 · Time &amp; place — last stop</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:44px">The verdict screen</h3>
+  <p class="lede" style="margin-bottom:20px">
+    One meal owns the screen. Alternates exist but are visually subordinate —
+    a second equal option is a second decision, which is the problem we just solved.
+  </p>
+  <div class="grid g2">
+    <div>
+      <div class="wire">
+        <div class="wf" style="gap:11px">
+          <div style="display:flex;gap:7px">
+            <span class="chip grape" style="font-size:10px;padding:3px 9px">Chosen for you</span>
+            <span class="chip ok" style="font-size:10px;padding:3px 9px">5 of 7 in stock</span>
+          </div>
+          <div style="height:74px;background:var(--dish-fill);border:2px solid var(--ink);border-radius:var(--blade-sm);display:grid;place-items:center;font-size:34px">🍲</div>
+          <div class="bar w60 ink" style="height:13px"></div>
+          <div class="bar w80"></div><div class="bar w45"></div>
+          <div class="row2">
+            <div class="tile" style="background:var(--ok-soft);border-color:var(--ok-edge);color:var(--ok-on)">You have 5</div>
+            <div class="tile" style="background:var(--warn-soft);border-color:var(--warn-edge);color:var(--warn-on)">Need 2</div>
+          </div>
+          <div class="btn">Cook this</div>
+          <div class="btn ghost">Not this — try again</div>
+        </div>
+      </div>
+      <div class="wfcap">06 · One meal, one decision</div>
+    </div>
+    <div class="card">
+      <h4>What must be on it</h4>
+      <ul class="clean" style="margin-top:10px">
+        <li><strong>The name, big.</strong> Display type, no hedging — "Ewa agoyin with dodo", not "you might like…".</li>
+        <li><strong>Why this, in one line.</strong> Written by the model, grounded in the answers: <em>"Hot day, forty minutes, and the beans are already in your kitchen."</em></li>
+        <li><strong>Have / need, split.</strong> Straight from <code>MealMatch</code> — <code>ingredients[]</code> with <code>enough</code>, <code>low</code>, <code>missing</code>.</li>
+        <li><strong>Provenance mark.</strong> <span class="chip grape" style="font-size:11px;padding:2px 8px">grape</span> when the framing is model-written; the <em>meal itself</em> is always ours.</li>
+        <li><strong>Two alternates, collapsed.</strong> "Something else" re-ranks locally — <em>no second AI call</em>.</li>
+        <li><strong>A way out that is not a restart.</strong> "Not this" rejects <em>this dish</em> and re-decides without it; "Change an answer" reopens one step. Both are free. See §07.</li>
+      </ul>
+      <div class="callout" style="font-size:13px">
+        <span class="lbl">This card becomes a story later</span>
+        Once meal photography exists, this single card becomes the first of three
+        swipeable cards, each with a real image and a one-line pitch. The verdict stays
+        the verdict — card one is still the recommendation. Specified separately in
+        <code>image-pipeline.html</code>; nothing here depends on it.
+      </div>
+
+      <div class="callout ok" style="margin-bottom:0">
+        <span class="lbl">The signup moment</span>
+        Below the verdict, not above it: <strong>"Keep this and get tomorrow's"</strong>.
+        The person is holding something; the offer is to keep holding it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 4 · DRAFT ══════════════════════ -->
+<section id="draft">
+  <div class="sechead"><span class="secnum">04</span><h2>The draft — one object, browser-owned</h2></div>
+  <p class="lede">
+    A guest has no row in Mongo. Their answers live in <code>sessionStorage</code> under
+    one key, in one shape, and that same shape is what the decide endpoint takes and what
+    signup replays. No guest collection, no anonymous user documents, no cleanup job.
+  </p>
+
+  <div class="grid g2">
+    <div>
+<pre><span class="c">// web/src/features/decide/types/decide.types.ts</span>
+<span class="kw">export interface</span> <span class="k">DecideDraft</span> {
+  <span class="k">v</span>: <span class="n">1</span>;                          <span class="c">// shape version</span>
+  <span class="k">startedAt</span>: <span class="s">string</span>;                <span class="c">// ISO, for funnel timing</span>
+  <span class="k">kitchenItems</span>: <span class="s">string</span>[];           <span class="c">// [] means "nothing"</span>
+  <span class="k">kitchenSkipped</span>: <span class="s">boolean</span>;          <span class="c">// [] + skipped ≠ [] + picked none</span>
+  <span class="k">mood</span>: <span class="k">Mood</span> | <span class="kw">null</span>;
+  <span class="k">weight</span>: <span class="k">Weight</span> | <span class="kw">null</span>;
+  <span class="k">minutes</span>: <span class="n">15</span> | <span class="n">40</span> | <span class="n">90</span> | <span class="kw">null</span>;
+  <span class="k">city</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">verdict</span>: <span class="k">DecideVerdict</span> | <span class="kw">null</span>;  <span class="c">// the answer, once given</span>
+}</pre>
+      <div class="callout" style="font-size:13px">
+        <span class="lbl"><code>sessionStorage</code>, not <code>localStorage</code></span>
+        The tokens in <code>session-store.ts</code> must survive a reload, so they use
+        <code>localStorage</code>. A taste draft must <em>not</em> outlive the tab —
+        a shared laptop should not greet the next person with someone else's mood.
+        Every read and write is try/caught exactly as <code>session-store.ts</code> does it,
+        because storage throws outright in some private windows.
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Lifecycle</h4>
+      <ol class="steps" style="margin-top:12px">
+        <li><strong>Created</strong> on the first tap of step 2, not on landing — a bounce writes nothing.</li>
+        <li><strong>Patched</strong> per step. Each step writes only its own slice, mirroring <code>OnboardingService.save</code>'s <code>$set</code>-only-what-was-sent discipline.</li>
+        <li><strong>Sent whole</strong> to <code>POST /api/v1/decide</code>. The server is stateless about it.</li>
+        <li><strong>Verdict written back</strong> into the draft, so a reload of the verdict screen costs no second AI call.</li>
+        <li><strong>Replayed</strong> at signup: register → <code>PATCH /onboarding</code> → <code>POST /onboarding/complete</code>.</li>
+        <li><strong>Cleared</strong> once replay succeeds. On failure it is kept and retried — losing the answers is worse than a duplicate write.</li>
+      </ol>
+      <hr class="rule soft" style="margin:16px 0">
+      <div class="grid g3" style="gap:12px">
+        <div class="stat"><span class="num tnum">1</span><span class="lbl">storage key</span></div>
+        <div class="stat"><span class="num tnum">0</span><span class="lbl">new collections</span></div>
+        <div class="stat"><span class="num tnum">0</span><span class="lbl">cleanup jobs</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Size discipline</span>
+    <code>kitchenItems</code> is capped at <strong>40</strong> entries client-side and
+    re-validated at <strong>40</strong> by the Zod schema, each name ≤ 80 chars — the same
+    bounds <code>ExtractedItemSchema</code> already uses. A draft cannot become an upload
+    channel, and <code>express.json({ limit: '1mb' })</code> is the outer backstop.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 5 · API ════════════════════════ -->
+<section id="api">
+  <div class="sechead"><span class="secnum">05</span><h2>Surface — one new public module</h2></div>
+  <p class="lede">
+    <code>src/features/decide/</code>, registered in <code>app.ts</code> alongside the others,
+    following the same controller / service / schema / routes split every feature uses.
+    Three endpoints; two of them are cheap reads.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr>
+        <th>Method &amp; path</th><th>Auth</th><th>Policy</th><th>Key</th><th>Cost</th><th>What it does</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="mono"><strong>GET</strong> /api/v1/decide/options</span></td>
+          <td><span class="chip">public</span></td>
+          <td><span class="mono">DECIDE_OPTIONS</span></td>
+          <td><span class="mono">ip</span></td>
+          <td><span class="chip ok">free</span></td>
+          <td>The tiles: popular kitchen items by group, mood set, weight set, city pills. Pure in-memory from <code>CATALOGUE</code> + <code>GROUPS</code>. Cacheable.</td>
+        </tr>
+        <tr>
+          <td><span class="mono"><strong>POST</strong> /api/v1/decide</span></td>
+          <td><span class="chip">public</span></td>
+          <td><span class="mono">DECIDE_ANON</span></td>
+          <td><span class="mono">ip</span></td>
+          <td><span class="chip crit">1 model call</span></td>
+          <td>The whole point. Takes a draft, returns a verdict. Detailed below.</td>
+        </tr>
+        <tr>
+          <td><span class="mono"><strong>POST</strong> /api/v1/decide/claim</span></td>
+          <td><span class="chip sky">bearer</span></td>
+          <td><span class="mono">AUTHENTICATED_WRITE</span></td>
+          <td><span class="mono">user</span></td>
+          <td><span class="chip ok">free</span></td>
+          <td>Replays a draft onto the freshly-created account. Idempotent. Detailed in §10.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:40px">Request and response</h3>
+  <div class="grid g2">
+    <div>
+      <div class="eyebrow" style="margin-bottom:9px">Request · POST /api/v1/decide</div>
+<pre><span class="c">// decide.schema.ts — bounds mirror the existing contracts</span>
+<span class="k">DecideSchema</span> = z.object({
+  <span class="k">kitchen_items</span>: z.array(z.string().min(<span class="n">1</span>).max(<span class="n">80</span>))
+                    .max(<span class="n">40</span>).default([]),
+  <span class="k">kitchen_skipped</span>: z.boolean().default(<span class="kw">false</span>),
+  <span class="k">mood</span>: z.enum([<span class="s">'tired'</span>,<span class="s">'fast'</span>,<span class="s">'proper'</span>,<span class="s">'comfort'</span>]),
+  <span class="k">weight</span>: z.enum([<span class="s">'solid'</span>,<span class="s">'light'</span>,<span class="s">'soupy'</span>,
+                  <span class="s">'swallow'</span>,<span class="s">'rice'</span>,<span class="s">'street'</span>]),
+  <span class="k">minutes</span>: z.union([z.literal(<span class="n">15</span>),z.literal(<span class="n">40</span>),
+                    z.literal(<span class="n">90</span>)]).default(<span class="n">40</span>),
+  <span class="k">city</span>: z.string().max(<span class="n">80</span>).trim().optional(),
+})</pre>
+      <p style="font-size:13px;color:var(--ink-3)">
+        <code>mood</code> and <code>weight</code> are the only required fields — matching
+        §03. Everything else has a defensible default, so a malformed draft degrades
+        rather than 400s.
+      </p>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:9px">Response · the verdict</div>
+<pre>{
+  <span class="k">"verdict"</span>: {
+    <span class="k">"meal_id"</span>: <span class="s">"meal_01h…"</span>,
+    <span class="k">"slug"</span>: <span class="s">"ewa-agoyin"</span>,
+    <span class="k">"name"</span>: <span class="s">"Ewa agoyin with dodo"</span>,
+    <span class="k">"why"</span>: <span class="s">"Hot day, forty minutes, and the</span>
+             <span class="s">beans are already in your kitchen."</span>,
+    <span class="k">"cook_time_minutes"</span>: <span class="n">40</span>,
+    <span class="k">"difficulty"</span>: <span class="s">"easy"</span>,
+    <span class="k">"match"</span>: {
+      <span class="k">"score"</span>: <span class="n">0.71</span>,
+      <span class="k">"have"</span>: [<span class="s">"beans"</span>,<span class="s">"palm oil"</span>,<span class="s">"onion"</span>],
+      <span class="k">"missing"</span>: [<span class="s">"atarodo"</span>],
+      <span class="k">"low"</span>: []
+    },
+    <span class="k">"hero_icon"</span>: <span class="s">"potStew"</span>
+  },
+  <span class="k">"alternates"</span>: [ <span class="c">/* 2, same shape, no "why" */</span> ],
+  <span class="k">"framing"</span>: <span class="s">"Forty minutes and a hot afternoon."</span>,
+  <span class="k">"provenance"</span>: <span class="s">"ai_framed"</span>,  <span class="c">// or "deterministic"</span>
+  <span class="k">"notes"</span>: { <span class="c">/* UserFacingNotes, often absent */</span> }
+}</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">What the response deliberately does <em>not</em> contain</span>
+    No <code>steps[]</code>, no full <code>ingredients[]</code> with quantities.
+    The verdict proves we can decide; the <strong>recipe</strong> is what an account buys.
+    Tapping "Cook this" while signed out routes to signup with the verdict held in the draft.
+    This is the one place the product asks for something, and it asks after delivering.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 6 · DECIDE ═════════════════════ -->
+<section id="decide">
+  <div class="sechead"><span class="secnum">06</span><h2>How the decision is actually made</h2></div>
+  <p class="lede">
+    Same doctrine as <code>DailyRundownSchema</code> already encodes: <strong>we</strong> pick
+    the meal, the model writes the words. The model never sees a meal we do not have and
+    cannot invent one — so a hallucinated dish is structurally impossible, not merely unlikely.
+  </p>
+
+  <div class="pipe">
+    <div class="pnode det">
+      <div class="k">STAGE 1 · deterministic</div>
+      <div class="v">Filter</div>
+      <div class="s">Published meals only. Drop anything over the <code>minutes</code> ceiling. Keep the <code>weight</code>-tag matches.</div>
+    </div>
+    <div class="pnode det">
+      <div class="k">STAGE 2 · deterministic</div>
+      <div class="v">Match</div>
+      <div class="s"><code>indexStock()</code> + <code>matchMeal()</code> verbatim, with the draft's items adapted into stock-shaped rows.</div>
+    </div>
+    <div class="pnode det">
+      <div class="k">STAGE 3 · deterministic</div>
+      <div class="v">Rank</div>
+      <div class="s">Score × mood weighting × weather nudge. Take the top 3.</div>
+    </div>
+    <div class="pnode ai">
+      <div class="k">STAGE 4 · one model call</div>
+      <div class="v">Frame</div>
+      <div class="s">The 3 candidates + the answers go in. One <code>why</code> for the winner and a framing line come out. <code>decide.verdict</code> prompt id.</div>
+    </div>
+    <div class="pnode gate">
+      <div class="k">STAGE 5 · fallback</div>
+      <div class="v">Degrade</div>
+      <div class="s">Model down, slow or unparseable → serve stage 3's winner with a templated <code>why</code>. <code>provenance: "deterministic"</code>.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>Adapting a draft into the matcher</h4>
+      <p style="font-size:13.5px">
+        <code>matchMeal()</code> takes the index that <code>indexStock()</code> builds from
+        <code>StockItemDocument[]</code>. A guest has no stock rows — so the decide service
+        builds the index from synthetic rows instead:
+      </p>
+<pre style="font-size:11.5px"><span class="c">// quantity is unknown, so it must read as "have it",</span>
+<span class="c">// never as 0 — indexStock() drops quantity &lt;= 0,</span>
+<span class="c">// which would make every tapped item read as missing.</span>
+<span class="k">const</span> rows = items.map((name) =&gt; ({
+  name,
+  catalogueId: resolve(name)?.id ?? <span class="kw">null</span>,
+  quantity: <span class="n">1</span>,
+  unit: <span class="kw">null</span>,
+}));</pre>
+      <div class="callout warn" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The trap</span>
+        <code>hasEnough()</code> returns <code>true</code> when <code>need.unit</code> is
+        null or unconvertible — which is exactly right here. A guest tapping "rice" is
+        asserting presence, not quantity, so <strong>no ingredient should ever come back
+        <code>low</code></strong> on the anonymous path. If one does, the adapter is wrong.
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Mood → ranking weights</h4>
+      <div class="scroll" style="margin-top:10px">
+        <table style="font-size:12.5px">
+          <thead><tr><th>Mood</th><th>Bias</th><th>Ceiling</th></tr></thead>
+          <tbody>
+            <tr><td><strong>tired</strong><div style="color:var(--ink-3)">Drained</div></td>
+                <td>Heavily favours <code>score ≥ 0.8</code> and <code>easy</code>. Fewest missing items wins outright.</td>
+                <td><span class="mono">min(minutes, 30)</span></td></tr>
+            <tr><td><strong>fast</strong><div style="color:var(--ink-3)">In a hurry</div></td>
+                <td>Sorts by <code>cookTimeMinutes</code> ascending first, score second.</td>
+                <td><span class="mono">min(minutes, 25)</span></td></tr>
+            <tr><td><strong>proper</strong><div style="color:var(--ink-3)">Up for it</div></td>
+                <td>Allows <code>involved</code>; tolerates 2–3 missing items — a market trip is acceptable.</td>
+                <td><span class="mono">minutes</span></td></tr>
+            <tr><td><strong>comfort</strong><div style="color:var(--ink-3)">Need comfort</div></td>
+                <td>Favours the known-familiar set (stews, swallow, pepper soup) over novelty.</td>
+                <td><span class="mono">minutes</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <hr class="rule soft" style="margin:14px 0">
+      <h4>Weather nudge, when a city is given</h4>
+      <ul class="clean" style="margin-top:8px">
+        <li><strong>Hot &amp; humid (&gt;30°C)</strong> — down-weight heavy swallow, up-weight light and soupy.</li>
+        <li><strong>Rain</strong> — up-weight soupy and pepper soup.</li>
+        <li><strong>Harmattan / cool</strong> — up-weight pepper soup and hot stews.</li>
+        <li><strong>Lookup fails</strong> — nudge is skipped silently. Weather is a garnish, never a dependency.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:40px">The new prompt</h3>
+  <div class="grid g2">
+    <div>
+      <p style="font-size:14px">
+        One addition to <code>PROMPT_IDS</code>, one to <code>SYSTEM_PROMPTS</code>, one
+        schema in <code>ai.contracts.ts</code>. It inherits <code>NIGERIAN_CONTEXT</code>
+        and <code>METRICS_CONTRACT</code> like every other prompt, so the prompt log grades
+        it on the same axes as the rest.
+      </p>
+<pre><span class="c">// lib/ai/prompts.ts</span>
+<span class="k">DECIDE_VERDICT</span>: <span class="s">'decide.verdict'</span>,
+
+<span class="c">// lib/ai/ai.contracts.ts</span>
+<span class="k">DecideVerdictSchema</span> = withEnvelope({
+  <span class="c">// MUST be one of the ids we supplied.</span>
+  <span class="c">// A value we did not send is a rejected reply.</span>
+  <span class="k">chosenMealId</span>: z.string().min(<span class="n">1</span>).max(<span class="n">60</span>),
+  <span class="k">why</span>: z.string().min(<span class="n">1</span>).max(<span class="n">200</span>),
+  <span class="k">framing</span>: z.string().max(<span class="n">160</span>).nullable(),
+});</pre>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:10px">Prompt shape</div>
+      <ul class="clean" style="margin-top:0">
+        <li>"You are choosing between <strong>three meals we already have</strong>. You may not name any other meal."</li>
+        <li>"Pick the one that best fits the answers. Return its id <em>exactly</em> as given."</li>
+        <li>"<code>why</code> is one sentence, and must reference at least one <strong>real</strong> thing they told us — an item they have, their mood, the time, or the weather."</li>
+        <li>"Never claim they have something not in the list."</li>
+        <li>"No greeting. No 'great choice'. No exclamation marks."</li>
+      </ul>
+      <div class="callout crit" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">Validation is a rejection, not a repair</span>
+        A <code>chosenMealId</code> outside the three we sent means the reply is
+        <strong>discarded whole</strong> and stage 5 serves the deterministic winner.
+        Exactly the doctrine in <code>ai.contracts.ts</code>: "a reply that does not parse
+        is REJECTED, never patched up."
+      </div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">Latency budget</span>
+    Stages 1–3 are in-memory over the published meal set — single-digit milliseconds.
+    Stage 4 is the only slow part, and it is bounded: a <strong>4-second</strong> timeout,
+    after which stage 5 answers. <em>The verdict screen therefore has a guaranteed
+    ceiling and can never hang on the model.</em> The step-5 button shows the marching
+    indeterminate band (<code>kj-march</code>), never a fake percentage.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 7 · RECOMPUTE ══════════════════ -->
+<section id="recompute">
+  <div class="sechead"><span class="secnum">07</span><h2>Changing your mind</h2></div>
+  <p class="lede">
+    A single take-it-or-leave-it verdict is a coin flip with extra steps. The person
+    must be able to say <strong>"not that"</strong> and get something else — but every
+    such path has to cost <em>zero</em> model calls, or the public endpoint's whole
+    cost model collapses. That constraint is what makes this design work rather than
+    complicate things.
+  </p>
+
+  <div class="grid g4">
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px"><span class="dot"></span>A</span>
+      <h4>Not this one</h4>
+      <p style="font-size:13px">
+        Rejects <strong>this dish specifically</strong> and promotes the next candidate.
+        The rejected meal is added to an exclusion list and never comes back this session.
+      </p>
+      <div class="chip ok" style="font-size:11px">free · local</div>
+    </div>
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px"><span class="dot"></span>B</span>
+      <h4>Something else</h4>
+      <p style="font-size:13px">
+        Promotes an alternate the person picked from the two shown. A lateral move
+        inside the same shortlist, not a re-decision.
+      </p>
+      <div class="chip ok" style="font-size:11px">free · local</div>
+    </div>
+    <div class="card">
+      <span class="chip warn" style="margin-bottom:10px"><span class="dot"></span>C</span>
+      <h4>Change an answer</h4>
+      <p style="font-size:13px">
+        Reopens one step — usually mood or time — keeping everything else. Re-ranks
+        the same candidate pool against the new answers.
+      </p>
+      <div class="chip ok" style="font-size:11px">free · local</div>
+    </div>
+    <div class="card">
+      <span class="chip crit" style="margin-bottom:10px"><span class="dot"></span>D</span>
+      <h4>Start again</h4>
+      <p style="font-size:13px">
+        Clears the draft and returns to step 1. The only path that can spend a second
+        model call, and the only one that touches the rate limit.
+      </p>
+      <div class="chip warn" style="font-size:11px">1 token</div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">Why A, B and C are free</span>
+    <code>POST /api/v1/decide</code> returns the <strong>whole ranked shortlist</strong>,
+    not just the winner — the top 6 with their match data, plus the framing. The model
+    call already happened; re-ranking six objects the browser is holding is arithmetic.
+    So the three things a person is most likely to do after seeing a verdict all cost
+    nothing, and the expensive path is the rare one.
+  </div>
+
+  <div class="grid g2">
+    <div>
+      <h3>What changes in the response</h3>
+      <p style="font-size:14px">
+        The shape from §05 grows a <code>pool</code>. Each entry carries its
+        deterministic match data and the tags the local re-ranker needs, so the client
+        can reproduce stage 3's ordering without the server.
+      </p>
+<pre>{
+  <span class="k">"verdict"</span>:   { <span class="c">/* the winner, with "why" */</span> },
+  <span class="k">"alternates"</span>: [ <span class="c">/* 2, shown on the card */</span> ],
+
+  <span class="c">// NEW — the rest of the ranked shortlist, so</span>
+  <span class="c">// "not this" has somewhere to go for free.</span>
+  <span class="k">"pool"</span>: [
+    {
+      <span class="k">"meal_id"</span>: <span class="s">"meal_01h…"</span>,
+      <span class="k">"name"</span>: <span class="s">"Efo riro"</span>,
+      <span class="k">"cook_time_minutes"</span>: <span class="n">35</span>,
+      <span class="k">"difficulty"</span>: <span class="s">"easy"</span>,
+      <span class="k">"tags"</span>: [<span class="s">"soupy"</span>,<span class="s">"light"</span>],
+      <span class="k">"match"</span>: { <span class="k">"score"</span>: <span class="n">0.57</span>,
+                  <span class="k">"have"</span>: [<span class="s">"…"</span>],
+                  <span class="k">"missing"</span>: [<span class="s">"…"</span>] },
+      <span class="c">// templated, NOT model-written — a promoted</span>
+      <span class="c">// meal must never show an AI "why" that was</span>
+      <span class="c">// written about a different dish.</span>
+      <span class="k">"why"</span>: <span class="s">"Fastest of the three, and you have most of it."</span>
+    }
+    <span class="c">// … up to 6 total</span>
+  ],
+  <span class="k">"framing"</span>: <span class="s">"Forty minutes and a hot afternoon."</span>,
+  <span class="k">"provenance"</span>: <span class="s">"ai_framed"</span>
+}</pre>
+      <div class="callout crit">
+        <span class="lbl">The trap worth naming</span>
+        The model wrote <em>one</em> <code>why</code>, about the winner. When a promoted
+        meal takes the top slot it <strong>must not inherit it</strong> — that sentence
+        cites ingredients and reasons belonging to another dish, and displaying it would
+        be a confident lie. Promoted meals show their <em>templated</em> line, composed
+        from real match data, and the grape provenance chip is dropped for them.
+      </div>
+    </div>
+
+    <div>
+      <h3>The exclusion list</h3>
+      <p style="font-size:14px">
+        One field on the draft. It is what makes "not this" feel like being listened to
+        rather than a reshuffle.
+      </p>
+<pre><span class="c">// decide.types.ts — added to DecideDraft</span>
+<span class="c">/** Meals this person has said no to, this session. */</span>
+<span class="k">rejected</span>: <span class="s">string</span>[];   <span class="c">// meal ids, capped at 20</span>
+<span class="k">pool</span>: <span class="k">PoolEntry</span>[];  <span class="c">// the shortlist, held for free re-ranks</span></pre>
+      <ul class="clean">
+        <li><strong>Sent back on the next real call.</strong> If the person eventually
+          does hit "Start again", <code>rejected</code> travels with the request so
+          stage 1 filters those meals out. Saying no twice to the same dish is the
+          clearest sign we were not listening.</li>
+        <li><strong>Capped at 20</strong> and validated server-side, same bounds
+          discipline as <code>kitchen_items</code>.</li>
+        <li><strong>Session-scoped.</strong> It expires with the tab. A dish refused on
+          a Tuesday should not be banned forever — and if the person signs up, the
+          rejections are <em>not</em> carried over, for the same reason mood is not:
+          it was true for one evening.</li>
+      </ul>
+
+      <h3 style="margin-top:30px">When the pool runs dry</h3>
+      <p style="font-size:14px">
+        Six rejections exhausts the shortlist. The honest move is to say so and offer
+        the one path that can genuinely help:
+      </p>
+      <div class="callout warn">
+        <span class="lbl">"That's everything that fits."</span>
+        <em>"Nothing left that matches a 40-minute solid meal with what you have.
+        Loosen the time, or tell us one more thing that's in your kitchen."</em>
+        <br><br>
+        This routes back to a <strong>step</strong>, not to a refusal — and widening the
+        filter is exactly what will produce new candidates, so the suggestion is
+        actionable rather than a shrug.
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:40px">The verdict screen's controls, laid out</h3>
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:20%">Control</th><th style="width:14%">Placement</th><th style="width:36%">Behaviour</th><th style="width:30%">Cost</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cook this</strong></td><td>Primary, full width</td>
+            <td>The point of the screen. Signed out, routes to signup holding the verdict.</td>
+            <td><span class="chip ok" style="font-size:11px">free</span></td></tr>
+        <tr><td><strong>Not this — try again</strong></td><td>Ghost, under primary</td>
+            <td>Excludes this meal, promotes the next from <code>pool</code>, animates the new card in. Shows a small <em>"Noted — not that one"</em> acknowledgement.</td>
+            <td><span class="chip ok" style="font-size:11px">free · local</span></td></tr>
+        <tr><td><strong>The two alternates</strong></td><td>Collapsed list</td>
+            <td>Tapping one promotes it to the hero slot and demotes the current winner into the list.</td>
+            <td><span class="chip ok" style="font-size:11px">free · local</span></td></tr>
+        <tr><td><strong>Change an answer</strong></td><td>Quiet, in the header</td>
+            <td>Opens a small sheet listing the four answers with their values. Tapping one returns to that step; coming back re-ranks locally.</td>
+            <td><span class="chip ok" style="font-size:11px">free · local</span></td></tr>
+        <tr><td><strong>Start again</strong></td><td>Quiet, in the header</td>
+            <td>Clears the draft except <code>rejected</code>, returns to step 1. Will spend a token on the next decide.</td>
+            <td><span class="chip warn" style="font-size:11px">1 of 8/hour</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout grape">
+    <span class="lbl">What this buys, beyond politeness</span>
+    Rejections are the highest-signal data in the whole funnel. "Chose to cook" is
+    confounded by convenience; <strong>"actively refused this dish, given this
+    kitchen and this mood"</strong> is a clean negative. Logged with the anonymous
+    call (IP-hashed, per §09), it is what tells us whether stage 3's ranking is
+    actually any good — a question no conversion number can answer.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 8 · LIMITS ═════════════════════ -->
+<section id="limits">
+  <div class="sechead"><span class="secnum">08</span><h2>Rate limiting — the public AI endpoint</h2></div>
+  <p class="lede">
+    <code>POST /api/v1/decide</code> is unauthenticated <em>and</em> spends money at OpenAI.
+    That combination is the single most abusable surface this app will have, so it gets its
+    own named policies rather than borrowing one. Two new entries in
+    <code>RATE_LIMITS</code>; the existing token bucket and middleware need no changes.
+  </p>
+
+  <div class="grid g2">
+    <div>
+<pre><span class="c">// lib/ratelimit/limits.ts — additions only</span>
+
+<span class="c">/**
+ * The anonymous decision. UNAUTHENTICATED and it spends
+ * money at OpenAI — the worst pair in the system.
+ *
+ * Deliberately NOT AI_CALL: that policy keys by identity,
+ * and on a public route byIdentity falls through to IP
+ * anyway while reading as though a user were involved.
+ * A separate name states that this bucket guards a
+ * surface with no account behind it.
+ *
+ * 8 burst / hour is generous for a real person (who needs
+ * one, maybe three on a fussy day) and useless to a
+ * scraper.
+ */</span>
+<span class="k">DECIDE_ANON</span>: perWindow(<span class="s">'decide_anon'</span>, <span class="n">8</span>, HOUR),
+
+<span class="c">/**
+ * The tiles. In-memory, no DB, no model — cheap enough
+ * to be generous, bounded so it cannot be a DoS lever.
+ */</span>
+<span class="k">DECIDE_OPTIONS</span>: perWindow(<span class="s">'decide_options'</span>, <span class="n">120</span>, MINUTE),</pre>
+
+      <div class="callout" style="font-size:13px">
+        <span class="lbl">Why <code>byIp</code> is passed explicitly</span>
+        The default resolver is <code>byIdentity</code>, which returns
+        <code>ip:…</code> only as a <em>fallback</em>. On a route that is public by
+        design, the key must say so at the callsite — so
+        <code>rateLimit(RATE_LIMITS.DECIDE_ANON, byIp)</code> is written out, exactly
+        as <code>app.ts</code> does for the <code>GLOBAL</code> backstop.
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>The budget, per IP</h4>
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700">
+          <span>Real person, one sitting</span><span class="tnum" style="color:var(--ok)">1–3 / 8</span>
+        </div>
+        <div class="meter"><i class="ok" style="width:28%"></i></div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700">
+          <span>Fussy person, re-deciding</span><span class="tnum" style="color:var(--warn)">5–8 / 8</span>
+        </div>
+        <div class="meter"><i class="warn" style="width:80%"></i></div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700">
+          <span>Scraper</span><span class="tnum" style="color:var(--crit)">refused at 9</span>
+        </div>
+        <div class="meter"><i class="crit" style="width:100%"></i></div>
+      </div>
+
+      <hr class="rule soft" style="margin:20px 0">
+      <h4>Layers a request passes through</h4>
+      <ol class="steps" style="margin-top:12px;font-size:13px">
+        <li><code>trust proxy: 1</code> — one hop, so <code>req.ip</code> is the real client and not a forgeable chain.</li>
+        <li><code>GLOBAL</code> — 900/min per IP, the app-wide backstop in <code>app.ts</code>.</li>
+        <li><code>DECIDE_ANON</code> — 8/hour per IP, the real guard.</li>
+        <li><code>validate(DecideSchema)</code> — a malformed body is refused before any model call.</li>
+        <li><strong>"Something else" is local.</strong> Re-ranking spends no token at all, so the commonest repeat action costs nothing.</li>
+      </ol>
+      <div class="callout ok" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">Refusal is already well-behaved</span>
+        The existing middleware sets <code>X-RateLimit-*</code> on every response and a real
+        <code>Retry-After</code> on refusal, and <code>app.ts</code> already exposes those
+        headers through CORS. The client shows "you've had a few — come back in {n} minutes,
+        or make an account for unlimited" — which turns the limit into the signup pitch.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Known limitation, stated not hidden</span>
+    <code>MemoryRateLimitStore</code> holds buckets in process memory, so with more than one
+    instance each enforces separately — <em>n</em> instances means <em>8n</em> per hour. That
+    is documented in the store itself and acceptable for a single instance. Before scaling
+    horizontally, implement <code>RateLimitStore</code> against Redis; it is one new file and
+    one line in the factory, with no callsite changes. <strong>Shared NAT</strong> is the other
+    real case: a campus or office behind one IP shares the bucket. 8/hour is set high enough
+    that a handful of colleagues each get an answer, and signing in moves them to their own
+    per-user bucket.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 9 · ABUSE ══════════════════════ -->
+<section id="abuse">
+  <div class="sechead"><span class="secnum">09</span><h2>Abuse beyond volume</h2></div>
+  <p class="lede">
+    Rate limiting stops a flood. It does not stop a single clever request — and a public
+    endpoint that reaches a language model is a prompt-injection target by definition.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:23%">Vector</th><th style="width:38%">What it looks like</th><th style="width:39%">Why it does not work here</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Free-model proxy</strong></td>
+          <td>Someone tries to use <code>/decide</code> as a general LLM: prompt text smuggled into <code>kitchen_items</code>.</td>
+          <td><strong>Structurally blocked.</strong> The model never sees free prose as an instruction — it receives three meal ids and a small set of enum values. Items are matched against <code>CATALOGUE</code> and an unresolved name is passed only as a bounded 80-char string, never as a directive. The output schema permits exactly one id, one sentence and one framing line; anything else is discarded.</td>
+        </tr>
+        <tr>
+          <td><strong>Prompt injection</strong></td>
+          <td><code>kitchen_items: ["ignore previous instructions and …"]</code></td>
+          <td>Even a fully compliant model can only answer with <code>chosenMealId</code> from our three. The worst achievable outcome is an odd <code>why</code> sentence, capped at 200 characters and rendered as text, never as markup. And <code>metrics.ambiguity</code> spikes on exactly these calls, which makes them findable in the prompt log.</td>
+        </tr>
+        <tr>
+          <td><strong>Cost amplification</strong></td>
+          <td>Maximal payload every time — 40 items of 80 chars.</td>
+          <td>Bounded by construction: input to the model is the <em>candidate meals</em> plus enums, not the raw item list, so token count per call is near-constant regardless of payload size. <code>express.json</code> caps the body at 1MB; Zod caps the array at 40.</td>
+        </tr>
+        <tr>
+          <td><strong>IP rotation</strong></td>
+          <td>Residential proxy pool, one call each.</td>
+          <td>The honest answer: rate limiting alone does not stop this. Mitigation is <em>economic</em> — each call yields one meal name and one sentence, which is worth less than the proxy. If it is ever observed, the escalation path is Turnstile on step 5 only (the last tap before the spend), which leaves steps 1–4 frictionless.</td>
+        </tr>
+        <tr>
+          <td><strong>Scraping the catalogue</strong></td>
+          <td>Hammer <code>/decide/options</code> to lift the item list.</td>
+          <td>Low value — it is a list of Nigerian foodstuffs, not proprietary. Bounded at 120/min, served from memory, and it is the same data any visitor sees in the UI.</td>
+        </tr>
+        <tr>
+          <td><strong>Verdict forgery</strong></td>
+          <td>Hand-edit the draft in <code>sessionStorage</code> to fake a verdict, then claim it.</td>
+          <td>Costs the attacker nothing and gains nothing: the claim endpoint writes only <code>prefs</code> and <code>kitchenItems</code>, and re-derives everything else server-side. A forged verdict buys a wrong meal suggestion for oneself.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout grape">
+    <span class="lbl">Every anonymous call is logged like every other model call</span>
+    <code>ai-log.model.ts</code> already records prompt id, parse outcome and the
+    self-graded <code>metrics</code>. Anonymous calls go in the same log with the IP
+    hash rather than a user id — so the console's existing AI view answers "is this
+    endpoint being abused" and "is this prompt any good" with no new tooling.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 10 · ONBOARD ════════════════════ -->
+<section id="onboard">
+  <div class="sechead"><span class="secnum">10</span><h2>Carry-over — signing up without retyping</h2></div>
+  <p class="lede">
+    The draft maps almost perfectly onto fields the user model already has. Carry-over
+    is therefore not a migration — it is a replay of three calls the app already makes,
+    in the order onboarding already makes them.
+  </p>
+
+  <div class="scroll tablewrap" style="margin-bottom:26px">
+    <table>
+      <thead><tr><th style="width:26%">Draft field</th><th style="width:30%">Lands in</th><th style="width:20%">Via</th><th style="width:24%">Note</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">kitchenItems[]</span></td><td><code>user.kitchenItems</code></td><td><code>PATCH /onboarding</code></td><td>Service already de-dupes case-insensitively, keeping the cook's own spelling.</td></tr>
+        <tr><td><span class="mono">weight</span></td><td><code>user.prefs.cuisines</code></td><td><code>PATCH /onboarding</code></td><td>Mapped to a cuisine hint, then confirmable in settings. A hint, not a claim.</td></tr>
+        <tr><td><span class="mono">minutes</span></td><td><code>user.prefs.difficulty</code></td><td><code>PATCH /onboarding</code></td><td><span class="mono">15→easy · 40→medium · 90→anything</span></td></tr>
+        <tr><td><span class="mono">city</span></td><td><code>user.city</code></td><td><code>POST /auth/register</code></td><td>Already an optional field on <code>RegisterSchema</code> — and it is what makes the daily email's weather real.</td></tr>
+        <tr><td><span class="mono">mood</span></td><td>— nothing —</td><td>—</td><td>Deliberately dropped. Mood is true for an afternoon, not for an account; persisting it would make a permanent preference out of a passing feeling.</td></tr>
+        <tr><td><span class="mono">verdict.meal_id</span></td><td>Post-signup redirect</td><td><code>ROUTES.MEAL(id)</code></td><td>The kept meal is the first thing the new account shows. The promise made at step 7 is honoured immediately.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Three entry points, one mechanism</h3>
+  <p class="lede" style="margin-bottom:22px">
+    The person can convert at any of these, and the code path is identical each time —
+    which is why there is only one thing to test.
+  </p>
+  <div class="grid g3">
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px"><span class="dot"></span>A · after the verdict</span>
+      <h4>"Keep this"</h4>
+      <p style="font-size:13.5px">The main path. Below the meal, after the value has landed. Carries the full draft including the verdict, and lands on that meal's page.</p>
+      <div class="chip ok" style="font-size:11px">expected majority</div>
+    </div>
+    <div class="card">
+      <span class="chip warn" style="margin-bottom:10px"><span class="dot"></span>B · at the limit</span>
+      <h4>"Come back in 12 minutes — or don't"</h4>
+      <p style="font-size:13.5px">On a <code>429</code>, the refusal <em>is</em> the offer. Retry-After gives the honest wait; an account removes it. Carries the draft minus the verdict there was no room to produce.</p>
+      <div class="chip" style="font-size:11px">turns a refusal into a route</div>
+    </div>
+    <div class="card">
+      <span class="chip grape" style="margin-bottom:10px"><span class="dot"></span>C · at the recipe wall</span>
+      <h4>"Cook this"</h4>
+      <p style="font-size:13.5px">The verdict names the meal but withholds the steps. Tapping through is the highest-intent moment in the whole flow — they have already decided to cook it.</p>
+      <div class="chip ok" style="font-size:11px">highest intent</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:44px">The claim sequence</h3>
+  <div class="pipe">
+    <div class="pnode">
+      <div class="k">1 · existing</div>
+      <div class="v">POST /auth/register</div>
+      <div class="s"><code>{ email, password, name, city }</code> — <code>city</code> lifted from the draft. Unchanged endpoint.</div>
+    </div>
+    <div class="pnode">
+      <div class="k">2 · existing</div>
+      <div class="v">Tokens stored</div>
+      <div class="s"><code>sessionStore.set()</code>, exactly as the current register screen does.</div>
+    </div>
+    <div class="pnode">
+      <div class="k">3 · existing</div>
+      <div class="v">PATCH /onboarding</div>
+      <div class="s">Sends only the keys the draft holds. Status <code>pending</code> is allowed here by design.</div>
+    </div>
+    <div class="pnode">
+      <div class="k">4 · existing</div>
+      <div class="v">POST /onboarding/complete</div>
+      <div class="s">The draft answered every question onboarding asks — so the new account skips it entirely.</div>
+    </div>
+    <div class="pnode det">
+      <div class="k">5 · new</div>
+      <div class="v">Clear &amp; land</div>
+      <div class="s">Draft cleared, redirect to the kept meal.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="callout ok">
+      <span class="lbl">Why <code>pending</code> already works</span>
+      Onboarding is the one write surface a <code>pending</code> account may use — the
+      routes list <code>[ACTIVE, PENDING]</code> precisely so a new account is not
+      deadlocked out. And <code>meals.routes.ts</code> already allows <code>PENDING</code>
+      to read a recipe and cook it. <strong>A guest who converts can cook before they
+      verify their email.</strong> That was already true; this flow just depends on it.
+    </div>
+    <div class="callout warn">
+      <span class="lbl">Failure handling</span>
+      Steps 3–4 are best-effort. If <code>PATCH /onboarding</code> fails, the account still
+      exists and the draft is <strong>kept, not cleared</strong> — retried on next boot.
+      If <code>complete</code> returns <code>409 ONBOARDING_ALREADY_COMPLETED</code>, that
+      is treated as success: the service's own comment says the client should read it as
+      "already done, carry on".
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">The alternative considered and rejected</span>
+    A server-side guest session — a real document, an anonymous token, a claim-by-id
+    handshake. It buys cross-device continuity, and costs a new collection, a TTL
+    cleanup job, a second token kind, and a new unauthenticated write endpoint that
+    creates rows. For a flow whose entire state is four enums and a word list, the
+    browser is the right owner. <strong>Revisit only if funnel data shows people
+    genuinely starting on a phone and finishing on a laptop.</strong>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 11 · REUSE ═════════════════════ -->
+<section id="reuse">
+  <div class="sechead"><span class="secnum">11</span><h2>What already exists, and is reused verbatim</h2></div>
+  <p class="lede">
+    The honest measure of this design is how little it adds. Everything below is
+    existing code this flow depends on without modifying.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:32%">Existing</th><th style="width:12%">Change?</th><th style="width:56%">Used for</th></tr></thead>
+      <tbody>
+        <tr><td><code>features/meals/meals.matcher.ts</code></td><td><span class="chip ok">none</span></td><td><code>indexStock()</code> and <code>matchMeal()</code> produce the entire have/need split. Already model-free and explainable.</td></tr>
+        <tr><td><code>lib/ratelimit/*</code></td><td><span class="chip warn">+2 policies</span></td><td>Token bucket, store interface, sweeper and middleware all unchanged. Two named entries added to <code>limits.ts</code>.</td></tr>
+        <tr><td><code>shared/middleware/rate-limit.middleware.ts</code></td><td><span class="chip ok">none</span></td><td><code>byIp</code> resolver and the <code>X-RateLimit-*</code> / <code>Retry-After</code> headers already do what this needs.</td></tr>
+        <tr><td><code>shared/catalogue/*</code></td><td><span class="chip ok">none</span></td><td><code>CATALOGUE</code>, <code>GROUPS</code>, <code>suggest()</code>, <code>resolve()</code>, <code>illustrationFor()</code> — the tiles, the search and the per-item icon.</td></tr>
+        <tr><td><code>lib/ai/ai.contracts.ts</code></td><td><span class="chip warn">+1 schema</span></td><td><code>withEnvelope</code>, <code>OutputMetricsSchema</code>, <code>UserFacingNotesSchema</code> reused as the wrapper.</td></tr>
+        <tr><td><code>lib/ai/prompts.ts</code></td><td><span class="chip warn">+1 prompt</span></td><td><code>NIGERIAN_CONTEXT</code> and <code>METRICS_CONTRACT</code> appended exactly as every other prompt does.</td></tr>
+        <tr><td><code>lib/ai/ai-log.model.ts</code></td><td><span class="chip ok">none</span></td><td>Anonymous calls logged alongside the rest; console AI view works unchanged.</td></tr>
+        <tr><td><code>features/onboarding/*</code></td><td><span class="chip ok">none</span></td><td>The whole carry-over. <code>PATCH</code> already <code>$set</code>s only what was sent; <code>PENDING</code> already allowed.</td></tr>
+        <tr><td><code>features/auth</code> · <code>RegisterSchema</code></td><td><span class="chip ok">none</span></td><td><code>city</code> is already an optional field on register.</td></tr>
+        <tr><td><code>lib/weather</code></td><td><span class="chip ok">none</span></td><td>The optional nudge in stage 3.</td></tr>
+        <tr><td><code>ui/icons/koboyo-icon.tsx</code></td><td><span class="chip ok">none</span></td><td>187 re-stroked hand-drawn icons — the tiles and the illustration language.</td></tr>
+        <tr><td><code>ui/domain/meal-card</code>, <code>have-need</code>, <code>provenance</code></td><td><span class="chip ok">none</span></td><td>The verdict screen is assembled from components that already exist.</td></tr>
+        <tr><td><code>features/config</code></td><td><span class="chip ok">none</span></td><td>The precedent for a public unauthenticated route, and the flag that switches this flow on.</td></tr>
+        <tr><td><code>lib/jobs</code> · <code>lib/storage/s3.ts</code></td><td><span class="chip info">separate doc</span></td><td>Not used by this flow. Meal photography is a background job over the catalogue — specified in <code>image-pipeline.html</code>, and the verdict works fully without it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g4" style="margin-top:24px">
+    <div class="card soft"><div class="stat"><span class="num tnum">1</span><span class="lbl">new backend module</span><span class="sub"><code>features/decide</code></span></div></div>
+    <div class="card soft"><div class="stat"><span class="num tnum">1</span><span class="lbl">new prompt</span><span class="sub"><code>decide.verdict</code></span></div></div>
+    <div class="card soft"><div class="stat"><span class="num tnum">2</span><span class="lbl">new rate policies</span><span class="sub">both IP-keyed</span></div></div>
+    <div class="card soft"><div class="stat"><span class="num tnum">0</span><span class="lbl">new collections</span><span class="sub">guests are stateless</span></div></div>
+  </div>
+
+  <div class="callout grape" style="margin-top:22px">
+    <span class="lbl">The old landing does not get deleted</span>
+    It moves behind <code>/why</code> and keeps its pricing, FAQ and trust sections — they
+    are genuinely useful to someone who wants to read before deciding, and the header of
+    the new flow links to them. The flag in <code>config/features</code> chooses which
+    surface owns <code>/</code>, so the switch is reversible without a deploy.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 12 · TELEMETRY ═════════════════ -->
+<section id="telemetry">
+  <div class="sechead"><span class="secnum">12</span><h2>How we will know whether it worked</h2></div>
+  <p class="lede">
+    The flow is a funnel, so it must be measured as one. Every number below is derivable
+    from the draft's <code>startedAt</code> plus the existing request log and AI log — no
+    new analytics dependency.
+  </p>
+  <div class="grid g3">
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:10px">The funnel</div>
+      <ul class="clean" style="margin-top:0">
+        <li>Landed → tapped start</li>
+        <li>Start → finished kitchen (and <strong>skip rate</strong>)</li>
+        <li>Kitchen → mood → weight → time</li>
+        <li>Time → <strong>verdict served</strong></li>
+        <li>Verdict → signup <em>(the number that matters)</em></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:10px">Quality</div>
+      <ul class="clean" style="margin-top:0">
+        <li><code>metrics.outputConfidence</code> per verdict</li>
+        <li><code>metrics.ambiguity</code> — spikes flag injection <em>and</em> thin inputs</li>
+        <li><strong>Fallback rate</strong> — stage 5 firing often means the prompt or the timeout needs work</li>
+        <li>"Something else" taps per verdict — high means the first pick is wrong</li>
+        <li><strong>Rejections per verdict</strong> — the cleanest negative signal we get; see §07</li>
+        <li><strong>Pool exhaustion rate</strong> — how often six candidates were all refused</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:10px">Cost &amp; abuse</div>
+      <ul class="clean" style="margin-top:0">
+        <li>Model calls per day on <code>decide.verdict</code></li>
+        <li><code>429</code> count on <code>decide_anon</code></li>
+        <li>Distinct IPs vs. calls — a ratio near 1.0 over many IPs is a rotation signal</li>
+        <li>Cost per signup, which is the only cost number that means anything</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="lbl">The one decision this data should drive</span>
+    If verdict→signup is healthy but few people reach the verdict, the <em>questions</em> are
+    too many — drop time-and-place and default it. If people reach the verdict and do not
+    convert, the <em>verdict</em> is not good enough, and the fix is ranking, not copy.
+    Those two failures look identical in a single conversion number, which is why the funnel
+    is split at every step.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ 13 · BUILD ═════════════════════ -->
+<section id="build">
+  <div class="sechead"><span class="secnum">13</span><h2>Build order</h2></div>
+  <p class="lede">
+    Sequenced so something real is testable at the end of each stage, and so the
+    expensive, abusable part is never the first thing shipped.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:7%">#</th><th style="width:27%">Stage</th><th style="width:40%">Contains</th><th style="width:26%">Done when</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">1</td><td><strong>Deterministic core</strong></td>
+            <td><code>features/decide</code> service: filter → match → rank. The draft-to-stock adapter. No AI, no routes.</td>
+            <td>A unit test feeds a draft and gets a sane top-3, including the empty-kitchen case.</td></tr>
+        <tr><td class="mono">2</td><td><strong>Public endpoints</strong></td>
+            <td><code>GET /decide/options</code>, <code>POST /decide</code> with templated <code>why</code>. Both new rate policies wired with <code>byIp</code>. Zod schema.</td>
+            <td>A verdict comes back with no model involved, and the 9th call in an hour is refused with a real <code>Retry-After</code>.</td></tr>
+        <tr><td class="mono">3</td><td><strong>The flow, client side</strong></td>
+            <td>Draft store, five steps, verdict screen, and the free recompute controls (§07) — pool, exclusions, local re-rank. Behind the feature flag; old landing still owns <code>/</code>.</td>
+            <td>The whole flow is walkable end to end at <code>/decide</code> on a phone viewport.</td></tr>
+        <tr><td class="mono">4</td><td><strong>The model call</strong></td>
+            <td><code>decide.verdict</code> prompt, <code>DecideVerdictSchema</code>, the 4s timeout and stage-5 fallback.</td>
+            <td>Killing the provider still returns a verdict, marked <code>deterministic</code>.</td></tr>
+        <tr><td class="mono">5</td><td><strong>Carry-over</strong></td>
+            <td>The claim sequence, all three entry points, retry-on-failure.</td>
+            <td>A guest converts from each of A, B and C and lands on their meal with onboarding already complete.</td></tr>
+        <tr><td class="mono">6</td><td><strong>Switch &amp; watch</strong></td>
+            <td>Flag flips <code>/</code> to the flow; old landing to <code>/why</code>. Funnel and cost dashboards.</td>
+            <td>Funnel is visible per step, and the flag can revert without a deploy.</td></tr>
+        <tr><td class="mono">7</td><td><strong>Imagery &amp; stories</strong><div style="font-size:11.5px;color:var(--ink-3)">separate doc</div></td>
+            <td>Meal photography as a background job, then the verdict as a swipeable story set. Fully specified in <code>image-pipeline.html</code>.</td>
+            <td>Ships only after 1–6 work without it; with no images configured the flow is unchanged.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout ok">
+    <span class="lbl">Why the AI comes fourth</span>
+    Stages 1–3 deliver a complete, shippable product with no model cost and no
+    public AI surface. If stage 4 were first, every problem in ranking, in the funnel
+    and in the rate limiting would surface as "the AI is wrong". Building the
+    deterministic answer first also guarantees the fallback in stage 5 is real code
+    that has been exercised, not a branch written once and never run.
+  </div>
+</section>
+
+<footer>
+  <div class="foot-g">
+    <div>
+      <strong style="color:var(--ink);font-family:var(--display)">Decide First</strong> — system design<br>
+      <span style="color:var(--ink-4)">backend/docs/v2/system-design.html</span>
+    </div>
+    <div style="text-align:right">
+      Sky Kitchen · Kinnijije v2<br>
+      <span style="color:var(--ink-4)">Companions: <code>design.html</code> · <code>image-pipeline.html</code> · <code>illustrations/</code></span>
+    </div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

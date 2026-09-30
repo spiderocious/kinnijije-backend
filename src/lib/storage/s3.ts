@@ -1,6 +1,12 @@
 import { randomBytes } from 'node:crypto';
 
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { env } from '@app/env.js';
@@ -132,4 +138,79 @@ export async function objectExists(key: string): Promise<{ exists: boolean; size
     // A 404 from HEAD is the ordinary "not uploaded yet" answer, not a fault.
     return { exists: false, size: null };
   }
+}
+
+/**
+ * The prefix that makes an object publicly served.
+ *
+ * It is the SECURITY BOUNDARY, not a convention: anything under it is fetched
+ * without a signature. That is why `putPublicObject` asserts it rather than
+ * trusting callers to remember.
+ */
+export const PUBLIC_PREFIX = 'public/';
+
+export const isPublicServingConfigured = (): boolean =>
+  isConfigured && env.S3_PUBLIC_BASE_URL.length > 0;
+
+/**
+ * Writes bytes we generated or derived ourselves.
+ *
+ * The presign rule at the top of this file governs CLIENT uploads: proxying a
+ * person's file through the server pays for the bandwidth twice and falls over
+ * on a large one. Bytes that originate in a worker have no client to presign
+ * for, so this is the only route — and it runs off the request path, where the
+ * bandwidth is not contended.
+ *
+ * Refuses any key outside `public/`. Without that check, one careless call
+ * publishes a user's shelf photo to an unauthenticated URL.
+ */
+export async function putPublicObject(input: {
+  key: string;
+  body: Uint8Array;
+  contentType: string;
+  /** Defaults to a year: these objects are immutable, so a new image is a new key. */
+  cacheSeconds?: number;
+}): Promise<void> {
+  if (!input.key.startsWith(PUBLIC_PREFIX)) {
+    throw new Error(`putPublicObject refuses a key outside ${PUBLIC_PREFIX}: ${input.key}`);
+  }
+
+  const cacheSeconds = input.cacheSeconds ?? 31_536_000;
+
+  await requireClient().send(
+    new PutObjectCommand({
+      Bucket: env.S3_BUCKET,
+      Key: input.key,
+      Body: input.body,
+      ContentType: input.contentType,
+      CacheControl: `public, max-age=${String(cacheSeconds)}, immutable`,
+    }),
+  );
+}
+
+/**
+ * The URL a public object is served at.
+ *
+ * Composed at presentation time from base + key, exactly as the "only the key
+ * is persisted" rule intends — just without a signature, because these are
+ * public and immutable and a signed URL would defeat CDN caching.
+ *
+ * Returns null when public serving is not configured, which every caller must
+ * handle: that null IS the designed default, not an error.
+ */
+export function publicUrlFor(key: string): string | null {
+  if (!isPublicServingConfigured()) return null;
+  const base = env.S3_PUBLIC_BASE_URL.replace(/\/+$/, '');
+  return `${base}/${key}`;
+}
+
+/**
+ * Removes one public object. Used when an operator hard-deletes an image.
+ *
+ * Silently ignores a key outside `public/` rather than throwing: this runs in
+ * cleanup paths where a stray key should not abort the rest of the deletion.
+ */
+export async function deletePublicObject(key: string): Promise<void> {
+  if (!key.startsWith(PUBLIC_PREFIX)) return;
+  await requireClient().send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
 }

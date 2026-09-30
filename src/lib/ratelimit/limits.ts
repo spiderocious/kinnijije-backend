@@ -79,6 +79,37 @@ export const RATE_LIMITS = {
    */
   AI_CALL: perWindow('ai_call', 60, HOUR),
 
+  /**
+   * The anonymous decision. UNAUTHENTICATED *and* it can spend money at
+   * OpenAI — the worst pair in the system.
+   *
+   * Deliberately NOT AI_CALL: that policy keys by identity, and on a public
+   * route `byIdentity` falls through to IP anyway while reading as though a
+   * user were involved. A separate name states that this bucket guards a
+   * surface with no account behind it.
+   *
+   * 8 an hour is generous for a real person — who needs one, maybe three on a
+   * fussy day, and whose "not this" retries cost nothing — and useless to a
+   * scraper.
+   */
+  DECIDE_ANON: perWindow('decide_anon', 8, HOUR),
+
+  /**
+   * The tiles. In-memory, no database, no model — cheap enough to be generous,
+   * bounded so it cannot become a DoS lever.
+   */
+  DECIDE_OPTIONS: perWindow('decide_options', 120, MINUTE),
+
   /** Admin tooling is trusted but still bounded against a broken script. */
   ADMIN: perWindow('admin', 600, MINUTE),
+
+  /**
+   * Operator-triggered image generation.
+   *
+   * Trusted but costly: an image call is worth roughly ten to forty text ones,
+   * so the blanket ADMIN policy is far too loose. This bounds a stuck retry
+   * loop in the console, not a person — nobody generates sixty images an hour
+   * by hand.
+   */
+  IMAGE_GENERATE: perWindow('image_generate', 60, HOUR),
 } as const;

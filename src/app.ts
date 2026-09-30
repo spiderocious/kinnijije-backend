@@ -10,6 +10,7 @@ import { register as registerFiles } from '@features/files/index.js';
 import { register as registerHealth } from '@features/health/index.js';
 import { register as registerChat } from '@features/chat/index.js';
 import { register as registerConfig } from '@features/config/index.js';
+import { register as registerDecide } from '@features/decide/index.js';
 import { register as registerInsights } from '@features/insights/index.js';
 import { register as registerJobs } from '@features/jobs/index.js';
 import { register as registerMarket } from '@features/market/index.js';
@@ -20,6 +21,7 @@ import { register as registerOnboarding } from '@features/onboarding/index.js';
 import { register as registerUsers } from '@features/users/index.js';
 import { RATE_LIMITS } from '@lib/ratelimit/index.js';
 import { logger } from '@lib/logger/index.js';
+import { RANKING_CONFIG_ID, RankingSettingsModel, rankingSettings } from '@lib/ranking/index.js';
 import { errorHandler, notFoundHandler } from '@shared/middleware/error-handler.middleware.js';
 import { httpLoggerMiddleware } from '@shared/middleware/http-logger.middleware.js';
 import { byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
@@ -79,6 +81,10 @@ export function buildApp(): Express {
   // path prefixes (/auth/* and /users/*), so the order between them is not
   // load-bearing today — but order WITHIN users.routes.ts is. See the comment
   // there before reordering anything.
+  // Public and unauthenticated, like the config probe above it. Registered
+  // before the authenticated features because nothing it serves needs a session.
+  registerDecide(app);
+
   registerAuth(app);
   registerUsers(app);
   registerFiles(app);
@@ -100,6 +106,18 @@ export function buildApp(): Express {
 
   // Last, always. Middleware registered after this never sees an error.
   app.use(errorHandler);
+
+  /**
+   * Ranking reads its tuning from the database, cached in memory.
+   *
+   * The loader is injected here rather than imported inside `lib/ranking`, so
+   * that module stays free of any feature and the dependency graph keeps
+   * pointing one way.
+   */
+  rankingSettings.useLoader(async () => {
+    const doc = await RankingSettingsModel.findById(RANKING_CONFIG_ID).lean().exec();
+    return doc?.config ?? null;
+  });
 
   logger.debug('application built', { cors_origins: env.CORS_ORIGINS });
 

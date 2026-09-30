@@ -1,3 +1,5 @@
+import { toPublicImageView, type PublicImageView } from '@features/admin/images/admin-images.types.js';
+
 import type { MealDocument } from './meals.model.js';
 import type { MealMatch } from './meals.matcher.js';
 
@@ -13,6 +15,15 @@ export interface MealView {
   what_makes_it_good: string;
   description: string;
   hero_icon: string | null;
+  /**
+   * The primary published image, or null.
+   *
+   * NULL IS THE DESIGNED DEFAULT, not an error: with no public base URL
+   * configured, or no image published yet, every surface falls back to the
+   * drawn `hero_icon` and the app behaves exactly as it did before imagery
+   * existed.
+   */
+  image: PublicImageView | null;
   ingredients: { name: string; quantity: number | null; unit: string | null; optional: boolean }[];
   steps: { index: number; heading: string; description: string; est_minutes: number }[];
 }
@@ -37,6 +48,7 @@ export const toMealView = (doc: MealDocument): MealView => ({
   what_makes_it_good: doc.whatMakesItGood,
   description: doc.description,
   hero_icon: doc.heroIcon,
+  image: primaryImageOf(doc),
   ingredients: doc.ingredients.map((i) => ({
     name: i.name,
     quantity: i.quantity,
@@ -50,6 +62,35 @@ export const toMealView = (doc: MealDocument): MealView => ({
     est_minutes: s.estMinutes,
   })),
 });
+
+/**
+ * The primary image, if there is one and it is genuinely published.
+ *
+ * The status is re-checked here rather than trusted from the pointer: the
+ * invariant is enforced in the service, and this is the last line before a
+ * cook would see a rejected image.
+ */
+function primaryImageOf(doc: MealDocument): PublicImageView | null {
+  /**
+   * Both fields are read DEFENSIVELY rather than trusted.
+   *
+   * A document written outside Mongoose — a `mongoimport`, a migration, a
+   * hand-edit in Compass — gets no schema defaults, so `images` is absent
+   * rather than `[]` and `primaryImageId` is `undefined` rather than `null`.
+   * `undefined === null` is false, so the old guard fell through and called
+   * `.find()` on nothing, crashing every surface that presents a meal.
+   *
+   * This is the boundary where documents from outside the app arrive, so it is
+   * the right place to be forgiving about their shape.
+   */
+  const primaryId = doc.primaryImageId ?? null;
+  if (primaryId === null) return null;
+
+  const images = doc.images ?? [];
+  const image = images.find((i) => i._id === primaryId);
+  if (image === undefined || image.status !== 'published') return null;
+  return toPublicImageView(image);
+}
 
 export interface MealSuggestionView {
   meal: MealView;

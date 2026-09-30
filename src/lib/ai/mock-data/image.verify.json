@@ -1,0 +1,17 @@
+{
+  "isDish": true,
+  "looksHomemade": true,
+  "hasForbidden": false,
+  "confidence": 0.82,
+  "reason": "AI is switched off, so the image was not actually looked at.",
+  "notes": {
+    "warnings": ["Running on canned answers — no image was inspected."]
+  },
+  "metrics": {
+    "outputLevel": "partial",
+    "outputConfidence": 0.3,
+    "clarity": 0.5,
+    "ambiguity": 0.6,
+    "tuneSuggestion": "none"
+  }
+}

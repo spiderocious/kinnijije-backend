@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe Imagery — System Design</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only. Tokens from web/src/index.css.
+   Console shots use the .counter register: denser box, hairline structure.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7;
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7;
+  --sky-500:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae; --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-press:var(--sky-700);
+  --sky-soft:var(--sky-100); --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --neutral-border:#cfdde7;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px;
+  --r-pill:999px; --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink-2);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 120px}
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,6vw,60px);font-weight:800}
+h2{font-size:clamp(25px,3.6vw,36px);font-weight:800}
+h3{font-size:20px;font-weight:700}
+h4{font-size:16px;font-weight:700}
+p{margin:.65em 0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--paper-2);border:1.5px solid var(--line);padding:1px 6px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+svg{display:inline-block;vertical-align:middle}
+
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.masthead{padding:64px 0 40px;border-bottom:var(--bw) solid var(--ink)}
+.brandrow{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.logomark{width:44px;height:44px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink)}
+.deck{font-size:clamp(17px,2.2vw,21px);color:var(--ink-2);max-width:64ch;margin-top:18px}
+.metastrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.chip.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.chip.info{background:var(--info-soft);border-color:var(--info-border);color:var(--info-onsoft)}
+
+section{padding-top:72px}
+.sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px;flex:none}
+.lede{font-size:17px;color:var(--ink-2);max-width:74ch;margin:12px 0 30px}
+.note{font-size:12.5px;color:var(--ink-3);max-width:72ch;margin-top:12px}
+
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:24px}
+.card.flat{box-shadow:none;border-color:var(--line-2);border-width:var(--bw-hair)}
+.card.soft{background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:920px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:var(--paper-2);text-align:left;padding:11px 14px;font-size:10.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+.callout{border:var(--bw-hair) solid var(--line-2);border-left:5px solid var(--sky);background:var(--white);border-radius:var(--blade-xs);padding:16px 18px;margin:20px 0;font-size:14px}
+.callout.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.callout.crit{border-left-color:var(--critical);background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.callout.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.callout.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.callout .lbl{font-weight:800;font-family:var(--display);font-size:14px;display:block;margin-bottom:3px}
+
+ul.clean{list-style:none;padding:0;margin:.6em 0}
+ul.clean li{position:relative;padding-left:22px;margin:.42em 0;font-size:14px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.62em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+ul.clean.ok li::before{background:var(--success)}
+ul.clean.crit li::before{background:var(--critical)}
+ol.steps{padding-left:0;list-style:none;counter-reset:s;margin:.6em 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:34px;margin:.6em 0;font-size:14px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:23px;height:23px;background:var(--ink);color:var(--paper);border-radius:7px 2px 7px 2px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600}
+
+pre{background:var(--ink);color:#dce9f2;border-radius:var(--blade-sm);padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.62;margin:16px 0;border:var(--bw) solid var(--ink)}
+pre .c{color:#7a97a8}pre .k{color:#7ad3fa}pre .s{color:#a9e5d2}pre .n{color:#f6bd5f}pre .kw{color:#a394f8}
+
+.rule{height:var(--bw);background:var(--ink);border:0;margin:0}
+.rule.soft{height:var(--bw-hair);background:var(--line)}
+
+.pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:22px 0}
+.pnode{flex:1 1 150px;min-width:142px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);padding:13px;display:flex;flex-direction:column;gap:6px;margin:0 9px 12px 0}
+.pnode .k{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600}
+.pnode .v{font-family:var(--display);font-weight:800;font-size:14px;color:var(--ink);line-height:1.2}
+.pnode .s{font-size:11px;color:var(--ink-3);line-height:1.4}
+.pnode.ai{background:var(--grape-soft);border-color:var(--grape-onsoft)}
+.pnode.det{background:var(--success-soft);border-color:var(--success-onsoft)}
+.pnode.gate{background:var(--caution-soft);border-color:var(--caution-onsoft)}
+.pnode.store{background:var(--sky-soft);border-color:var(--sky-press)}
+.pnode.human{background:var(--white);border-color:var(--ink);box-shadow:var(--drop)}
+
+.states{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.state{border:var(--bw) solid var(--ink);border-radius:var(--r-pill);padding:8px 16px;font-weight:800;font-size:13px;background:var(--white);box-shadow:var(--drop-sm);font-family:var(--mono)}
+.state.q{background:var(--paper-2)}
+.state.r{background:var(--grape-soft);color:var(--grape-onsoft)}
+.state.ok{background:var(--success-soft);color:var(--success-onsoft)}
+.state.f{background:var(--critical-soft);color:var(--critical-onsoft)}
+.state.rej{background:var(--caution-soft);color:var(--caution-onsoft)}
+.arrow{color:var(--ink-4);font-weight:800}
+
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .num{font-family:var(--display);font-weight:800;font-size:30px;color:var(--ink);line-height:1}
+.stat .lbl{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.stat .sub{font-size:12px;color:var(--ink-3)}
+
+/* ══════════ CONSOLE MOCKS — the .counter register ══════════════════════ */
+.console{
+  --pad:12px;
+  background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);
+  box-shadow:var(--drop);overflow:hidden;
+}
+.console .bar{
+  background:var(--paper-2);border-bottom:var(--bw) solid var(--ink);
+  padding:9px 13px;display:flex;align-items:center;gap:9px;
+}
+.console .bar .crumb{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.console .bar .crumb b{color:var(--ink)}
+.console .bd{padding:14px}
+.cbtn{
+  appearance:none;border:var(--bw-hair) solid var(--line-2);background:var(--white);
+  font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink-2);
+  min-height:30px;padding:0 12px;border-radius:8px 3px 8px 3px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.cbtn.act{background:var(--sky);color:#fff;border-color:var(--ink);box-shadow:var(--drop-sm)}
+.cbtn.ok{background:var(--success);color:#fff;border-color:var(--ink);box-shadow:var(--drop-sm)}
+.cbtn.dan{background:var(--white);color:var(--critical-onsoft);border-color:var(--critical-border)}
+.cbtn.sm{min-height:26px;font-size:11px;padding:0 9px}
+
+/* image slot grid in the console */
+.imggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.imggrid{grid-template-columns:repeat(2,1fr)}}
+.slot{
+  border:var(--bw-hair) solid var(--line-2);border-radius:10px 3px 10px 3px;
+  overflow:hidden;background:var(--paper);position:relative;
+}
+.slot .thumb{height:92px;display:grid;place-items:center;border-bottom:var(--bw-hair) solid var(--line-2)}
+.slot .meta{padding:7px 8px;display:flex;flex-direction:column;gap:4px}
+.slot .meta .t{font-size:10.5px;font-weight:800;color:var(--ink-2);font-family:var(--mono)}
+.slot.primary{border-color:var(--ink);border-width:var(--bw);box-shadow:var(--drop-sm)}
+.slot .badge{position:absolute;top:6px;left:6px}
+.slot .add{
+  height:92px;display:grid;place-items:center;color:var(--ink-4);
+  border-bottom:var(--bw-hair) dashed var(--line-2);
+}
+.slot.empty{border-style:dashed;background:var(--white)}
+
+/* progress band */
+.march{height:6px;background:var(--skeleton);border:var(--bw-hair) solid var(--line-2);border-radius:999px;overflow:hidden;position:relative;margin-top:7px}
+.march i{position:absolute;inset:0 auto 0 0;width:28%;background:var(--grape);border-radius:999px;animation:march 1.5s var(--ease) infinite}
+@keyframes march{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+
+.toc{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:var(--bw-hair) solid var(--line);padding:9px 0}
+.toc .inner{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;gap:7px;overflow-x:auto}
+.toc a{font-size:11.5px;font-weight:800;color:var(--ink-3);text-decoration:none;padding:5px 11px;border-radius:999px;border:var(--bw-hair) solid transparent;white-space:nowrap}
+.toc a:hover{background:var(--sky-soft);color:var(--sky-on);border-color:var(--sky-edge)}
+footer{margin-top:90px;padding-top:26px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<nav class="toc"><div class="inner">
+  <a href="#why">Why</a><a href="#shape">The shape</a><a href="#model">Data model</a>
+  <a href="#console">The console</a><a href="#upload">Manual upload</a><a href="#generate">Generate</a>
+  <a href="#prompt">The prompt</a><a href="#serve">Serving</a><a href="#cost">Cost</a>
+  <a href="#stories">Stories</a><a href="#build">Build order</a>
+</div></nav>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="brandrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10.5" r="1.8"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/>
+      </svg>
+    </div>
+    <div><div class="brandname">KinniJije</div><div class="eyebrow">Sky Kitchen · v2</div></div>
+  </div>
+  <div class="eyebrow" style="margin-bottom:12px">System design · backend/docs/v2</div>
+  <h1>Recipe Imagery</h1>
+  <p class="deck">
+    A recipe holds <strong>many images</strong>, one marked primary. An operator adds them
+    from the console — either by <strong>uploading</strong> a real photograph, or by
+    clicking <strong>Generate</strong> and letting a background job produce one. Nothing
+    reaches a cook until a person has looked at it and said yes.
+  </p>
+  <div class="metastrip">
+    <span class="chip sky"><span class="dot"></span>Operator-driven, not automatic</span>
+    <span class="chip ok"><span class="dot"></span>Many images per recipe</span>
+    <span class="chip"><span class="dot"></span>One primary</span>
+    <span class="chip grape"><span class="dot"></span>Generation is a queued job</span>
+    <span class="chip warn"><span class="dot"></span>Upload and generate, same pipe</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════ 1 · WHY ═══════════════════════════════ -->
+<section id="why">
+  <div class="sechead"><span class="secnum">01</span><h2>What changed, and why it is better</h2></div>
+  <p class="lede">
+    An earlier draft of this document specified a catalogue-wide sweep: enqueue every
+    published recipe, generate, auto-check, park for review. That design was wrong in a
+    way worth recording, because the reason generalises.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="chip crit" style="margin-bottom:12px"><span class="dot"></span>The sweep model</span>
+      <h3>Spend first, look later</h3>
+      <ul class="clean crit">
+        <li><strong>It spends money before anyone has judged the prompt.</strong> 340 generations
+          at prompt v1 produces 340 images at v1 quality — and the first fifty are what teach
+          you the prompt is wrong.</li>
+        <li><strong>It cannot use a real photograph.</strong> If someone has actually cooked
+          ewa agoyin and photographed it, that image is better than anything generated, and
+          a generate-only pipeline has nowhere to put it.</li>
+        <li><strong>One image per recipe.</strong> No second attempt kept alongside the first,
+          no seasonal variant, no choosing between two good options.</li>
+        <li><strong>A daily cap is a crude control.</strong> It bounds spend but says nothing
+          about whether the spend was useful.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="chip ok" style="margin-bottom:12px"><span class="dot"></span>The console model</span>
+      <h3>Look first, spend per click</h3>
+      <ul class="clean ok">
+        <li><strong>Every generation is a deliberate act</strong> by a person looking at that
+          recipe. Spend is bounded by intent, which is a better control than a cap.</li>
+        <li><strong>Upload and generate land in the same place.</strong> A real photograph is
+          just an image whose source is <code>upload</code> — the rest of the system does not
+          care how it arrived.</li>
+        <li><strong>Many images per recipe, one primary.</strong> Keep two attempts, promote
+          the better one, swap later without regenerating.</li>
+        <li><strong>The prompt improves through use.</strong> An operator regenerates with an
+          edited prompt, sees the result in a minute, and the good wording gets saved.</li>
+      </ul>
+      <div class="callout ok" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The backfill still works</span>
+        Bulk-selecting rows in the recipes list and clicking <strong>Generate</strong> enqueues
+        one job each. Same handler, same queue — the difference is a person chose the batch.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">What is unchanged from the earlier draft</span>
+    Generation is still a <strong>queued background job</strong>, never on a request path —
+    an image model takes 5–20 seconds and a console request must not hold a connection for
+    it. Images are still <strong>public, immutable objects</strong> served without a
+    signature. A <strong>human still approves</strong> before anything goes live. Those three
+    were right; only the trigger was wrong.
+  </div>
+</section>
+
+<!-- ══════════════════════════ 2 · SHAPE ═════════════════════════════ -->
+<section id="shape">
+  <div class="sechead"><span class="secnum">02</span><h2>The shape</h2></div>
+  <p class="lede">
+    Two ways in, one pipe out. Whether the bytes came from an operator's disk or from
+    OpenAI, everything downstream — storage, derivatives, review, serving — is identical.
+  </p>
+
+  <div class="pipe">
+    <div class="pnode human">
+      <div class="k">IN · A</div>
+      <div class="v">Upload</div>
+      <div class="s">Operator picks a file. Presign → PUT → confirm, the flow <code>features/files</code> already implements.</div>
+    </div>
+    <div class="pnode ai">
+      <div class="k">IN · B</div>
+      <div class="v">Generate</div>
+      <div class="s">Operator clicks. A <code>recipe-image</code> job is enqueued and the console follows its progress.</div>
+    </div>
+    <div class="pnode store">
+      <div class="k">THEN</div>
+      <div class="v">Derivatives</div>
+      <div class="s">hero / card / thumb / blur, written to <code>public/recipes/…</code>. Identical for both sources.</div>
+    </div>
+    <div class="pnode gate">
+      <div class="k">THEN</div>
+      <div class="v">Review</div>
+      <div class="s">Lands as <code>review</code>. An operator publishes it, or rejects it with a reason.</div>
+    </div>
+    <div class="pnode det">
+      <div class="k">THEN</div>
+      <div class="v">Primary</div>
+      <div class="s">Exactly one published image per recipe is primary. It is what every single-image surface uses.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>Two decisions carried forward</h4>
+      <p style="font-size:13.5px;margin-top:0">
+        <strong>1 · Generation is never on the request path.</strong> The console click
+        enqueues and returns immediately; progress arrives over the existing job SSE stream,
+        with polling as the fallback. <code>lib/jobs</code> already gives leases, retries,
+        <code>setProgress</code> and cooperative cancellation — a generation job is an
+        ordinary citizen of a queue that already runs extraction and insights.
+      </p>
+      <p style="font-size:13.5px">
+        <strong>2 · Recipe images are public objects, not user files.</strong>
+        <code>files.presenter.ts</code> presigns per response because a shelf photo is
+        private and a stored URL would expire. A recipe image is the opposite — public,
+        immutable, shared. Presigning would defeat CDN caching and make a three-card
+        carousel three signatures.
+      </p>
+      <div class="callout warn" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The one new env var</span>
+        <code>S3_PUBLIC_BASE_URL</code>, defaulting to <code>''</code>. Empty means no public
+        serving is configured, and the presenter returns <code>null</code> so every surface
+        falls back to the drawn <code>heroIcon</code> — the same graceful degradation
+        <code>isStorageConfigured()</code> already does.
+      </div>
+    </div>
+
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:10px">Why many images, not one</div>
+      <ul class="clean">
+        <li><strong>A generated image and a real one can coexist.</strong> Use the photograph
+          as primary and keep the generated one as a fallback, or the reverse.</li>
+        <li><strong>Two attempts are worth keeping.</strong> Regenerating today should not
+          destroy yesterday's acceptable result — that is how you end up with nothing.</li>
+        <li><strong>The carousel wants more than one.</strong> §10 shows the verdict as three
+          story cards; a recipe with two good images can vary what it shows.</li>
+        <li><strong>Promotion is free.</strong> Changing which image is primary is one field
+          write, not a regeneration.</li>
+      </ul>
+      <hr class="rule soft" style="margin:16px 0">
+      <div class="eyebrow" style="margin-bottom:8px">And a cap</div>
+      <p style="font-size:13px;margin:0">
+        <strong>Eight images per recipe.</strong> Enough for real choice, bounded so a stuck
+        regenerate loop cannot fill the bucket. Enforced in the service, not just the UI.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 3 · MODEL ═════════════════════════════ -->
+<section id="model">
+  <div class="sechead"><span class="secnum">03</span><h2>Data model</h2></div>
+  <p class="lede">
+    An array of sub-documents on the meal, plus one pointer. Images are always read with
+    their recipe and never queried independently, so a separate collection would add a join
+    to the hottest read in the product for no benefit.
+  </p>
+
+  <div class="grid g2">
+    <div>
+<pre><span class="c">// features/meals/meals.model.ts</span>
+
+<span class="kw">export interface</span> <span class="k">RecipeImage</span> {
+  <span class="k">_id</span>: <span class="s">string</span>;
+  <span class="c">/** The R2 folder key. NEVER a URL — same rule as files. */</span>
+  <span class="k">key</span>: <span class="s">string</span>;
+  <span class="c">/** How it got here. Drives the provenance mark shown to cooks. */</span>
+  <span class="k">source</span>: <span class="s">'upload'</span> | <span class="s">'generated'</span>;
+  <span class="k">status</span>: <span class="s">'pending'</span> | <span class="s">'review'</span>
+        | <span class="s">'published'</span> | <span class="s">'rejected'</span>;
+
+  <span class="c">/** Tiny base64 placeholder, ~400B. Cheaper inline than a request. */</span>
+  <span class="k">blurData</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">width</span>: <span class="s">number</span> | <span class="kw">null</span>;
+  <span class="k">height</span>: <span class="s">number</span> | <span class="kw">null</span>;
+  <span class="k">bytes</span>: <span class="s">number</span> | <span class="kw">null</span>;
+
+  <span class="c">// ── generated only ──────────────────────────────</span>
+  <span class="c">/** Exactly what we sent. A good image is reproducible,</span>
+<span class="c">   *  a bad one diagnosable. */</span>
+  <span class="k">prompt</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">model</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">promptVersion</span>: <span class="s">number</span> | <span class="kw">null</span>;
+  <span class="c">/** The vision pass's self-grade, for the review sort. */</span>
+  <span class="k">checkConfidence</span>: <span class="s">number</span> | <span class="kw">null</span>;
+  <span class="k">checkReason</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="c">/** The job that made it, so its log is reachable. */</span>
+  <span class="k">jobId</span>: <span class="s">string</span> | <span class="kw">null</span>;
+
+  <span class="c">// ── audit ───────────────────────────────────────</span>
+  <span class="k">addedBy</span>: <span class="s">string</span>;              <span class="c">// admin user id</span>
+  <span class="k">reviewedBy</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">reviewedAt</span>: <span class="k">Date</span> | <span class="kw">null</span>;
+  <span class="k">rejectionReason</span>: <span class="s">string</span> | <span class="kw">null</span>;
+  <span class="k">createdAt</span>: <span class="k">Date</span>;
+}
+
+<span class="c">// on MealAttributes:</span>
+<span class="k">images</span>: <span class="k">RecipeImage</span>[];        <span class="c">// capped at 8</span>
+<span class="c">/** Which one is THE image. Must point at a</span>
+<span class="c"> *  published entry in `images`, or be null. */</span>
+<span class="k">primaryImageId</span>: <span class="s">string</span> | <span class="kw">null</span>;</pre>
+    </div>
+
+    <div>
+      <div class="card">
+        <h4>The primary pointer, and its invariant</h4>
+        <p style="font-size:13.5px;margin-top:0">
+          A pointer rather than an <code>isPrimary</code> boolean on each image. A boolean
+          permits two primaries and zero primaries, and both are states someone has to write
+          code to handle. A single nullable pointer can only be valid or null.
+        </p>
+        <div class="callout crit" style="font-size:13px">
+          <span class="lbl">One invariant, enforced in the service</span>
+          <code>primaryImageId</code> is either <code>null</code> or the id of an image in
+          this recipe whose status is <code>published</code>. Three consequences:
+          <ul class="clean crit" style="margin-top:8px">
+            <li>Publishing the <em>first</em> image auto-sets it primary — a published image
+              with no primary would be invisible everywhere.</li>
+            <li>Rejecting or deleting the primary <strong>promotes the next published
+              image</strong>, or nulls the pointer if none remain.</li>
+            <li>Setting primary to an unpublished image is refused, not silently corrected.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h4>Lifecycle</h4>
+        <div class="states" style="margin-top:12px">
+          <span class="state q">pending</span><span class="arrow">→</span>
+          <span class="state rej">review</span><span class="arrow">→</span>
+          <span class="state ok">published</span>
+        </div>
+        <div class="states">
+          <span class="state rej">review</span><span class="arrow">→</span>
+          <span class="state f">rejected</span>
+          <span style="font-size:12px;color:var(--ink-3);margin-left:6px">kept, with a reason</span>
+        </div>
+        <ul class="clean" style="margin-top:12px">
+          <li><strong><code>pending</code></strong> — a row exists, bytes may not have landed
+            yet. Exactly the semantics <code>FILE_STATUSES.PENDING</code> already has, and for
+            the same reason: the server never observes a direct-to-R2 PUT.</li>
+          <li><strong><code>rejected</code> images are kept, not deleted.</strong> The
+            rejection reason is the raw material for the per-dish hint map, and a deleted row
+            takes its own lesson with it. An operator can hard-delete separately.</li>
+          <li><strong>No <code>failed</code> state.</strong> A generation that errors fails the
+            <em>job</em>, and the queue already models that. No image row is created for
+            bytes that never existed.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 4 · CONSOLE ═══════════════════════════ -->
+<section id="console">
+  <div class="sechead"><span class="secnum">04</span><h2>The console surface</h2></div>
+  <p class="lede">
+    An Images panel on the existing recipe detail screen at
+    <code>/admin/recipes/:mealId</code> — not a separate destination, because images are an
+    attribute of a recipe and an operator is already there when they notice one is missing.
+    Drawn in the <code>.counter</code> register: denser box, hairline structure, the
+    drop-edge reserved for the one control that acts.
+  </p>
+
+  <div class="console">
+    <div class="bar">
+      <span class="crumb">admin / recipes / <b>ewa-agoyin</b></span>
+      <span style="flex:1"></span>
+      <span class="chip ok" style="font-size:10.5px;padding:3px 9px">published</span>
+    </div>
+    <div class="bd">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <h4 style="font-size:14px">Images</h4>
+        <span class="chip" style="font-size:10.5px;padding:2px 8px">3 of 8</span>
+        <span style="flex:1"></span>
+        <button class="cbtn sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Upload
+        </button>
+        <button class="cbtn act sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2.1 2.1M15.6 15.6l2.1 2.1M17.7 6.3l-2.1 2.1M8.4 15.6l-2.1 2.1"/></svg>
+          Generate
+        </button>
+      </div>
+
+      <div class="imggrid">
+        <!-- primary, uploaded -->
+        <div class="slot primary">
+          <span class="badge chip ok" style="font-size:9px;padding:2px 6px">Primary</span>
+          <div class="thumb" style="background:var(--dish-fill)">
+            <svg width="62" height="48" viewBox="0 0 168 124" fill="none">
+              <ellipse cx="84" cy="96" rx="66" ry="17" fill="var(--white)" stroke="var(--ink)" stroke-width="3.4"/>
+              <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32Z" fill="var(--dish-line)" opacity=".2"/>
+              <path d="M34 90c0-19 16-32 34-32 20 0 36 13 36 32" stroke="var(--ink)" stroke-width="3.4" fill="none"/>
+              <g fill="var(--caution-soft)" stroke="var(--ink)" stroke-width="3.2"><ellipse cx="124" cy="86" rx="14" ry="9" transform="rotate(-20 124 86)"/></g>
+            </svg>
+          </div>
+          <div class="meta">
+            <span class="t">upload · 1024²</span>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="cbtn sm" style="font-size:9.5px;min-height:22px;padding:0 6px">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- published, generated -->
+        <div class="slot">
+          <span class="badge chip grape" style="font-size:9px;padding:2px 6px">AI</span>
+          <div class="thumb" style="background:var(--critical-soft)">
+            <svg width="62" height="48" viewBox="0 0 168 124" fill="none">
+              <ellipse cx="84" cy="96" rx="66" ry="17" fill="var(--white)" stroke="var(--ink)" stroke-width="3.4"/>
+              <path d="M36 90c0-19 16-32 34-32 20 0 36 13 36 32Z" fill="var(--critical)" opacity=".24"/>
+              <path d="M36 90c0-19 16-32 34-32 20 0 36 13 36 32" stroke="var(--ink)" stroke-width="3.4" fill="none"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <span class="t">gen · 0.94</span>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="cbtn sm" style="font-size:9.5px;min-height:22px;padding:0 6px">Make primary</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- in review -->
+        <div class="slot">
+          <span class="badge chip warn" style="font-size:9px;padding:2px 6px">Review</span>
+          <div class="thumb" style="background:var(--greens-fill)">
+            <svg width="62" height="48" viewBox="0 0 168 124" fill="none">
+              <ellipse cx="84" cy="96" rx="66" ry="17" fill="var(--white)" stroke="var(--ink)" stroke-width="3.4"/>
+              <path d="M38 88c0-18 15-30 32-30 19 0 34 12 34 30Z" fill="var(--greens-line)" opacity=".34"/>
+              <path d="M38 88c0-18 15-30 32-30 19 0 34 12 34 30" stroke="var(--ink)" stroke-width="3.4" fill="none"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <span class="t">gen · 0.71</span>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="cbtn ok sm" style="font-size:9.5px;min-height:22px;padding:0 6px">Publish</button>
+              <button class="cbtn dan sm" style="font-size:9.5px;min-height:22px;padding:0 6px">Reject</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- generating now -->
+        <div class="slot empty">
+          <div class="add" style="flex-direction:column;gap:6px">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--grape)" stroke-width="2.2" stroke-linecap="round">
+              <path d="M20 12h2M2 12h2M12 2v2M12 20v2"/><circle cx="12" cy="12" r="5"/>
+            </svg>
+            <span style="font-size:9.5px;font-weight:800;color:var(--grape-onsoft);font-family:var(--mono)">generating</span>
+          </div>
+          <div class="meta">
+            <span class="t" style="color:var(--grape-onsoft)">Cooking the picture</span>
+            <div class="march"><i></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding:10px 12px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:8px 3px 8px 3px;font-size:11.5px;color:var(--ink-3)">
+        <b style="color:var(--ink)">Primary is what cooks see.</b>
+        Every surface that needs one image uses it. The others are available to the
+        carousel and as fallbacks.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Per-image actions</div>
+      <ul class="clean" style="margin-top:0">
+        <li><strong>Publish</strong> — <code>review → published</code>. First publish auto-sets primary.</li>
+        <li><strong>Reject</strong> — with a one-line reason. Kept, not deleted.</li>
+        <li><strong>Make primary</strong> — published images only.</li>
+        <li><strong>View</strong> — full size, with the prompt that made it.</li>
+        <li><strong>Regenerate from this</strong> — opens the prompt, pre-filled, editable.</li>
+        <li><strong>Delete</strong> — hard, with a confirm. Removes the R2 objects too.</li>
+      </ul>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">The recipes list</div>
+      <ul class="clean" style="margin-top:0">
+        <li>A small <strong>image-count column</strong>, so gaps are visible while scanning.</li>
+        <li>Filter: <code>has no image</code> · <code>has images in review</code>.</li>
+        <li><strong>Bulk select → Generate</strong> for a backfill. One job per row, and a
+          confirm stating how many calls that is.</li>
+      </ul>
+      <p class="note" style="margin-top:10px">
+        This is where the old sweep's job goes — but a person picks the batch and sees the
+        count first.
+      </p>
+    </div>
+    <div class="card soft">
+      <div class="eyebrow" style="margin-bottom:8px">Rate limiting</div>
+      <p style="font-size:13px;margin-top:0">
+        Console routes already carry <code>RATE_LIMITS.ADMIN</code> (600/min). Generation
+        needs its own, because it spends money rather than CPU:
+      </p>
+<pre style="font-size:11px;margin-top:10px"><span class="c">// lib/ratelimit/limits.ts</span>
+<span class="c">/** Operator-triggered image generation. Trusted
+ *  but costly — a stuck retry loop in the console
+ *  must not become an unbounded bill. */</span>
+<span class="k">IMAGE_GENERATE</span>: perWindow(<span class="s">'image_generate'</span>,
+                              <span class="n">60</span>, HOUR),</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 5 · UPLOAD ════════════════════════════ -->
+<section id="upload">
+  <div class="sechead"><span class="secnum">05</span><h2>Manual upload</h2></div>
+  <p class="lede">
+    The path that needs the least new code, because <code>features/files</code> already
+    implements presign → PUT → confirm, and its rule that bytes never pass through the API
+    applies here exactly as written.
+  </p>
+
+  <div class="grid g2">
+    <div>
+      <ol class="steps">
+        <li><strong>Operator picks a file.</strong> The console validates type
+          (<code>image/jpeg</code>, <code>image/png</code>, <code>image/webp</code>) and size
+          (≤ 10MB) before asking for anything.</li>
+        <li><strong><code>POST /admin/recipes/:mealId/images/upload-url</code></strong> returns
+          a presigned PUT against a <code>public/recipes/…</code> key, and creates the image
+          row as <code>pending</code>.</li>
+        <li><strong>Browser PUTs straight to R2.</strong> No bytes through our server — the
+          existing rule, honoured.</li>
+        <li><strong><code>POST …/images/:imageId/confirm</code></strong> calls
+          <code>objectExists()</code>, and only then moves the row to <code>review</code>.
+          This is what stops a row claiming a file that was never uploaded.</li>
+        <li><strong>A <code>recipe-image-derive</code> job</strong> generates the card, thumb
+          and blur from the uploaded original.</li>
+        <li><strong>Operator publishes it.</strong> Same review step as a generated image.</li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="lbl">Why an upload still goes through review</span>
+        It looks like a formality when the operator just chose the file. It is not: the
+        derive job must finish before the image is usable, and <code>review</code> is the
+        state that means "bytes confirmed, derivatives done, not yet live". Skipping it
+        would mean publishing an image whose thumbnail does not exist yet.
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>The one genuinely new storage primitive</h4>
+      <p style="font-size:13.5px;margin-top:0">
+        Generation produces bytes <em>inside the worker</em>. There is no client to presign
+        for, so a server-side put is the only route.
+      </p>
+<pre style="font-size:11.5px"><span class="c">// lib/storage/s3.ts — a new, narrowly-scoped export</span>
+
+<span class="c">/**
+ * Writes bytes we generated or derived ourselves.
+ *
+ * The presign rule above governs CLIENT uploads:
+ * proxying a person's file through the server pays
+ * for the bandwidth twice. Bytes that originate in a
+ * worker have no client to presign for, so this is
+ * the only route — and it runs off the request path,
+ * where the bandwidth is not contended.
+ *
+ * `public/` objects are served WITHOUT a signature,
+ * so this must never be handed user content.
+ */</span>
+<span class="kw">export async function</span> <span class="k">putPublicObject</span>(input: {
+  key: <span class="s">string</span>;          <span class="c">// MUST start with `public/`</span>
+  body: Uint8Array;
+  contentType: <span class="s">string</span>;
+  cacheSeconds?: <span class="s">number</span>;  <span class="c">// default one year</span>
+}): Promise&lt;<span class="s">void</span>&gt;</pre>
+      <div class="callout crit" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The guard that must exist</span>
+        <code>putPublicObject</code> throws unless the key starts with <code>public/</code>.
+        Without it, one careless call publishes a user's shelf photo to an unauthenticated
+        URL. The prefix <em>is</em> the security boundary, so it is asserted in code and not
+        left to convention.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 6 · GENERATE ══════════════════════════ -->
+<section id="generate">
+  <div class="sechead"><span class="secnum">06</span><h2>Generate</h2></div>
+  <p class="lede">
+    One click enqueues one job. The console follows it over the SSE stream that
+    <code>jobs.sse.ts</code> already serves, falling back to polling
+    <code>GET /jobs/:id</code> — the pattern the extraction flow already uses, so there is
+    nothing new to build on the client but a panel.
+  </p>
+
+  <div class="pipe">
+    <div class="pnode det">
+      <div class="k">1 · deterministic</div>
+      <div class="v">Compose</div>
+      <div class="s">Build the prompt from the recipe's own fields, plus any per-dish hint. No model call. Operator may have edited it.</div>
+    </div>
+    <div class="pnode ai">
+      <div class="k">2 · image model</div>
+      <div class="v">Generate</div>
+      <div class="s">One call, 1024². The queue's own attempt logic retries a transport failure up to 3×.</div>
+    </div>
+    <div class="pnode ai">
+      <div class="k">3 · vision model</div>
+      <div class="v">Self-check</div>
+      <div class="s">"Is this the dish we asked for?" Cheap. A clear miss is discarded before it costs storage or an operator's attention.</div>
+    </div>
+    <div class="pnode store">
+      <div class="k">4 · storage</div>
+      <div class="v">Store</div>
+      <div class="s">Derivatives written to <code>public/recipes/&lt;slug&gt;-&lt;nonce&gt;/</code>. Row created at <code>review</code>.</div>
+    </div>
+    <div class="pnode human">
+      <div class="k">5 · person</div>
+      <div class="v">Decide</div>
+      <div class="s">Publish, or reject with a reason that feeds the hint map.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>The handler, in the house style</h4>
+      <p style="font-size:13px;margin-top:0">
+        Mirrors <code>insights.jobs.ts</code>: narrow payload, <code>setProgress</code>
+        between steps, <code>isCancelled</code> checked, a skip result rather than a throw
+        when there is nothing useful to do.
+      </p>
+<pre style="font-size:11.5px"><span class="c">// features/meals/meals.jobs.ts</span>
+<span class="kw">export const</span> <span class="k">RECIPE_IMAGE_JOB</span> = <span class="s">'recipe-image'</span>;
+
+<span class="kw">async function</span> <span class="k">runRecipeImage</span>(payload, ctx: JobContext) {
+  <span class="kw">const</span> { mealId, promptOverride, actorId } =
+    payload <span class="kw">as</span> RecipeImagePayload;
+
+  <span class="kw">const</span> meal = <span class="kw">await</span> MealModel.findById(mealId).exec();
+  <span class="kw">if</span> (meal === <span class="kw">null</span>)
+    <span class="kw">return</span> { skipped: <span class="kw">true</span>, reason: <span class="s">'recipe is gone'</span> };
+
+  <span class="c">// The cap is enforced here too, not only in the UI —</span>
+  <span class="c">// a queued job can outlive the state it was queued in.</span>
+  <span class="kw">if</span> (meal.images.length &gt;= MAX_IMAGES)
+    <span class="kw">return</span> { skipped: <span class="kw">true</span>, reason: <span class="s">'at the image cap'</span> };
+
+  <span class="kw">await</span> ctx.setProgress(<span class="n">0.1</span>, <span class="s">'Writing the shot'</span>);
+  <span class="kw">const</span> prompt = promptOverride ?? composeImagePrompt(meal);
+
+  <span class="kw">if</span> (<span class="kw">await</span> ctx.isCancelled()) <span class="kw">return</span> { cancelled: <span class="kw">true</span> };
+
+  <span class="kw">await</span> ctx.setProgress(<span class="n">0.3</span>, <span class="s">'Cooking the picture'</span>);
+  <span class="kw">const</span> img = <span class="kw">await</span> aiService.image({ prompt,
+                                     ownerId: actorId });
+  <span class="kw">if</span> (!img.ok) <span class="kw">throw new</span> Error(img.error); <span class="c">// queue retries</span>
+
+  <span class="kw">await</span> ctx.setProgress(<span class="n">0.6</span>, <span class="s">'Checking we got the dish'</span>);
+  <span class="kw">const</span> check = <span class="kw">await</span> verifyDish(img.bytes, meal);
+  <span class="c">// A confident miss never reaches storage or a person.</span>
+  <span class="kw">if</span> (!check.isDish &amp;&amp; check.confidence &gt; <span class="n">0.8</span>)
+    <span class="kw">return</span> { rejected: <span class="kw">true</span>, reason: check.reason };
+
+  <span class="kw">await</span> ctx.setProgress(<span class="n">0.85</span>, <span class="s">'Putting it away'</span>);
+  <span class="kw">const</span> key = <span class="kw">await</span> storeDerivatives(meal.slug, img.bytes);
+
+  <span class="kw">await</span> appendImage(meal, { key, source: <span class="s">'generated'</span>,
+    status: <span class="s">'review'</span>, prompt, check, addedBy: actorId });
+
+  <span class="kw">await</span> ctx.setProgress(<span class="n">1</span>, <span class="s">'Ready for review'</span>);
+  <span class="kw">return</span> { key, confidence: check.confidence };
+}</pre>
+    </div>
+
+    <div>
+      <div class="card">
+        <h4>Editing the prompt before regenerating</h4>
+        <p style="font-size:13.5px;margin-top:0">
+          The highest-leverage control in the whole feature. When a dish comes back as the
+          wrong food, the fix is almost always one clause — and an operator who can add it
+          and see the result in a minute will fix it, where one who must file a ticket will not.
+        </p>
+        <ul class="clean">
+          <li><strong>The composed prompt is shown, editable</strong>, pre-filled from
+            <code>composeImagePrompt(meal)</code>.</li>
+          <li><strong>An override is stored on the image</strong> it produced, so a good
+            result is reproducible.</li>
+          <li><strong>"Save this as the hint for this dish"</strong> writes the edit into the
+            per-dish hint map, so the next regeneration starts from the better wording.</li>
+        </ul>
+        <div class="callout grape" style="margin-bottom:0;font-size:13px">
+          <span class="lbl">This is how the prompt gets good</span>
+          Image models get Nigerian food wrong in confident, repeatable ways — jollof as
+          paella, egusi as guacamole, amala as chocolate mousse. Each entry in the hint map
+          is written the first time an operator hits that specific confusion. The catalogue
+          improves through use rather than through a rewrite.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h4>The vision pre-check</h4>
+        <p style="font-size:13.5px;margin-top:0">
+          A cheap vision call on the bytes we just made, using the existing
+          <code>OPENAI_VISION_MODEL</code> and the same envelope discipline as every other
+          contract. New prompt id: <code>image.verify</code>.
+        </p>
+<pre style="font-size:11px"><span class="k">RecipeImageVerdictSchema</span> = withEnvelope({
+  <span class="k">isDish</span>: z.boolean(),
+  <span class="k">looksHomemade</span>: z.boolean(),
+  <span class="k">hasForbidden</span>: z.boolean(),
+  <span class="k">confidence</span>: z.number().min(<span class="n">0</span>).max(<span class="n">1</span>),
+  <span class="k">reason</span>: z.string().max(<span class="n">200</span>),
+});</pre>
+        <p style="font-size:13px;margin:0">
+          It exists to make the human pass <em>short</em>, not to replace it. It costs a small
+          fraction of the generation it validates, so discarding a clear miss before storage
+          is strictly cheaper than storing it and having a person find it later. Borderline
+          cases go to review with their confidence recorded, lowest first.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:40px">API surface</h3>
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:44%">Route</th><th style="width:16%">Policy</th><th style="width:40%">Does</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono"><strong>POST</strong> /admin/recipes/:id/images/upload-url</span></td><td><span class="mono">ADMIN</span></td><td>Presigns a PUT, creates the row as <code>pending</code>.</td></tr>
+        <tr><td><span class="mono"><strong>POST</strong> /admin/recipes/:id/images/:imageId/confirm</span></td><td><span class="mono">ADMIN</span></td><td><code>objectExists()</code>, then <code>pending → review</code> and enqueue the derive job.</td></tr>
+        <tr><td><span class="mono"><strong>POST</strong> /admin/recipes/:id/images/generate</span></td><td><span class="mono">IMAGE_GENERATE</span></td><td>Enqueues <code>recipe-image</code>. Optional <code>prompt_override</code>. Returns the job id to follow.</td></tr>
+        <tr><td><span class="mono"><strong>POST</strong> /admin/recipes/:id/images/:imageId/publish</span></td><td><span class="mono">ADMIN</span></td><td><code>review → published</code>. Auto-sets primary if the recipe had none.</td></tr>
+        <tr><td><span class="mono"><strong>POST</strong> /admin/recipes/:id/images/:imageId/reject</span></td><td><span class="mono">ADMIN</span></td><td><code>→ rejected</code> with a reason. Promotes a replacement if this was primary.</td></tr>
+        <tr><td><span class="mono"><strong>PUT</strong> /admin/recipes/:id/images/primary</span></td><td><span class="mono">ADMIN</span></td><td>Sets <code>primaryImageId</code>. Refuses an unpublished target.</td></tr>
+        <tr><td><span class="mono"><strong>DELETE</strong> /admin/recipes/:id/images/:imageId</span></td><td><span class="mono">ADMIN</span></td><td>Hard delete, including the R2 objects. Promotes a replacement if needed.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    Route order is load-bearing, as everywhere else in this codebase: every literal segment
+    (<code>/generate</code>, <code>/primary</code>, <code>/upload-url</code>) is registered
+    before <code>/:imageId</code>, or "generate" arrives as an image id and 404s.
+  </p>
+</section>
+
+<!-- ══════════════════════════ 7 · PROMPT ════════════════════════════ -->
+<section id="prompt">
+  <div class="sechead"><span class="secnum">07</span><h2>The prompt</h2></div>
+  <p class="lede">
+    Composed from the recipe's own fields, so 340 prompts are one function rather than 340
+    strings. The hard part is not describing the food — it is stopping the model producing a
+    glossy restaurant plate when the product is about home cooking.
+  </p>
+
+  <div class="grid g2">
+    <div>
+<pre><span class="c">// features/meals/meals.image-prompt.ts</span>
+<span class="c">// Bumped whenever the wording changes, so a sweep can</span>
+<span class="c">// find every image made by an older version.</span>
+<span class="kw">export const</span> <span class="k">IMAGE_PROMPT_VERSION</span> = <span class="n">1</span>;
+
+<span class="kw">export function</span> <span class="k">composeImagePrompt</span>(meal: MealDocument) {
+  <span class="kw">const</span> key = meal.ingredients
+    .filter((i) =&gt; !i.optional)
+    .slice(<span class="n">0</span>, <span class="n">5</span>)
+    .map((i) =&gt; i.name);
+
+  <span class="kw">return</span> [
+    <span class="s">`A photograph of ${meal.name}, a Nigerian dish.`</span>,
+    <span class="s">`Made with ${key.join(', ')}.`</span>,
+    SHOT,               <span class="c">// framing, light, surface</span>
+    AUTHENTIC,          <span class="c">// the anti-restaurant clause</span>
+    HINTS[meal.slug] ?? <span class="s">''</span>,  <span class="c">// per-dish correction</span>
+    NEGATIVE,           <span class="c">// what must not appear</span>
+  ].filter(Boolean).join(<span class="s">'\n\n'</span>);
+}</pre>
+      <div class="callout grape">
+        <span class="lbl">The clause that does the most work</span>
+        <em>"Served in a real Nigerian home: an ordinary plate or enamel bowl, no garnish
+        that would not be there, no styling, no restaurant plating, no microgreens, no
+        drizzle."</em> Without it every dish arrives fine-dining-plated and the product reads
+        as aspirational rather than useful.
+      </div>
+      <p class="note">
+        The full wording, the hint map and the verification prompt live in
+        <code>recipe-photography.md</code> beside this file — reviewable as copy rather than
+        buried in a service, and readable by an operator wondering what was sent.
+      </p>
+    </div>
+
+    <div class="card">
+      <h4>The per-dish hint map</h4>
+      <p style="font-size:13.5px;margin-top:0">
+        Ordinary data, small, and the part that improves through use. Each entry is written
+        the first time an operator rejects an image for that confusion.
+      </p>
+      <div class="scroll">
+        <table style="font-size:12px">
+          <thead><tr><th>Dish</th><th>Correction</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Jollof rice</strong></td><td>Orange-red from tomato and pepper — <em>not</em> yellow, not paella, not biryani.</td></tr>
+            <tr><td><strong>Egusi</strong></td><td>Coarse pale-green melon-seed stew, lumpy — <em>not</em> guacamole, not pesto.</td></tr>
+            <tr><td><strong>Amala</strong></td><td>Smooth very dark brown swallow, matte — <em>not</em> chocolate, not mousse.</td></tr>
+            <tr><td><strong>Ogbono</strong></td><td>Dark, visibly slimy drawn soup. The texture is correct and must show.</td></tr>
+            <tr><td><strong>Akara</strong></td><td>Round deep-fried bean fritters, irregular — <em>not</em> doughnuts, not falafel.</td></tr>
+            <tr><td><strong>Suya</strong></td><td>Dry rust-red peanut-pepper crust on skewered beef — <em>not</em> saucy, not satay.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Twelve entries at the time of writing. It is expected to grow, and growth is the
+        feature working rather than a sign it is not.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout crit">
+    <span class="lbl">Provenance is not optional</span>
+    A <strong>generated</strong> image carries a visible
+    <span class="chip grape" style="font-size:11px;padding:2px 8px">Illustration</span>
+    mark in grape wherever it appears at hero size — it is a generated picture of food, not
+    a photograph of the dish this person will produce. An <strong>uploaded</strong>
+    photograph carries no such mark, because it is a real photograph. This is exactly why
+    <code>source</code> is stored per image, and it is the same rule the AI-written
+    <code>why</code> on the verdict already follows.
+  </div>
+</section>
+
+<!-- ══════════════════════════ 8 · SERVE ═════════════════════════════ -->
+<section id="serve">
+  <div class="sechead"><span class="secnum">08</span><h2>Serving</h2></div>
+  <p class="lede">
+    Four derivatives per image, written in the same job, so a phone on a Lagos 3G
+    connection never downloads a 1024px hero to fill a 34px alternate row.
+  </p>
+
+  <div class="grid g4">
+    <div class="card soft"><div class="stat"><span class="num">1024</span><span class="lbl">hero</span><span class="sub">verdict, story card<br><code>~90KB</code> webp q80</span></div></div>
+    <div class="card soft"><div class="stat"><span class="num">512</span><span class="lbl">card</span><span class="sub">lists, favourites<br><code>~32KB</code></span></div></div>
+    <div class="card soft"><div class="stat"><span class="num">128</span><span class="lbl">thumb</span><span class="sub">alternates, console grid<br><code>~6KB</code></span></div></div>
+    <div class="card soft"><div class="stat"><span class="num">24</span><span class="lbl">blur</span><span class="sub">inline base64<br><code>~400B</code>, in Mongo</span></div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card">
+      <h4>Keys and URLs</h4>
+<pre style="font-size:11.5px"><span class="c">// one nonce per image, shared by its derivatives</span>
+public/recipes/ewa-agoyin-a1b2c3/hero.webp
+public/recipes/ewa-agoyin-a1b2c3/card.webp
+public/recipes/ewa-agoyin-a1b2c3/thumb.webp
+
+<span class="c">// composed at presentation time — base + key,</span>
+<span class="c">// no signature</span>
+<span class="k">image_url</span>: <span class="s">"https://img.kinnijije.com/public/</span>
+            <span class="s">recipes/ewa-agoyin-a1b2c3/hero.webp"</span></pre>
+      <ul class="clean">
+        <li><strong>Immutable, so cache forever.</strong> <code>Cache-Control: public,
+          max-age=31536000, immutable</code> — the nonce means a new image is a <em>new</em>
+          URL, so nothing ever needs purging.</li>
+        <li><strong>Only the folder key is stored.</strong> Derivative names are a convention,
+          so one string yields all four URLs.</li>
+        <li><strong>Blur lives in Mongo</strong>, not R2 — at ~400 bytes it is cheaper inline
+          than as a request.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>What the wire shape gains</h4>
+<pre style="font-size:11.5px"><span class="c">// on a meal view — primary only, resolved</span>
+<span class="k">"image"</span>: {
+  <span class="k">"hero_url"</span>:  <span class="s">"https://…/hero.webp"</span>,
+  <span class="k">"card_url"</span>:  <span class="s">"https://…/card.webp"</span>,
+  <span class="k">"thumb_url"</span>: <span class="s">"https://…/thumb.webp"</span>,
+  <span class="k">"blur"</span>:      <span class="s">"data:image/webp;base64,UklGR…"</span>,
+  <span class="c">// drives the grape mark. "upload" shows none.</span>
+  <span class="k">"source"</span>:    <span class="s">"generated"</span>
+} <span class="c">// or null — and null is the DESIGNED default</span>
+
+<span class="c">// the carousel asks for more, explicitly</span>
+<span class="k">"images"</span>: [ <span class="c">/* published only, primary first */</span> ]</pre>
+      <ol class="steps" style="margin-top:14px">
+        <li><strong>No <code>S3_PUBLIC_BASE_URL</code></strong> → <code>image: null</code>
+          everywhere, and every surface falls back to the drawn <code>heroIcon</code>.</li>
+        <li><strong>No published image</strong> → same null, same fallback.</li>
+        <li><strong>Image 404s in the browser</strong> → <code>onerror</code> swaps in the
+          koboyo glyph. A dead link never shows a broken-image icon.</li>
+        <li><strong>Slow connection</strong> → blur renders instantly from the JSON, real
+          image fades in over it.</li>
+      </ol>
+      <div class="callout ok" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">The test that matters</span>
+        With <code>S3_PUBLIC_BASE_URL=''</code> the app must look and behave exactly as it
+        does today. Imagery is an enhancement layer, and it is only safe to ship as one if
+        that is verified rather than assumed.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 9 · COST ══════════════════════════════ -->
+<section id="cost">
+  <div class="sechead"><span class="secnum">09</span><h2>Cost</h2></div>
+  <p class="lede">
+    The console model changes the cost <em>shape</em>, not just the amount: spend is now
+    proportional to operator clicks rather than to catalogue size, and a click is a person
+    deciding an image is worth having.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>What bounds the spend</h4>
+      <div class="scroll" style="margin-top:12px">
+        <table style="font-size:12.5px">
+          <thead><tr><th>Control</th><th>Bound</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A person clicks</strong></td><td>The real control. No background process spends money on its own.</td></tr>
+            <tr><td><strong><code>IMAGE_GENERATE</code></strong></td><td>60/hour. Stops a stuck console retry loop, not a human.</td></tr>
+            <tr><td><strong>8 images per recipe</strong></td><td>Enforced in the service. A regenerate loop cannot run away.</td></tr>
+            <tr><td><strong>Vision pre-check</strong></td><td>A confident miss is discarded, so a bad generation does not also cost storage and attention.</td></tr>
+            <tr><td><strong>Bulk confirm</strong></td><td>A bulk generate states the call count and needs a confirm before enqueueing.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout ok" style="margin-bottom:0;font-size:13px">
+        <span class="lbl">Still bounded by catalogue, not by traffic</span>
+        340 images cost the same whether 10 or 10 million people see them. R2 has no egress
+        charge, which is the reason it beats S3 for this. Serving is effectively free; only
+        making them costs.
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Still never on the request path</h4>
+      <p style="font-size:13.5px;margin-top:0">
+        Worth restating, because it is the constraint that shaped both this design and the
+        one it replaced: generating an image when a <em>cook</em> asks for a verdict would be
+        a money pump on a public, unauthenticated endpoint.
+      </p>
+      <ul class="clean crit">
+        <li>Images cost roughly <strong>10–40×</strong> a text call. <code>DECIDE_ANON</code>
+          at 8/hour bounds the text path to something survivable; at that multiple, the same
+          bucket does not.</li>
+        <li>The 4-second verdict ceiling would become impossible to hold against a 5–20
+          second generation.</li>
+        <li>The same popular meal would be regenerated per visitor, paying repeatedly for an
+          identical result.</li>
+      </ul>
+      <p style="font-size:13.5px;margin-bottom:0">
+        So the decide endpoint's cost model is <strong>unchanged</strong> by this feature. It
+        reads a URL that already exists, or it renders a drawn glyph.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 10 · STORIES ══════════════════════════ -->
+<section id="stories">
+  <div class="sechead"><span class="secnum">10</span><h2>What imagery unlocks</h2></div>
+  <p class="lede">
+    With real images, the verdict stops being a card and becomes a swipeable set of three —
+    the format people already know from Instagram and WhatsApp status. The screens are drawn
+    in <code>design.html</code> §07; what follows is only what this pipeline owes them.
+  </p>
+
+  <div class="grid g3">
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:8px">Needs</div>
+      <h4>Published images, primary first</h4>
+      <p style="font-size:13px;margin:6px 0 0">
+        The carousel asks for <code>images[]</code>, not just the primary. A recipe with two
+        published images can vary what it shows; one with none falls back to the drawn glyph
+        on a tinted plate and the carousel still works.
+      </p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:8px">Needs</div>
+      <h4>The blur, always</h4>
+      <p style="font-size:13px;margin:6px 0 0">
+        A carousel is three heroes. Without an inline placeholder the first swipe is three
+        empty rectangles on a slow connection, which is worse than no imagery at all.
+      </p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:8px">Needs</div>
+      <h4>The <code>source</code> field</h4>
+      <p style="font-size:13px;margin:6px 0 0">
+        The grape <em>Illustration</em> mark appears on generated images and not on
+        photographs. The card cannot make that distinction unless the API states it per
+        image.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The carousel must not become a list</span>
+    Three cards, hard maximum, and card one is still the recommendation — larger, first, and
+    the only one whose "why" is fully model-written. A carousel of equals is a menu, and a
+    menu is the problem the person arrived with.
+  </div>
+</section>
+
+<!-- ══════════════════════════ 11 · BUILD ════════════════════════════ -->
+<section id="build">
+  <div class="sechead"><span class="secnum">11</span><h2>Build order</h2></div>
+  <p class="lede">
+    Imagery is an enhancement layer, so it ships strictly after the decide flow works
+    without it. Note that <strong>upload comes before generate</strong> — it is cheaper,
+    simpler, and it proves the whole pipe with no model involved.
+  </p>
+
+  <div class="scroll tablewrap">
+    <table>
+      <thead><tr><th style="width:7%">#</th><th style="width:25%">Stage</th><th style="width:42%">Contains</th><th style="width:26%">Done when</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">1</td><td><strong>Storage primitive</strong></td>
+            <td><code>putPublicObject</code> with the <code>public/</code> prefix guard. <code>S3_PUBLIC_BASE_URL</code>. URL composition in the presenter.</td>
+            <td>A hand-placed test object serves over a public URL with a one-year cache header.</td></tr>
+        <tr><td class="mono">2</td><td><strong>Model &amp; the null path</strong></td>
+            <td><code>RecipeImage[]</code>, <code>primaryImageId</code> and its invariant, presenter returning <code>image: null</code>.</td>
+            <td>The whole app behaves identically with no images present. The safety net for everything after.</td></tr>
+        <tr><td class="mono">3</td><td><strong>Upload</strong></td>
+            <td>The three upload routes, the derive job, the console Images panel with publish / reject / make-primary.</td>
+            <td>An operator adds a real photograph and it appears on the verdict. <em>No model involved yet.</em></td></tr>
+        <tr><td class="mono">4</td><td><strong>Generate</strong></td>
+            <td><code>recipe-image</code> job, prompt composer, hint map, vision pre-check, the console's progress panel over SSE.</td>
+            <td>One click produces a reviewable image, and killing the provider fails the job cleanly without a phantom row.</td></tr>
+        <tr><td class="mono">5</td><td><strong>Prompt editing</strong></td>
+            <td>Editable prompt on regenerate, override stored per image, "save as hint for this dish".</td>
+            <td>An operator fixes a wrong-dish result themselves and the fix persists.</td></tr>
+        <tr><td class="mono">6</td><td><strong>Backfill</strong></td>
+            <td>Image-count column, gap filters, bulk select → generate with a confirm.</td>
+            <td>The catalogue has imagery, and gaps are visible while scanning the list.</td></tr>
+        <tr><td class="mono">7</td><td><strong>Stories</strong></td>
+            <td>The carousel on the verdict, hook line, pitch line.</td>
+            <td>Swiping three cards works on a phone — and still works with images absent.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g2">
+    <div class="callout ok">
+      <span class="lbl">Why stage 2 is the one not to skip</span>
+      Building the null-image path <em>before</em> any image exists is what makes this
+      feature safe to ship incrementally. Done in the other order, "no image yet" becomes a
+      bug to chase in six surfaces instead of the designed default in one.
+    </div>
+    <div class="callout ok">
+      <span class="lbl">Why upload comes before generate</span>
+      Stage 3 exercises storage, derivatives, review, primary promotion and every console
+      control — with no model, no prompt and no spend. If generation were first, every
+      problem in that chain would present as "the AI is wrong". It also means the fallback
+      for a dish generation keeps failing on is real code that has been used.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <strong style="color:var(--ink);font-family:var(--display)">Recipe Imagery</strong> — system design<br>
+    <span style="color:var(--ink-4)">backend/docs/v2/image-pipeline.html</span>
+  </div>
+  <div style="text-align:right">
+    Sky Kitchen · KinniJije v2<br>
+    <span style="color:var(--ink-4)">Companions: <code>system-design.html</code> · <code>design.html</code> · <code>recipe-photography.md</code></span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

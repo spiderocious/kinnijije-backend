@@ -21,6 +21,8 @@ export const ID_PREFIXES = {
   unit: 'un',
   market: 'mk',
   meal: 'meal',
+  /** A recipe image. Its own resource because it is addressed on its own. */
+  recipeImage: 'img',
   chat: 'chat',
   insight: 'ins',
 } as const;

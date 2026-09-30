@@ -263,6 +263,67 @@ class AiService {
     }
   }
 
+  /**
+   * Generates one picture.
+   *
+   * Logged in the same table as every other model call, so the console's AI
+   * view answers "what did this cost" and "is this prompt any good" with no
+   * new tooling. The prompt is stored verbatim: a good image must be
+   * reproducible and a bad one diagnosable.
+   */
+  async generateImage(input: {
+    prompt: string;
+    ownerId?: string;
+  }): Promise<AiCallResult<{ bytes: Uint8Array; contentType: string; model: string }>> {
+    const started = Date.now();
+    try {
+      const image = await this.provider.generateImage(input.prompt);
+      const logId = await this.record({
+        promptId: 'image.generate',
+        provider: this.provider.name,
+        model: image.model,
+        ownerId: input.ownerId ?? null,
+        systemPrompt: '',
+        userPrompt: input.prompt,
+        imageRefs: [],
+        rawResponse: `[image: ${String(image.bytes.byteLength)} bytes]`,
+        parsed: true,
+        parseError: null,
+        metrics: null,
+        promptTokens: null,
+        completionTokens: null,
+        totalTokens: null,
+        durationMs: Date.now() - started,
+        ok: true,
+        error: null,
+      });
+      return { ok: true, data: image, error: null, logId };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn('image generation failed', { error: message });
+      const logId = await this.record({
+        promptId: 'image.generate',
+        provider: this.provider.name,
+        model: 'unknown',
+        ownerId: input.ownerId ?? null,
+        systemPrompt: '',
+        userPrompt: input.prompt,
+        imageRefs: [],
+        rawResponse: '',
+        parsed: false,
+        parseError: null,
+        metrics: null,
+        promptTokens: null,
+        completionTokens: null,
+        totalTokens: null,
+        durationMs: Date.now() - started,
+        ok: false,
+        error: message,
+      });
+      return { ok: false, data: null, error: message, logId };
+    }
+  }
+
   /** Logging must never be the reason a feature fails. */
   private async record(row: Parameters<typeof AiLogModel.create>[0]): Promise<string | null> {
     try {

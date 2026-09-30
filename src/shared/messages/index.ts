@@ -63,6 +63,22 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.meals.FAVOURITED]: 'Saved.',
   [MESSAGE_KEYS.meals.COOKED]: 'Enjoy it.',
 
+  [MESSAGE_KEYS.recipeImages.FETCHED]: 'Images loaded.',
+  [MESSAGE_KEYS.recipeImages.UPLOAD_READY]: 'Ready for the upload.',
+  [MESSAGE_KEYS.recipeImages.CONFIRMED]: 'Image received. It is ready to review.',
+  [MESSAGE_KEYS.recipeImages.PUBLISHED]: 'Image published.',
+  [MESSAGE_KEYS.recipeImages.REJECTED]: 'Image rejected.',
+  [MESSAGE_KEYS.recipeImages.PRIMARY_SET]: 'That is now the main image.',
+  [MESSAGE_KEYS.recipeImages.DELETED]: 'Image deleted.',
+  [MESSAGE_KEYS.recipeImages.NOT_FOUND]: 'That image does not exist.',
+  [MESSAGE_KEYS.recipeImages.CAP_REACHED]:
+    'This recipe already has the maximum number of images. Delete one first.',
+  [MESSAGE_KEYS.recipeImages.NOT_PUBLISHED]:
+    'Only a published image can be the main one. Publish it first.',
+  [MESSAGE_KEYS.recipeImages.UNSUPPORTED_TYPE]: 'That file type is not supported. Use PNG, JPEG or WebP.',
+  [MESSAGE_KEYS.recipeImages.TOO_LARGE]: 'That image is too large. The limit is 10MB.',
+  [MESSAGE_KEYS.recipeImages.GENERATION_QUEUED]: 'Generating. This usually takes under a minute.',
+
   [MESSAGE_KEYS.chat.ANSWERED]: 'Answered.',
   [MESSAGE_KEYS.chat.FAILED]: 'I could not answer that one. Try asking another way.',
 

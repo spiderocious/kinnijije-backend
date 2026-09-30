@@ -1,4 +1,4 @@
-import { convert } from '@shared/catalogue/index.js';
+import { byId, convert, resolve } from '@shared/catalogue/index.js';
 
 import type { MealDocument, MealIngredient } from './meals.model.js';
 import type { StockItemDocument } from '@features/stock/stock.model.js';
@@ -21,6 +21,13 @@ export const INGREDIENT_STATES = {
   MISSING: 'missing',
   /** Not in the kitchen, but the meal works without it. */
   OPTIONAL_MISSING: 'optional_missing',
+  /**
+   * Not tapped, but assumed present: salt, water, a stock cube, cooking oil.
+   *
+   * Shown, because a cook with no salt still needs to know the recipe wants
+   * some — but never counted against the score, and never in the shopping list.
+   */
+  PANTRY: 'pantry',
 } as const;
 
 export type IngredientState = (typeof INGREDIENT_STATES)[keyof typeof INGREDIENT_STATES];
@@ -36,11 +43,20 @@ export interface MatchedIngredient {
 
 export interface MealMatch {
   meal: MealDocument;
-  /** 0–1 across required ingredients only. Optional ones never drag it down. */
+  /**
+   * 0–1 across required, NON-PANTRY ingredients only.
+   *
+   * Optional ones never drag it down, and neither do pantry staples: salt is a
+   * required ingredient in 83 of 100 seeded recipes, so counting it penalised
+   * every meal equally and pushed every score toward zero. Excluding them is
+   * what makes the number mean "how close am I", which is what it is read as.
+   */
   score: number;
   ingredients: MatchedIngredient[];
   missing: string[];
   low: string[];
+  /** Assumed-present staples this recipe needs. Never part of `missing`. */
+  pantry: string[];
   /** True when one or two things stand between the cook and this meal. */
   nearlyThere: boolean;
 }
@@ -102,10 +118,24 @@ function hasEnough(need: MealIngredient, have: StockItemDocument): boolean {
   return have.quantity >= converted.value * 0.75;
 }
 
+/**
+ * Is this something almost every kitchen already has?
+ *
+ * Read off the catalogue rather than a list kept here, so the matcher, the
+ * suggestions screen and the decide flow cannot disagree about what counts as
+ * a staple. An ingredient with no catalogue id falls back to its name, because
+ * a recipe may spell something we never catalogued.
+ */
+function isPantry(ingredient: MealIngredient): boolean {
+  if (ingredient.catalogueId !== null) return byId(ingredient.catalogueId)?.pantry === true;
+  return resolve(ingredient.name)?.pantry === true;
+}
+
 export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStock>): MealMatch {
   const ingredients: MatchedIngredient[] = [];
   const missing: string[] = [];
   const low: string[] = [];
+  const pantry: string[] = [];
 
   let required = 0;
   let satisfied = 0;
@@ -113,6 +143,24 @@ export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStoc
   for (const ingredient of meal.ingredients) {
     const stock = findInStock(ingredient, index);
     const isRequired = !ingredient.optional;
+
+    // A pantry staple the cook did not tap is ASSUMED present: it is listed so
+    // they know the recipe wants it, but it never counts toward the score and
+    // never reaches the shopping list. Tapped explicitly, it falls through and
+    // is matched like anything else.
+    if (isRequired && stock === undefined && isPantry(ingredient)) {
+      pantry.push(ingredient.name);
+      ingredients.push({
+        name: ingredient.name,
+        state: INGREDIENT_STATES.PANTRY,
+        needed: ingredient.quantity,
+        needed_unit: ingredient.unit,
+        have: null,
+        have_unit: null,
+      });
+      continue;
+    }
+
     if (isRequired) required += 1;
 
     if (stock === undefined) {
@@ -158,6 +206,7 @@ export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStoc
     ingredients,
     missing,
     low,
+    pantry,
     nearlyThere: missing.length > 0 && missing.length <= 2,
   };
 }

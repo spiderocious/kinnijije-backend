@@ -41,6 +41,12 @@ const EnvSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().default(''),
   // How long a presigned upload URL stays valid. Short: it is handed out
   // immediately before the client uses it.
+  /**
+   * Where `public/` objects are served from — an R2 public bucket URL or a
+   * custom domain. Empty means public serving is not configured, and every
+   * surface falls back to the drawn heroIcon instead.
+   */
+  S3_PUBLIC_BASE_URL: z.string().default(''),
   S3_UPLOAD_URL_TTL_SECONDS: z.coerce.number().int().positive().default(15 * 60),
   // How long a presigned download URL stays valid.
   S3_DOWNLOAD_URL_TTL_SECONDS: z.coerce.number().int().positive().default(60 * 60),
@@ -60,6 +66,8 @@ const EnvSchema = z.object({
   OPENAI_PARSE_MODEL: z.string().default('gpt-4o-mini'),
   OPENAI_VISION_MODEL: z.string().default('gpt-4o'),
   OPENAI_WHISPER_MODEL: z.string().default('whisper-1'),
+  /** Recipe photography. Only ever called from a background job. */
+  OPENAI_IMAGE_MODEL: z.string().default('gpt-image-1'),
   /**
    * Which AI provider the service uses.
    *   mock   — canned, deterministic answers from src/features/mock/data

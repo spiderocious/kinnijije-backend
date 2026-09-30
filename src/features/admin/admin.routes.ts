@@ -9,6 +9,14 @@ import { rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
 import { adminController } from './admin.controller.js';
+import { adminImagesController } from './images/admin-images.controller.js';
+import {
+  ConfirmImageUploadSchema,
+  GenerateImageSchema,
+  RejectImageSchema,
+  RequestImageUploadSchema,
+  SetPrimaryImageSchema,
+} from './images/admin-images.schema.js';
 import {
   BulkRecipesSchema,
   ComposeEmailSchema,
@@ -55,6 +63,11 @@ const guard = [
 
 router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 
+// How meals are ranked. Tunable, because ranking quality is an empirical
+// question and a constant buried in a function cannot be answered empirically.
+router.get('/admin/ranking', ...guard, asyncHandler(adminController.rankingConfig));
+router.put('/admin/ranking', ...guard, asyncHandler(adminController.saveRankingConfig));
+
 // Recipes
 router.get('/admin/recipes', ...guard, validate(ListRecipesSchema, 'query'), asyncHandler(adminController.listRecipes));
 router.post('/admin/recipes/bulk', ...guard, validate(BulkRecipesSchema), asyncHandler(adminController.bulkRecipes));
@@ -67,6 +80,68 @@ router.patch(
   asyncHandler(adminController.setRecipeStatus),
 );
 router.delete('/admin/recipes/:mealId', ...guard, asyncHandler(adminController.deleteRecipe));
+
+/**
+ * Recipe imagery.
+ *
+ * ROUTE ORDER IS LOAD-BEARING, as everywhere else here: every literal segment
+ * (`/prompt`, `/generate`, `/primary`, `/upload-url`) is registered before
+ * `/:imageId`, or "generate" arrives as an image id and 404s on the most-used
+ * endpoint in the group.
+ */
+router.get('/admin/recipes/:mealId/images', ...guard, asyncHandler(adminImagesController.list));
+
+// Costs nothing and needs no key: the "take it to Gemini yourself" path.
+router.get('/admin/recipes/:mealId/images/prompt', ...guard, asyncHandler(adminImagesController.prompt));
+
+router.post(
+  '/admin/recipes/:mealId/images/upload-url',
+  ...guard,
+  validate(RequestImageUploadSchema),
+  asyncHandler(adminImagesController.requestUpload),
+);
+
+// Spends money at OpenAI, so it carries its own policy rather than the
+// blanket ADMIN one — a stuck console retry loop must not become a bill.
+router.post(
+  '/admin/recipes/:mealId/images/generate',
+  authenticate,
+  requireStatus(USER_STATUSES.ACTIVE),
+  requireRole(USER_ROLES.ADMIN),
+  rateLimit(RATE_LIMITS.IMAGE_GENERATE),
+  validate(GenerateImageSchema),
+  asyncHandler(adminImagesController.generate),
+);
+
+router.put(
+  '/admin/recipes/:mealId/images/primary',
+  ...guard,
+  validate(SetPrimaryImageSchema),
+  asyncHandler(adminImagesController.setPrimary),
+);
+
+router.post(
+  '/admin/recipes/:mealId/images/:imageId/confirm',
+  ...guard,
+  validate(ConfirmImageUploadSchema),
+  asyncHandler(adminImagesController.confirmUpload),
+);
+router.post(
+  '/admin/recipes/:mealId/images/:imageId/publish',
+  ...guard,
+  asyncHandler(adminImagesController.publish),
+);
+router.post(
+  '/admin/recipes/:mealId/images/:imageId/reject',
+  ...guard,
+  validate(RejectImageSchema),
+  asyncHandler(adminImagesController.reject),
+);
+router.delete(
+  '/admin/recipes/:mealId/images/:imageId',
+  ...guard,
+  asyncHandler(adminImagesController.remove),
+);
 
 // Users
 router.get('/admin/users', ...guard, validate(ListUsersSchema, 'query'), asyncHandler(adminController.listUsers));

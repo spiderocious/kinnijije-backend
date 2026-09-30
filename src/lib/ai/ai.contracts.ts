@@ -231,3 +231,47 @@ export const WeekInsightSchema = withEnvelope({
 });
 
 export type WeekInsight = z.infer<typeof WeekInsightSchema>;
+
+// ── The anonymous decision ──
+
+/**
+ * The model's part in choosing a meal for a guest.
+ *
+ * It chooses only from three ids WE supplied, so a dish we do not have cannot
+ * be named. `chosenMealId` is validated against that set by the caller; an id
+ * outside it means the whole reply is discarded and the deterministic winner
+ * is served instead. Same doctrine as the rest of this file: a reply that does
+ * not fit is rejected, never patched up.
+ */
+export const DecideVerdictSchema = withEnvelope({
+  /** MUST be one of the ids we sent. Checked by the service, not here. */
+  chosenMealId: z.string().min(1).max(60),
+  /** One sentence, grounded in something the person actually told us. */
+  why: z.string().min(1).max(200),
+  /** The line above the meal, or null when nothing is worth adding. */
+  framing: z.string().max(160).nullable(),
+});
+
+export type DecideVerdict = z.infer<typeof DecideVerdictSchema>;
+
+// ── Checking a generated recipe photograph ──
+
+/**
+ * The machine half of the image quality gate.
+ *
+ * Exists to make the HUMAN pass short, not to replace it. A confident miss is
+ * discarded before it costs storage or an operator's attention; anything
+ * borderline goes to review with its confidence recorded, lowest first.
+ */
+export const RecipeImageVerdictSchema = withEnvelope({
+  /** Does it show the dish we named? Strict: paella is not jollof. */
+  isDish: z.boolean(),
+  /** Home food, or restaurant plating? */
+  looksHomemade: z.boolean(),
+  /** Text, hands, faces, packaging — anything the negative clause forbade. */
+  hasForbidden: z.boolean(),
+  confidence: z.number().min(0).max(1),
+  reason: z.string().max(200),
+});
+
+export type RecipeImageVerdict = z.infer<typeof RecipeImageVerdictSchema>;

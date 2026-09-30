@@ -740,8 +740,17 @@ const SEEDS: SeedMeal[] = [
   },
 ];
 
-/** Expanded to the document shape at seed time. */
-export function buildSeedMeals(): Omit<MealAttributes, '_id' | 'createdAt' | 'updatedAt'>[] {
+/**
+ * Expanded to the document shape at seed time.
+ *
+ * `images` and `primaryImageId` are excluded: a seeded recipe starts with no
+ * imagery and the schema defaults both, so requiring every seed to spell out
+ * an empty array and a null would be noise.
+ */
+export function buildSeedMeals(): Omit<
+  MealAttributes,
+  '_id' | 'createdAt' | 'updatedAt' | 'images' | 'primaryImageId'
+>[] {
   return SEEDS.map((seed) => {
     const ingredients: MealIngredient[] = seed.ingredients.map(([catalogueId, name, quantity, unit, optional]) => ({
       catalogueId,
