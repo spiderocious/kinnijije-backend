@@ -24,6 +24,11 @@ export const SERVER_EVENTS = {
   DECIDE_SERVED: 'decide_served',
   DECIDE_OPTIONS_SERVED: 'decide_options_served',
 
+  // Chowdeck
+  CHOWDECK_CALL_COMPLETED: 'chowdeck_call_completed',
+  CHOWDECK_OFFERS_SERVED: 'chowdeck_offers_served',
+  CHOWDECK_OFFER_CLICKED: 'chowdeck_offer_clicked',
+
   // Auth and accounts
   USER_REGISTERED: 'user_registered',
   AUTH_ATTEMPT_FAILED: 'auth_attempt_failed',

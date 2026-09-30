@@ -36,6 +36,10 @@ export interface DecideLogAttributes {
   weight: string;
   minutes: number;
   city: string | null;
+  /** `cook` or `order`. Older rows have none, which means `cook`. */
+  mode: string;
+  /** The saved Chowdeck place, when one was picked. A coarse area, like the city. */
+  placeId: string | null;
   /** Meals refused earlier in the same session. */
   rejected: string[];
 
@@ -71,6 +75,8 @@ const decideLogSchema = new Schema<DecideLogAttributes>(
     weight: { type: String, required: true, index: true },
     minutes: { type: Number, required: true },
     city: { type: String, default: null },
+    mode: { type: String, required: true, default: 'cook', index: true },
+    placeId: { type: String, default: null },
     rejected: { type: [String], default: [] },
 
     verdictMealId: { type: String, default: null, index: true },

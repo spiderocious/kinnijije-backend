@@ -189,6 +189,17 @@ function moodMultiplier(
     case MOODS.COMFORT:
       // The familiar beats the novel; a well-stocked match reads as comforting.
       return 1 + score * m.comfortScoreWeight;
+    case MOODS.SURPRISE:
+      /**
+       * Neutral BY DESIGN, and the only mood that is.
+       *
+       * "I don't even know" is a statement about the person, not the food:
+       * it says nothing about time, effort or comfort. Multiplying by one
+       * leaves the ranking entirely to their other answers and the match
+       * score, which is the honest reading. Any bias here would be us
+       * inventing a preference they explicitly declined to express.
+       */
+      return 1;
   }
 }
 
@@ -197,7 +208,31 @@ export interface RankOptions {
   limit?: number | undefined;
   /** Tunable weights. Defaults to the shipped config when absent. */
   config?: RankingConfig | undefined;
+  /**
+   * Order mode only: meal names (trimmed, lowercased) that a cached Chowdeck
+   * search already found restaurants for in the chosen place. Read from our
+   * cache, never fetched for this — the decision must not wait on Chowdeck.
+   */
+  orderable?: ReadonlySet<string> | undefined;
 }
+
+/**
+ * The nudge toward a dish we already know can be ordered nearby.
+ *
+ * A nudge, not a filter: the cache only knows what somebody has asked about,
+ * so a dish missing from it is unknown rather than unavailable.
+ */
+export const ORDERABLE_BOOST = 1.5;
+
+/**
+ * In order mode, only the proper dish.
+ *
+ * `simple` and `minimal` are versions for a kitchen with little in it. A
+ * restaurant sells egusi soup, not "egusi with what you have" — and a minimal
+ * version would win on reachability alone if it were left in, which is
+ * meaningless when nobody is cooking.
+ */
+const orderableQuality = (meal: MealDocument): boolean => qualityOf(meal) === 'full';
 
 /**
  * Keeps the best-ranked version of each dish.
@@ -232,16 +267,23 @@ export function rankCandidates(
   const limit = options.limit ?? POOL_SIZE;
   const weather = options.weather ?? null;
   const config = options.config ?? DEFAULT_RANKING_CONFIG;
-  const ceiling = ceilingFor(input.mood, input.minutes);
+  const ordering = input.mode === 'order';
+  // Nobody is cooking, so the clock the person picked says nothing about the dish.
+  const ceiling = ordering ? Number.POSITIVE_INFINITY : ceilingFor(input.mood, input.minutes);
   const refused = new Set(input.rejected);
+  const orderable = options.orderable ?? new Set<string>();
 
   // ── Stage 1 · filter ──────────────────────────────────────────────────
-  const eligible = meals.filter((meal) => {
+  const published = meals.filter((meal) => {
     if (meal.status !== 'published') return false;
     if (refused.has(meal._id)) return false;
     if (meal.cookTimeMinutes > ceiling) return false;
     return true;
   });
+
+  // The quality rule narrows, but never to nothing — same stance as weight below.
+  const fullOnly = ordering ? published.filter(orderableQuality) : published;
+  const eligible = fullOnly.length > 0 ? fullOnly : published;
 
   // The weight preference narrows, but never to nothing: if no meal carries
   // the tag, an unfiltered ranking is a better answer than an empty screen.
@@ -267,6 +309,17 @@ export function rankCandidates(
         : 1 - config.scoreWeight + matched.score * config.scoreWeight;
 
     /**
+     * Order mode drops the mood weighting: every mood rule is about the COOK
+     * (effort, cook time, what is already in the kitchen), and none of that
+     * applies to a plate somebody else makes. Mood still steered the weight
+     * filter above, and the model still reads it.
+     */
+    const mood = ordering
+      ? 1
+      : moodMultiplier(input.mood, meal, matched.score, matched.missing.length, config);
+    const nearby = ordering && orderable.has(meal.name.trim().toLowerCase()) ? ORDERABLE_BOOST : 1;
+
+    /**
      * The discount that stops a bare version winning on reachability alone.
      *
      * "Boiled yam and salt" matches almost any kitchen, so on raw score it
@@ -275,10 +328,7 @@ export function rankCandidates(
      * reachable, and lets the bare one surface only when nothing else is.
      */
     const rank =
-      base *
-      config.quality[qualityOf(meal)] *
-      moodMultiplier(input.mood, meal, matched.score, matched.missing.length, config) *
-      weatherMultiplier(meal, weather, config);
+      base * config.quality[qualityOf(meal)] * mood * weatherMultiplier(meal, weather, config) * nearby;
 
     return {
       meal,

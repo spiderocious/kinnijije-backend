@@ -77,6 +77,8 @@ export const decideController = {
       minutes: body.minutes,
       city: body.city,
       rejected: body.rejected,
+      mode: body.mode,
+      placeId: body.place_id,
     };
 
     const started = Date.now();
@@ -108,6 +110,9 @@ export const decideController = {
       weight: input.weight,
       minutes: input.minutes,
       city: input.city ?? null,
+      // How many people say "I'll order" is the first number Chowdeck will ask for.
+      mode: input.mode ?? 'cook',
+      place_id: input.placeId ?? null,
       rejected_count: input.rejected.length,
       // The empty sentinel: nothing matched at all. These properties together
       // are the recipe coverage hole, stated precisely.

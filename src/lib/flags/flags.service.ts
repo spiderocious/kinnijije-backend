@@ -105,18 +105,29 @@ export class FlagsService {
 
   /** Every flag with its label and who last touched it, for the console. */
   async listForConsole(): Promise<
-    { key: string; label: string; when_off: string; enabled: boolean; updated_by: string | null; reason: string | null; updated_at: string | null }[]
+    { key: string; label: string; when_on: string; when_off: string; enabled: boolean; updated_by: string | null; reason: string | null; updated_at: string | null }[]
   > {
     const rows = await FlagModel.find().exec();
     const byKey = new Map(rows.map((row) => [row._id, row]));
+    const live = await this.state();
 
     return FLAG_DEFINITIONS.map((definition) => {
       const row = byKey.get(definition.key);
       return {
         key: definition.key,
         label: definition.label,
+        when_on: definition.whenOn,
         when_off: definition.whenOff,
-        enabled: row?.enabled !== false,
+        /**
+         * The RUNTIME answer, not a guess from the row.
+         *
+         * `row?.enabled !== false` showed a flag with no row as on, which is
+         * true for an ordinary flag and false for a fail-closed one — so a
+         * never-touched tour or invite read "on" in the console while being
+         * off in the product. The console must show what is actually
+         * happening, or it is worse than no console.
+         */
+        enabled: live[definition.key],
         updated_by: row?.updatedBy ?? null,
         reason: row?.reason ?? null,
         updated_at: isoOrNull(row?.updatedAt),

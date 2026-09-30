@@ -108,6 +108,17 @@ const EnvSchema = z.object({
   /** A box a person can actually reply to. Never a no-reply address. */
   MAIL_REPLY_TO: z.string().default('chef@kinnijije.xyz'),
 
+  /**
+   * Chowdeck. No key: their customer API is open, which is exactly why the
+   * outbound limits below exist — nothing on their side will slow us down
+   * before it blocks us.
+   */
+  CHOWDECK_API_BASE: z.string().url().default('https://api.chowdeck.com'),
+  CHOWDECK_WEB_BASE: z.string().url().default('https://chowdeck.com'),
+  /** Outbound calls per minute, shared by cooks, the console and jobs. */
+  CHOWDECK_CALLS_PER_MINUTE: z.coerce.number().int().positive().default(20),
+  /** Outbound calls per day (Lagos time), shared the same way. */
+  CHOWDECK_DAILY_CAP: z.coerce.number().int().positive().default(2000),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 
   // ---- Analytics ----

@@ -18,6 +18,8 @@ const MOOD_OPENERS: Readonly<Record<Mood, string>> = {
   [MOODS.FAST]: 'Quick',
   [MOODS.PROPER]: 'Worth the effort',
   [MOODS.COMFORT]: 'Familiar and easy',
+  // No claim about effort or time: they told us nothing about either.
+  [MOODS.SURPRISE]: 'Our pick',
 };
 
 /** "You have 5 of 7" — arithmetic, never a guess. */
@@ -34,6 +36,8 @@ export function haveFraction(candidate: DecideCandidate): { have: number; total:
  * whole screen.
  */
 export function templatedWhy(candidate: DecideCandidate, input: DecideInput): string {
+  if (input.mode === 'order') return orderWhy(input);
+
   const { have, total } = haveFraction(candidate);
   const parts: string[] = [];
 
@@ -55,9 +59,29 @@ export function templatedWhy(candidate: DecideCandidate, input: DecideInput): st
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
 
+/**
+ * Order mode's version.
+ *
+ * Says nothing about the kitchen, cook time or effort — none of it is true of
+ * a plate somebody else makes — and nothing about restaurants either, because
+ * whether anyone nearby sells it is only known once the offers load.
+ */
+const ORDER_OPENERS: Readonly<Record<Mood, string>> = {
+  [MOODS.TIRED]: 'No cooking tonight',
+  [MOODS.FAST]: 'Nothing to wait on but the rider',
+  [MOODS.PROPER]: 'A proper plate, without the work',
+  [MOODS.COMFORT]: 'Something familiar, made for you',
+  [MOODS.SURPRISE]: 'Our pick, made for you',
+};
+
+function orderWhy(input: DecideInput): string {
+  return `${ORDER_OPENERS[input.mood]}.`;
+}
+
 /** The line above the verdict. Null when there is genuinely nothing to add. */
 export function templatedFraming(input: DecideInput, candidate: DecideCandidate | undefined): string | null {
   if (candidate === undefined) return null;
+  if (input.mode === 'order') return 'Put the pots away.';
   const minutes = candidate.meal.cookTimeMinutes;
   if (input.mood === MOODS.FAST) return `${String(minutes)} minutes, and you are eating.`;
   if (input.mood === MOODS.TIRED) return 'Short list, short cook.';

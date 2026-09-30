@@ -26,6 +26,12 @@ export const ID_PREFIXES = {
   chat: 'chat',
   insight: 'ins',
   decideLog: 'dlog',
+  /** One outbound request to Chowdeck, kept for the console. */
+  chowdeckCall: 'cdc',
+  /** One cached Chowdeck search, per place and query. */
+  chowdeckOffer: 'cdo',
+  /** One tap through to Chowdeck. */
+  chowdeckClick: 'cdk',
 } as const;
 
 /** Callers name the resource; the prefix itself is an implementation detail. */

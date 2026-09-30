@@ -70,14 +70,20 @@ export class DecideService {
     userId?: string,
   ): Promise<ServiceResult<DecideVerdictView>> {
     const started = Date.now();
-    const resolved = await this.withKitchenOf(input, userId);
+    const placed = await this.withPlace(input);
+    const resolved = await this.withKitchenOf(placed.input, userId);
     const meals = await this.publishedMeals();
     const [weather, config] = await Promise.all([
       this.weatherFor(resolved.city),
       rankingSettings.current(),
     ]);
 
-    const candidates = rankCandidates(meals, resolved, { weather, limit: POOL_SIZE, config });
+    const candidates = rankCandidates(meals, resolved, {
+      weather,
+      limit: POOL_SIZE,
+      config,
+      orderable: placed.orderable,
+    });
 
     // Nothing fits. A real answer, not an error — the client widens a filter.
     if (candidates.length === 0) {
@@ -142,6 +148,9 @@ export class DecideService {
    * decision, because a worse suggestion beats no suggestion.
    */
   private async withKitchenOf(input: DecideInput, userId?: string): Promise<DecideInput> {
+    // Ordering in: whatever is in the kitchen is beside the point, and letting
+    // their stock in would quietly turn this back into a cooking decision.
+    if (input.mode === 'order') return { ...input, kitchenItems: [], kitchenSkipped: true };
     if (userId === undefined) return input;
     if (input.kitchenItems.length > 0 || input.kitchenSkipped) return input;
 
@@ -161,6 +170,53 @@ export class DecideService {
         error: error instanceof Error ? error.message : 'unknown',
       });
       return input;
+    }
+  }
+
+  /**
+   * Resolves the chosen Chowdeck place, if any.
+   *
+   * Two things come from it, both from OUR tables and never from a live call:
+   *   - the city, for weather, when the person did not type one
+   *   - in order mode, the meals a cached search already found restaurants for
+   *     there, which the ranker nudges up
+   *
+   * An unknown or hidden place is ignored rather than refused: it only ever
+   * steers ranking, and a stale id in somebody's browser must not cost them
+   * their answer. Any failure degrades the same way.
+   */
+  private async withPlace(
+    input: DecideInput,
+  ): Promise<{ input: DecideInput; orderable: ReadonlySet<string> }> {
+    const empty = new Set<string>();
+    if (input.placeId === undefined) return { input, orderable: empty };
+
+    try {
+      const { chowdeckService } = await import('@features/chowdeck/index.js');
+      const { ChowdeckOfferModel } = await import('@features/chowdeck/chowdeck.model.js');
+
+      const place = await chowdeckService.activePlace(input.placeId);
+      if (place === null) return { input: { ...input, placeId: undefined }, orderable: empty };
+
+      const withCity =
+        (input.city === undefined || input.city.length === 0) && place.city !== null
+          ? { ...input, city: place.city }
+          : input;
+
+      if (input.mode !== 'order') return { input: withCity, orderable: empty };
+
+      const rows = await ChowdeckOfferModel.find({ placeId: place._id, status: 'ok' }, { query: 1 })
+        .lean()
+        .exec();
+      return {
+        input: withCity,
+        orderable: new Set(rows.map((r) => r.query.trim().toLowerCase())),
+      };
+    } catch (error) {
+      logger.warn('decide: could not resolve the place, ignoring it', {
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+      return { input, orderable: empty };
     }
   }
 
@@ -191,6 +247,8 @@ export class DecideService {
       weight: input.weight,
       minutes: input.minutes,
       city: input.city ?? null,
+      mode: input.mode ?? 'cook',
+      placeId: input.placeId ?? null,
       rejected: input.rejected,
       verdictMealId: verdict?.meal_id === '' ? null : (verdict?.meal_id ?? null),
       verdictName: verdict?.name ?? null,
@@ -221,6 +279,7 @@ export class DecideService {
     if (candidates.length === 0) return null;
 
     const offered = new Set(candidates.map((c) => c.meal._id));
+    const ordering = input.mode === 'order';
 
     const lines = [
       `[[prompt:${PROMPT_IDS.DECIDE_VERDICT}]]`,
@@ -228,11 +287,18 @@ export class DecideService {
       'THE PERSON:',
       `  mood: ${input.mood}`,
       `  wants: ${input.weight}`,
-      `  has about ${String(input.minutes)} minutes`,
+      // In order mode the clock and the kitchen are not theirs to spend: saying
+      // "they have nothing" would have the model apologise for an empty kitchen
+      // to somebody who simply does not want to cook.
+      ordering
+        ? '  they are ORDERING IN tonight, not cooking. Do not mention cooking, cook time, effort or ingredients they have or need.'
+        : `  has about ${String(input.minutes)} minutes`,
       input.city !== undefined && input.city.length > 0 ? `  city: ${input.city}` : '',
-      input.kitchenItems.length > 0
-        ? `  in their kitchen: ${input.kitchenItems.join(', ')}`
-        : '  their kitchen: they said they have nothing',
+      ordering
+        ? ''
+        : input.kitchenItems.length > 0
+          ? `  in their kitchen: ${input.kitchenItems.join(', ')}`
+          : '  their kitchen: they said they have nothing',
       '',
       'THE THREE CANDIDATES — you must choose one of these ids:',
       ...candidates.map((c) =>
@@ -247,10 +313,16 @@ export class DecideService {
             .filter((i) => !i.optional)
             .map((i) => i.name)
             .join(', ')}`,
-          `    cook time: ${String(c.meal.cookTimeMinutes)} minutes`,
-          `    difficulty: ${c.meal.difficulty}`,
-          `    they have: ${c.have.length > 0 ? c.have.join(', ') : '(none of it)'}`,
-          `    they need: ${c.missing.length > 0 ? c.missing.join(', ') : '(nothing)'}`,
+          // What a cook weighs. Left out when ordering, so the model has nothing
+          // to be wrong about.
+          ...(ordering
+            ? []
+            : [
+                `    cook time: ${String(c.meal.cookTimeMinutes)} minutes`,
+                `    difficulty: ${c.meal.difficulty}`,
+                `    they have: ${c.have.length > 0 ? c.have.join(', ') : '(none of it)'}`,
+                `    they need: ${c.missing.length > 0 ? c.missing.join(', ') : '(nothing)'}`,
+              ]),
         ].join('\n'),
       ),
       '',

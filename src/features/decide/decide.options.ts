@@ -102,6 +102,7 @@ const MOOD_TILES = [
   { id: MOODS.FAST, label: 'In a hurry', icon: 'alarmClock', caption: 'Fast as possible' },
   { id: MOODS.PROPER, label: 'Up for it', icon: 'chefHat', caption: 'Give me a project' },
   { id: MOODS.COMFORT, label: 'Need comfort', icon: 'likeHeart', caption: 'Something familiar' },
+  { id: MOODS.SURPRISE, label: "I don't even know", icon: 'shuffle', caption: "I'm so confused rn" },
 ] as const;
 
 const WEIGHT_TILES = [

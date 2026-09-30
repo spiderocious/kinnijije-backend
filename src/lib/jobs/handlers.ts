@@ -1,3 +1,4 @@
+import { registerChowdeckHandlers } from '@features/chowdeck/chowdeck.jobs.js';
 import { registerExtractionHandlers } from '@features/extraction/extraction.jobs.js';
 import { registerInsightHandlers } from '@features/insights/insights.jobs.js';
 import { registerMealHandlers } from '@features/meals/meals.jobs.js';
@@ -18,4 +19,5 @@ export function registerJobHandlers(): void {
   registerMealHandlers();
   registerInsightHandlers();
   registerNotificationHandlers();
+  registerChowdeckHandlers();
 }

@@ -19,6 +19,16 @@ export const MOODS = {
   PROPER: 'proper',
   /** Needs comfort — the familiar beats the novel. */
   COMFORT: 'comfort',
+  /**
+   * No idea — the honest answer, and a common one.
+   *
+   * Every other mood biases the ranking one way. This one deliberately does
+   * NOT: somebody who cannot name what they want has told us nothing about
+   * time or effort, and inventing a preference for them is how a recommender
+   * starts feeling wrong. It leaves the pool wide and lets the rest of their
+   * answers decide.
+   */
+  SURPRISE: 'surprise',
 } as const;
 export type Mood = (typeof MOODS)[keyof typeof MOODS];
 export const ALL_MOODS: readonly Mood[] = Object.values(MOODS);
@@ -44,6 +54,16 @@ export const TIME_BUDGETS = [15, 40, 90] as const;
 export type TimeBudget = (typeof TIME_BUDGETS)[number];
 export const DEFAULT_TIME_BUDGET: TimeBudget = 40;
 
+/**
+ * Cooking it, or having it brought.
+ *
+ * `order` is the "don't worry, I'll order" answer on the kitchen step. The
+ * kitchen and the clock stop mattering — nobody is cooking — so the ranking
+ * runs on mood and weight alone, and the verdict leads with restaurants.
+ */
+export const DECIDE_MODES = ['cook', 'order'] as const;
+export type DecideMode = (typeof DECIDE_MODES)[number];
+
 /** What the client sends. Mirrors DecideDraft in the web app. */
 export interface DecideInput {
   kitchenItems: string[];
@@ -52,6 +72,10 @@ export interface DecideInput {
   weight: Weight;
   minutes: TimeBudget;
   city?: string | undefined;
+  /** Absent means `cook`, so every older caller keeps its behaviour. */
+  mode?: DecideMode | undefined;
+  /** A saved Chowdeck place. Required by the client in order mode; optional here. */
+  placeId?: string | undefined;
   /** Meals this person has already refused, this session. Filtered out. */
   rejected: string[];
 }

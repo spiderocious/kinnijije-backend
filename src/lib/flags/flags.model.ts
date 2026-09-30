@@ -28,6 +28,15 @@ export const FEATURE_FLAGS = {
    * the trade can be measured — step-3-to-verdict completion, on versus off.
    */
   DECIDE_INVITE: 'decide_invite',
+  /**
+   * The Chowdeck pair. Separate, so each can be stopped alone:
+   *   offers — whether a cook SEES anything from Chowdeck: the cards, and the
+   *            "I'll order" choice in the decide flow
+   *   fetch  — whether we CALL Chowdeck at all. Off still serves the cache, so
+   *            their API can be left alone without the cards disappearing
+   */
+  CHOWDECK_OFFERS: 'chowdeck_offers',
+  CHOWDECK_FETCH: 'chowdeck_fetch',
 } as const;
 
 export type FeatureFlag = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
@@ -60,12 +69,25 @@ export const FAIL_CLOSED_FLAGS: readonly FeatureFlag[] = [
   // because a read failed. Off is the safe default until the numbers say
   // otherwise.
   FEATURE_FLAGS.DECIDE_INVITE,
+  // Somebody else's API that we have no contract for. A read failure must not
+  // be what starts us calling it, or what puts their name on our screens.
+  FEATURE_FLAGS.CHOWDECK_OFFERS,
+  FEATURE_FLAGS.CHOWDECK_FETCH,
 ];
 
 export interface FlagDefinition {
   readonly key: FeatureFlag;
   readonly label: string;
-  /** What actually stops happening. Shown beside the switch. */
+  /**
+   * What people GET when this is on.
+   *
+   * Both sentences are written about users rather than about the system, and
+   * both are always shown. An operator deciding whether to throw a switch is
+   * asking one question — what changes for the people using this — and the
+   * honest answer is the pair, side by side.
+   */
+  readonly whenOn: string;
+  /** What people DO NOT get when this is off. The mirror of `whenOn`. */
   readonly whenOff: string;
 }
 
@@ -73,33 +95,58 @@ export const FLAG_DEFINITIONS: readonly FlagDefinition[] = [
   {
     key: FEATURE_FLAGS.ONBOARDING_TOUR,
     label: 'The product tour',
+    whenOn: 'New cooks are walked through the app once, with coach marks.',
     whenOff: 'New cooks land straight on their kitchen with no coach marks.',
   },
   {
     key: FEATURE_FLAGS.UPLOAD_RECEIPT,
     label: 'Reading a market receipt',
+    whenOn: 'People can photograph a market receipt and have their stock filled in from it.',
     whenOff: 'The receipt option disappears from the add-stock screen. Typing and photos still work.',
   },
   {
     key: FEATURE_FLAGS.UPLOAD_PHOTO,
     label: 'Reading a photo of a shelf',
+    whenOn: 'People can photograph a shelf and have their stock filled in from it.',
     whenOff: 'The photo option disappears from the add-stock screen. Typing still works.',
   },
   {
     key: FEATURE_FLAGS.DECIDE_INVITE,
     label: 'Signup invite in the decide flow',
+    whenOn:
+      'Guests are offered an account once, after step three, and can dismiss it. The offer after the verdict is unaffected.',
     whenOff:
       'Nobody is asked to sign up mid-flow. The offer after the verdict is unaffected.',
   },
   {
+    key: FEATURE_FLAGS.CHOWDECK_OFFERS,
+    label: 'Chowdeck — offers shown to cooks',
+    whenOn:
+      'Cooks see Chowdeck cards, and "I\'ll order" appears as an option in the decide flow.',
+    whenOff:
+      'No Chowdeck cards anywhere, and "I\'ll order" disappears from the decide flow. The cache is kept.',
+  },
+  {
+    key: FEATURE_FLAGS.CHOWDECK_FETCH,
+    label: 'Chowdeck — calls to their API',
+    whenOn:
+      'We call Chowdeck for live prices and availability, refreshing what cooks are shown.',
+    whenOff:
+      'We stop calling Chowdeck entirely, including from the console. Cooks still see whatever is cached.',
+  },
+  {
     key: FEATURE_FLAGS.ANALYTICS_CLIENT,
     label: 'Product analytics — browser',
+    whenOn:
+      'The app records what people do in the browser and loads the analytics SDK. Server-side analytics is unaffected.',
     whenOff:
       'The app sends no events and loads no analytics SDK at all. Server-side analytics is unaffected.',
   },
   {
     key: FEATURE_FLAGS.ANALYTICS_SERVER,
     label: 'Product analytics — server',
+    whenOn:
+      'The backend records what people do, plus AI cost, error-rate and job metrics. The browser is unaffected.',
     whenOff:
       'The backend sends no events. AI cost, error-rate and job metrics stop being collected. The browser is unaffected.',
   },

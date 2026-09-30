@@ -124,4 +124,30 @@ export const RATE_LIMITS = {
    * by hand.
    */
   IMAGE_GENERATE: perWindow('image_generate', 60, HOUR),
+
+  /**
+   * Chowdeck offers for one meal in one place.
+   *
+   * Mostly served from our cache, but a miss becomes a call to somebody
+   * else's API with no key and no contract — so this is tighter than an
+   * ordinary read. A person looks at a handful of meals; thirty a minute is
+   * room for "not this" and changing places, and useless for scraping.
+   */
+  CHOWDECK_OFFERS: perWindow('chowdeck_offers', 30, MINUTE),
+
+  /** The tap through to Chowdeck. Never calls them — a lookup and a redirect. */
+  CHOWDECK_REDIRECT: perWindow('chowdeck_redirect', 60, MINUTE),
+
+  /** Searching OUR saved places. No call to Chowdeck, but still a database query per keystroke. */
+  PLACES_SEARCH: perWindow('places_search', 60, MINUTE),
+
+  /** Console reads for the Chowdeck pages. Tighter than ADMIN: some return whole response bodies. */
+  CHOWDECK_ADMIN_READ: perWindow('chowdeck_admin_read', 120, MINUTE),
+
+  /**
+   * Console actions that can reach Chowdeck or wipe state: a location search,
+   * a replay, a fetch-ahead, a cache clear. Bounds a stuck click loop, not a
+   * person.
+   */
+  CHOWDECK_ADMIN_ACTION: perWindow('chowdeck_admin_action', 10, MINUTE),
 } as const;

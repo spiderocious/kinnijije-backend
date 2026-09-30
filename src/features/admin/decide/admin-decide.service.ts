@@ -39,6 +39,11 @@ export interface DecideOverview {
   /** The meals people refuse. The cleanest negative signal in the product. */
   top_rejected: { meal_id: string; name: string | null; count: number }[];
   cities: { name: string; count: number }[];
+  /**
+   * Cook versus "I'll order". Counts only decisions made since the mode
+   * existed — older rows carry no mode and are left out rather than guessed.
+   */
+  modes: { value: string; count: number }[];
   /** Decisions per day, oldest first, for a sparkline. */
   daily: { date: string; count: number }[];
   /** How often people submit nothing at all. */
@@ -55,6 +60,8 @@ export interface DecideLogView {
   weight: string;
   minutes: number;
   city: string | null;
+  mode: string;
+  place_id: string | null;
   rejected: string[];
   verdict_meal_id: string | null;
   verdict_name: string | null;
@@ -79,6 +86,9 @@ const toView = (doc: DecideLogAttributes): DecideLogView => ({
   weight: doc.weight,
   minutes: doc.minutes,
   city: doc.city,
+  // Rows written before order mode existed have no mode at all; they were all cooking.
+  mode: doc.mode ?? 'cook',
+  place_id: doc.placeId ?? null,
   rejected: doc.rejected,
   verdict_meal_id: doc.verdictMealId,
   verdict_name: doc.verdictName,
@@ -144,6 +154,7 @@ export class AdminDecideService {
       rejected,
       daily,
       durations,
+      modes,
     ] = await Promise.all([
       DecideLogModel.countDocuments().exec(),
       DecideLogModel.countDocuments({ createdAt: { $gte: midnight } }).exec(),
@@ -180,6 +191,7 @@ export class AdminDecideService {
       // The median, not the mean: one 9-second timeout would drag an average
       // somewhere that describes no real request.
       DecideLogModel.find({}, { durationMs: 1 }).sort({ durationMs: 1 }).lean().exec(),
+      topBy('mode', 4),
     ]);
 
     const median =
@@ -223,6 +235,7 @@ export class AdminDecideService {
         count: r.count,
       })),
       cities: cities.map((c) => ({ name: c.value, count: c.count })),
+      modes,
       daily: daily.map((d) => ({ date: d._id, count: d.count })),
       empty_kitchen_rate: decisions === 0 ? 0 : emptyKitchen / decisions,
     });
