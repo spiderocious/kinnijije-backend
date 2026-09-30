@@ -12,6 +12,7 @@ import { chowdeckController } from './chowdeck.controller.js';
 import {
   AutocompleteSchema,
   ClearCacheSchema,
+  ClickSchema,
   FetchAheadSchema,
   IdParamSchema,
   ImportPlacesSchema,
@@ -20,11 +21,9 @@ import {
   ListClicksSchema,
   OffersQuerySchema,
   PlaceParamSchema,
-  RedirectQuerySchema,
   SavePlaceSchema,
   SearchPlacesSchema,
   UpdatePlaceSchema,
-  VendorParamSchema,
 } from './chowdeck.schema.js';
 
 const router = Router();
@@ -57,13 +56,13 @@ router.get(
   asyncHandler(chowdeckController.offers),
 );
 
-// A lookup and a 302. Never calls Chowdeck.
-router.get(
-  '/go/chowdeck/:vendorId',
-  rateLimit(RATE_LIMITS.CHOWDECK_REDIRECT, byIp),
-  validate(VendorParamSchema, 'params'),
-  validate(RedirectQuerySchema, 'query'),
-  asyncHandler(chowdeckController.redirect),
+// A tap through, reported on the side while the browser goes straight to
+// Chowdeck. A lookup and an insert; never calls Chowdeck.
+router.post(
+  '/partners/chowdeck/clicks',
+  rateLimit(RATE_LIMITS.CHOWDECK_CLICK, byIp),
+  validate(ClickSchema),
+  asyncHandler(chowdeckController.click),
 );
 
 // ── Console ──────────────────────────────────────────────────────────────

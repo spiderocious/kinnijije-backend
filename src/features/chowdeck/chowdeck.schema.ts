@@ -21,14 +21,13 @@ export const OffersQuerySchema = z.object({
   mode: z.enum(['cook', 'order']).optional(),
 });
 
-export const VendorParamSchema = z.object({ vendorId: id });
-
-/** Everything here is labelling only. The destination is never read from it. */
-export const RedirectQuerySchema = z.object({
-  product: z.string().max(60).optional(),
+/** A tap through to Chowdeck, reported by the browser as it leaves. */
+export const ClickSchema = z.object({
+  vendor_id: id,
+  product_id: z.string().max(60).optional(),
   meal: z.string().max(120).optional(),
   place: z.string().max(60).optional(),
-  pos: z.coerce.number().int().min(0).max(100).optional(),
+  position: z.number().int().min(0).max(100).optional(),
   mode: z.enum(['cook', 'order']).optional(),
 });
 

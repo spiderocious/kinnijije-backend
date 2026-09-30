@@ -10,13 +10,13 @@ import { chowdeckService } from './chowdeck.service.js';
 import type { z } from 'zod';
 import type {
   ClearCacheSchema,
+  ClickSchema,
   FetchAheadSchema,
   ImportPlacesSchema,
   ListCacheSchema,
   ListCallsSchema,
   ListClicksSchema,
   OffersQuerySchema,
-  RedirectQuerySchema,
   SavePlaceSchema,
   UpdatePlaceSchema,
 } from './chowdeck.schema.js';
@@ -53,25 +53,26 @@ export const chowdeckController = {
   },
 
   /**
-   * The tap through. A real 302, so it works as a plain link — including when
-   * JavaScript is slow, and with no analytics SDK loaded at all.
+   * A tap through, reported as the browser leaves for Chowdeck.
+   *
+   * Always 204, whatever happened: the cook is already on their way, nothing
+   * reads this answer, and telling a caller which vendor ids we recognise
+   * would only help somebody probing the endpoint.
    */
-  redirect: async (req: Request, res: Response): Promise<void> => {
-    const query = req.query as unknown as z.infer<typeof RedirectQuerySchema>;
-    const url = await chowdeckService.redirect(
-      param(req, 'vendorId'),
+  click: async (req: Request, res: Response): Promise<void> => {
+    const body = req.body as z.infer<typeof ClickSchema>;
+    await chowdeckService.recordClick(
+      body.vendor_id,
       {
-        productId: query.product,
-        mealSlug: query.meal,
-        placeId: query.place,
-        position: query.pos,
-        mode: query.mode,
+        productId: body.product_id,
+        mealSlug: body.meal,
+        placeId: body.place,
+        position: body.position,
+        mode: body.mode,
       },
       ip(req),
     );
-    // Never cached: every tap must reach us to be counted.
-    res.setHeader('Cache-Control', 'no-store');
-    res.redirect(302, url);
+    ResponseUtil.noContent(res);
   },
 
   // ── Console ────────────────────────────────────────────────────────────

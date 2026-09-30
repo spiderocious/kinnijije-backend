@@ -291,11 +291,15 @@ export interface OfferView {
     more_count: number;
   };
   /**
-   * Relative to the API root. The client adds meal, place, position and mode;
-   * the server resolves the destination itself.
+   * The restaurant's page on Chowdeck — linked to directly, so the tap goes
+   * straight there and our API never appears in the address bar. Built here
+   * from the cached vendor, never from anything a client sent.
    */
-  go_path: string;
+  store_url: string;
 }
+
+/** Their public site. Callers pass the configured one; this keeps the function pure and testable. */
+export const DEFAULT_WEB_BASE = 'https://chowdeck.com';
 
 export interface RankedOffers {
   /** Open now, best first. */
@@ -316,7 +320,7 @@ interface Scored {
 
 const kobo = (value: number): number => Math.round(value) / 100;
 
-function toView(s: Scored): OfferView {
+function toView(s: Scored, webBase: string): OfferView {
   const { vendor, product } = s;
   const hasTime = vendor.minDeliveryMinutes !== null && vendor.maxDeliveryMinutes !== null;
 
@@ -347,7 +351,7 @@ function toView(s: Scored): OfferView {
       image_url: product.imageUrl,
       more_count: s.more,
     },
-    go_path: `/go/chowdeck/${encodeURIComponent(vendor.vendorId)}?product=${encodeURIComponent(product.productId)}`,
+    store_url: storeUrl(webBase, vendor),
   };
 }
 
@@ -371,7 +375,11 @@ const compare = (a: Scored, b: Scored): number => {
  * band, adjusted rating, price, distance. Deterministic, so a refresh does not
  * reshuffle the row.
  */
-export function rankOffers(vendors: readonly StoredVendor[], now: Date): RankedOffers {
+export function rankOffers(
+  vendors: readonly StoredVendor[],
+  now: Date,
+  webBase: string = DEFAULT_WEB_BASE,
+): RankedOffers {
   const scored: Scored[] = [];
 
   for (const vendor of vendors) {
@@ -403,8 +411,8 @@ export function rankOffers(vendors: readonly StoredVendor[], now: Date): RankedO
   });
 
   return {
-    open: unique.filter((s) => s.state.open).map(toView),
-    later: unique.filter((s) => !s.state.open).map(toView),
+    open: unique.filter((s) => s.state.open).map((s) => toView(s, webBase)),
+    later: unique.filter((s) => !s.state.open).map((s) => toView(s, webBase)),
     considered: vendors.length,
   };
 }

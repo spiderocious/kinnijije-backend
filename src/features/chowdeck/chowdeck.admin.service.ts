@@ -478,7 +478,7 @@ export class ChowdeckAdminService {
       fetched_at: isoOrNull(row.fetchedAt),
       call_id: row.callId,
       vendors: row.vendors.map((v) => ({ ...v, store_url: storeUrl(env.CHOWDECK_WEB_BASE, v) })),
-      as_served_now: rankOffers(row.vendors, new Date()),
+      as_served_now: rankOffers(row.vendors, new Date(), env.CHOWDECK_WEB_BASE),
     });
   }
 
@@ -542,7 +542,7 @@ export class ChowdeckAdminService {
         .map((row) => {
           const slug = byQuery.get(row.query.trim().toLowerCase());
           if (slug === undefined) return null;
-          const ranked = rankOffers(row.vendors, now);
+          const ranked = rankOffers(row.vendors, now, env.CHOWDECK_WEB_BASE);
           return {
             id: row._id,
             place_id: row.placeId,

@@ -135,8 +135,8 @@ export const RATE_LIMITS = {
    */
   CHOWDECK_OFFERS: perWindow('chowdeck_offers', 30, MINUTE),
 
-  /** The tap through to Chowdeck. Never calls them — a lookup and a redirect. */
-  CHOWDECK_REDIRECT: perWindow('chowdeck_redirect', 60, MINUTE),
+  /** A tap through to Chowdeck, reported by the browser. Never calls them — a lookup and an insert. */
+  CHOWDECK_CLICK: perWindow('chowdeck_click', 60, MINUTE),
 
   /** Searching OUR saved places. No call to Chowdeck, but still a database query per keystroke. */
   PLACES_SEARCH: perWindow('places_search', 60, MINUTE),

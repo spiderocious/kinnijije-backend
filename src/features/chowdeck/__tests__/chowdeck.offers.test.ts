@@ -203,11 +203,11 @@ describe('rankOffers', () => {
     assert.deepEqual(out.open.map((o) => o.vendor.id), ['fastgood', 'fast', 'slow']);
   });
 
-  it('converts kobo to naira and builds the go path', () => {
-    const offer = rankOffers([vendor()], noon).open[0];
+  it('converts kobo to naira and links straight to the restaurant', () => {
+    const offer = rankOffers([vendor()], noon, 'https://chowdeck.com').open[0];
     assert.equal(offer?.product.price_naira, 500);
     assert.equal(offer?.vendor.delivery_fee_naira, 700);
-    assert.equal(offer?.go_path, '/go/chowdeck/v1?product=p1');
+    assert.equal(offer?.store_url, 'https://chowdeck.com/store/surulere/restaurants/iya-moria');
   });
 });
 

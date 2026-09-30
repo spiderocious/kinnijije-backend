@@ -225,7 +225,7 @@ export class ChowdeckService {
 
     served[from ?? 'unavailable'] += 1;
 
-    const ranked = row === null ? null : rankOffers(row.vendors, new Date());
+    const ranked = row === null ? null : rankOffers(row.vendors, new Date(), env.CHOWDECK_WEB_BASE);
     const hasAny = ranked !== null && ranked.open.length + ranked.later.length > 0;
 
     const view: OffersView = {
@@ -302,13 +302,15 @@ export class ChowdeckService {
   // ── The tap through ────────────────────────────────────────────────────
 
   /**
-   * Where a tap goes, and a record that it happened.
+   * A record that a cook tapped through to Chowdeck.
    *
-   * The destination is built from the CACHED vendor, never from the request,
-   * so this cannot be turned into an open redirect. An unknown vendor goes to
-   * Chowdeck's front page rather than an error: the cook has already left us.
+   * The browser links straight to Chowdeck and reports the tap here on the
+   * side, so our API never shows in the address bar. The vendor must exist in
+   * our cache — a click for a vendor we never showed is somebody posting at
+   * the endpoint, and is dropped rather than counted. The stored URL is built
+   * from the cache too, so the log says where the tap really went.
    */
-  async redirect(
+  async recordClick(
     vendorId: string,
     context: {
       productId?: string | undefined;
@@ -318,7 +320,7 @@ export class ChowdeckService {
       mode?: string | undefined;
     },
     ip: string,
-  ): Promise<string> {
+  ): Promise<void> {
     const row = await ChowdeckOfferModel.findOne(
       { 'vendors.vendorId': vendorId },
       { 'vendors.$': 1 },
@@ -328,7 +330,7 @@ export class ChowdeckService {
       .exec();
 
     const vendor = row?.vendors[0];
-    if (vendor === undefined) return env.CHOWDECK_WEB_BASE;
+    if (vendor === undefined) return;
 
     const url = storeUrl(env.CHOWDECK_WEB_BASE, vendor);
 
@@ -359,8 +361,6 @@ export class ChowdeckService {
       position: context.position ?? null,
       mode: context.mode ?? null,
     });
-
-    return url;
   }
 }
 
