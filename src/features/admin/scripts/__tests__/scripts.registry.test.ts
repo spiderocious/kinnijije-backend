@@ -55,3 +55,41 @@ describe('script registry', () => {
     }
   });
 });
+
+/**
+ * The onboarding kitchen backfill.
+ *
+ * It repairs accounts whose "what do you have" answer never became stock —
+ * 114 of 145 when it was written — so its safety properties matter more than
+ * most: it runs against real people's kitchens.
+ */
+describe('backfill-onboarding-kitchens', () => {
+  const script = scriptById('backfill-onboarding-kitchens');
+
+  it('is registered', () => {
+    assert.ok(script !== undefined);
+  });
+
+  it('supports a dry run', () => {
+    // An operator must be able to see the blast radius before touching data.
+    assert.equal(script?.supportsDryRun, true);
+  });
+
+  it('is not marked destructive', () => {
+    // It only ever ADDS, and only what the person already told us. Marking it
+    // destructive would train operators to click through the confirmation that
+    // actually-destructive scripts depend on.
+    assert.equal(script?.destructive, false);
+  });
+
+  it('can be run more than once', () => {
+    // Accounts created before the onboarding fix ships keep arriving in this
+    // state, so an operator will need it again. `seedFromNames` skips anything
+    // already in stock, which is what makes repeating it safe.
+    assert.equal(script?.runOnce, false);
+  });
+
+  it('says what it changes', () => {
+    assert.ok((script?.effect.length ?? 0) > 0);
+  });
+});

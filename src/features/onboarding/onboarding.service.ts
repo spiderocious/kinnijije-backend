@@ -1,3 +1,5 @@
+import { STOCK_SOURCES } from '@features/stock/stock.model.js';
+import { stockService } from '@features/stock/stock.service.js';
 import { UserModel, type UserDocument } from '@features/users/users.model.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
@@ -33,6 +35,8 @@ export class OnboardingService {
    */
   async save(userId: string, input: SaveOnboardingInput): Promise<ServiceResult<OnboardingView>> {
     const update: Record<string, unknown> = {};
+    /** Held so the stock write below happens only when they answered that step. */
+    let seededItems: string[] | null = null;
 
     if (input.cuisines !== undefined) update['prefs.cuisines'] = input.cuisines;
     if (input.difficulty !== undefined) update['prefs.difficulty'] = input.difficulty;
@@ -50,6 +54,7 @@ export class OnboardingService {
         items.push(item);
       }
       update['kitchenItems'] = items;
+      seededItems = items;
     }
 
     const user = await UserModel.findOneAndUpdate(
@@ -60,6 +65,36 @@ export class OnboardingService {
 
     if (user === null) {
       return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.users.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    }
+
+    /**
+     * The answer has to reach STOCK, not just the user record.
+     *
+     * Every screen that shows a kitchen reads stock: the Kitchen page, the
+     * signed-in Decide pre-fill, and the server's own fallback. Writing only
+     * `user.kitchenItems` meant somebody answered "what do you have", saw an
+     * empty kitchen, and was asked again — 114 of 145 accounts were in that
+     * state before this was fixed.
+     *
+     * `seedFromNames` is idempotent and skips anything already in stock, so a
+     * cook who edits this step twice does not end up with two bags of rice.
+     *
+     * Best effort, deliberately: onboarding has already been saved by the time
+     * this runs, and failing the request over a stock write would lose the
+     * answer entirely. The backfill script repairs anything that slips.
+     */
+    if (seededItems !== null && seededItems.length > 0) {
+      const seeded = await stockService.seedFromNames(
+        userId,
+        seededItems,
+        STOCK_SOURCES.ONBOARDING,
+      );
+      if (!seeded.success) {
+        logger.warn('onboarding kitchen did not reach stock', {
+          user_id: userId,
+          item_count: seededItems.length,
+        });
+      }
     }
 
     return ok(toOnboardingView(user, CUISINE_OPTIONS));

@@ -295,11 +295,106 @@ const pruneUnknownScopes: ScriptDefinition = {
   },
 };
 
+/**
+ * Puts a new member's onboarding kitchen into their actual stock.
+ *
+ * THE BUG IT REPAIRS: `onboarding.patch` writes the answer to
+ * `user.kitchenItems` and stops there. Nothing ever creates the stock rows —
+ * and the Kitchen page, the signed-in Decide pre-fill and the server's own
+ * fallback all read STOCK. So somebody answered "what do you have", saw an
+ * empty kitchen afterwards, and was asked the same question again.
+ *
+ * 114 of 145 accounts were in that state when this was written.
+ *
+ * Uses `stockService.seedFromNames`, which is the same call the decide
+ * carry-over makes: it resolves each name against the catalogue, writes one of
+ * the default unit as a placeholder, records a movement, and SKIPS anything
+ * already in stock. That last part is what makes this safe to run twice.
+ *
+ * Not `runOnce`: accounts created before the underlying fix ships will keep
+ * arriving in this state, so an operator may need it again.
+ */
+const backfillOnboardingKitchens: ScriptDefinition = {
+  id: 'backfill-onboarding-kitchens',
+  name: 'Move onboarding kitchens into stock',
+  runOnce: false,
+  description:
+    'Finds accounts whose onboarding kitchen answers never became stock rows, and creates the missing rows. Anything already in stock is left exactly as it is.',
+  effect:
+    'Creates one stock row per remembered ingredient, at one of its default unit. Never overwrites or removes anything.',
+  // It only ever adds, and only what the person already told us.
+  destructive: false,
+  supportsDryRun: true,
+  run: async ({ job, dryRun }) => {
+    const { UserModel } = await import('@features/users/users.model.js');
+    const { StockItemModel } = await import('@features/stock/stock.model.js');
+    const { stockService } = await import('@features/stock/stock.service.js');
+    const { STOCK_SOURCES } = await import('@features/stock/stock.model.js');
+
+    const candidates = await UserModel.find(
+      { 'kitchenItems.0': { $exists: true } },
+      { _id: 1, email: 1, kitchenItems: 1 },
+    )
+      .lean()
+      .exec();
+
+    const repaired: { id: string; email: string; items: number; added: number }[] = [];
+    let alreadyFine = 0;
+    let itemsAdded = 0;
+
+    for (const [index, user] of candidates.entries()) {
+      await job.setProgress(index / Math.max(1, candidates.length), user.email);
+
+      const names = user.kitchenItems ?? [];
+
+      /**
+       * Only accounts with NO stock at all.
+       *
+       * Somebody who has since added things has a kitchen they have curated,
+       * and quietly pushing a months-old onboarding answer back into it would
+       * resurrect ingredients they may have deliberately removed. The narrow
+       * rule repairs the reported failure and touches nobody else.
+       */
+      const existing = await StockItemModel.countDocuments({ ownerId: user._id }).exec();
+      if (existing > 0) {
+        alreadyFine += 1;
+        continue;
+      }
+
+      if (dryRun) {
+        repaired.push({ id: user._id, email: user.email, items: names.length, added: 0 });
+        itemsAdded += names.length;
+        continue;
+      }
+
+      const result = await stockService.seedFromNames(
+        user._id,
+        names,
+        STOCK_SOURCES.ONBOARDING,
+      );
+      const added = result.success ? result.data.added : 0;
+      itemsAdded += added;
+      repaired.push({ id: user._id, email: user.email, items: names.length, added });
+    }
+
+    return {
+      dry_run: dryRun,
+      accounts_with_remembered_kitchens: candidates.length,
+      accounts_repaired: repaired.length,
+      accounts_already_had_stock: alreadyFine,
+      stock_rows_created: itemsAdded,
+      // Capped: a console cell is not a place to render 114 rows.
+      sample: repaired.slice(0, 20),
+    };
+  },
+};
+
 export const SCRIPTS: readonly ScriptDefinition[] = [
   enableAllNotifications,
   auditGroupDrift,
   auditStuckInvites,
   pruneUnknownScopes,
+  backfillOnboardingKitchens,
 ];
 
 export const scriptById = (id: string): ScriptDefinition | undefined =>
