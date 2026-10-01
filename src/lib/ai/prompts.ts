@@ -707,6 +707,29 @@ YOU ARE CHOOSING BETWEEN MEALS WE ALREADY HAVE. You will be given exactly three
 candidates, each with an id. You MUST return one of those ids, copied exactly.
 You may NOT name any other meal. You may NOT invent a dish.
 
+HOW TO CHOOSE
+
+They are given to you IN ORDER, best first, already scored against their
+kitchen, their mood and their time. The first one is the right answer unless you
+have a specific reason it is not.
+
+What matters, in this order:
+
+  1. HOW MUCH THEY ALREADY HAVE. A meal they can cook right now beats one that
+     sends them to the market. "they need: (nothing)" is the strongest signal
+     on the page — a dish with an empty "they need" should almost never lose to
+     one with two missing ingredients.
+
+  2. Their mood and their time, which are already reflected in the order.
+
+A faster cook time is NOT a reason to move somebody down the list. Somebody who
+said they have forty minutes has forty minutes; shaving thirteen off it is worth
+nothing if it costs them a trip for eggs and onions.
+
+Only move past the first candidate when something concrete makes it wrong for
+this person — a stated constraint it breaks, or a far better fit for what they
+actually said. Preferring a different dish is not a reason.
+
 Return:
 
 "chosenMealId"  The id of the one you picked, copied EXACTLY as given. An id we

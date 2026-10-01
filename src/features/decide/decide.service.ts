@@ -36,6 +36,25 @@ import type { DecideCandidate, DecideInput, DecideVerdictView } from './decide.t
  * The client's progress bar is paced to this and no longer promises a number,
  * so raising it costs a slower worst case rather than a broken promise.
  */
+/**
+ * Whether the model's promotion should be refused.
+ *
+ * True only in the one case that is unambiguously wrong: the deterministic
+ * leader needs NOTHING, and the model picked something that sends the cook
+ * shopping. Everything else it may reorder freely — judging mood and taste is
+ * exactly what it is there for.
+ *
+ * Exported for the test; the rule is small and the cost of getting it wrong is
+ * a person being sent to the market when dinner was already in the house.
+ */
+export function refusesPromotion(
+  leader: { missing: readonly string[] } | undefined,
+  chosen: { missing: readonly string[] } | undefined,
+): boolean {
+  if (leader === undefined || chosen === undefined) return false;
+  return leader.missing.length === 0 && chosen.missing.length > 0;
+}
+
 export const AI_TIMEOUT_MS = 9_000;
 
 /**
@@ -125,16 +144,33 @@ export class DecideService {
     const views = candidates.map((c) => toMealView(c, resolved));
     const framed = await this.frame(candidates.slice(0, CANDIDATES_FOR_MODEL), resolved);
 
-    // The model may promote a different candidate to the top.
-    const winnerIndex =
-      framed === null ? 0 : candidates.findIndex((c) => c.meal._id === framed.chosenMealId);
+    /**
+     * The model may promote a different candidate — but not an unreachable one.
+     *
+     * Asked to pick between White Rice (everything in their kitchen, 25 min)
+     * and Indomie and Egg (two ingredients short, 12 min), it chose the
+     * noodles: a faster cook time read as "better" even though it meant a trip
+     * to the market. That is the wrong trade, and a prompt alone is too soft a
+     * guarantee for it.
+     *
+     * So the promotion is REFUSED when the deterministic leader needs nothing
+     * and the model's pick needs something. Everything else it may still
+     * reorder — mood and taste are exactly what it is here for.
+     */
+    const promoted =
+      framed === null ? -1 : candidates.findIndex((c) => c.meal._id === framed.chosenMealId);
+
+    const demotesAReadyMeal = refusesPromotion(candidates[0], candidates[promoted]);
+    const winnerIndex = demotesAReadyMeal ? 0 : promoted;
     const index = winnerIndex >= 0 ? winnerIndex : 0;
 
     const verdict = { ...views[index] } as DecideVerdictView['verdict'];
     // Only the winner may carry the model's sentence. Every other meal keeps
     // its templated line — the model wrote about ONE dish, and moving that
     // sentence to another would be a confident lie about their kitchen.
-    if (framed !== null && winnerIndex >= 0) verdict.why = framed.why;
+    // Only when the model's own pick stands. Its sentence describes THAT dish,
+    // and moving it onto the leader would be a confident lie about the plate.
+    if (framed !== null && winnerIndex >= 0 && !demotesAReadyMeal) verdict.why = framed.why;
 
     const rest = views.filter((_, i) => i !== index);
 
