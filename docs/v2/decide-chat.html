@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide, as a conversation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only. Tokens lifted verbatim from docs/v2/design.html,
+   which lifted them from web/src/index.css. Nothing new is invented here.
+   THE BLADE: one sharp corner, three round. Pills and circles are the only
+   two exceptions in the whole system — and a chat bubble is NOT an exception.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7;
+  --scrim:rgba(19,36,48,.46);
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7;
+  --sky-400:#6bc8f4; --sky-500:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-press:var(--sky-700);
+  --sky-soft:var(--sky-100); --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --neutral:#6e8798; --neutral-soft:#eef4f8; --neutral-onsoft:#3a5567; --neutral-border:#cfdde7;
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px; --blade-xl:28px 8px 28px 8px;
+  --r-pill:999px;
+  --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --drop-sky:3px 4px 0 var(--sky-press);
+  --shadow-pop:0 8px 24px rgba(19,36,48,.14);
+  --shadow-modal:0 18px 50px rgba(19,36,48,.22);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+  --ease-out:cubic-bezier(.22,.8,.3,1);
+  --t-press:130ms; --t-fast:180ms; --t-base:260ms; --t-slow:380ms;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper-2);color:var(--ink-2);
+  font-family:var(--sans);font-size:14.5px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,h5{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+p{margin:.6em 0}
+svg{display:inline-block;vertical-align:middle}
+code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);border:1.5px solid var(--line);padding:1px 5px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--sky)}
+
+/* ══════════ DOC CHROME ════════════════════════════════════════════════ */
+.wrap{max-width:1320px;margin:0 auto;padding:30px 20px 90px}
+.docmast{border-bottom:var(--bw) solid var(--ink);padding-bottom:26px;margin-bottom:34px}
+.mastrow{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.logomark{width:44px;height:44px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.docmast h1{font-size:clamp(30px,4.4vw,46px);letter-spacing:-.03em}
+.docmast .deck{font-size:clamp(15.5px,1.9vw,19px);max-width:68ch;margin-top:15px;color:var(--ink-2)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+
+section{margin:0 0 76px}
+.sechead{display:flex;align-items:center;gap:11px;margin-bottom:9px;flex-wrap:wrap}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px}
+section h2{font-size:clamp(23px,2.9vw,33px);letter-spacing:-.025em}
+.lede{font-size:16px;max-width:76ch;margin:12px 0 30px;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);max-width:72ch;margin-top:12px}
+.sublede{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink);margin:36px 0 12px;letter-spacing:-.015em}
+
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:22px}
+.card.soft{background:var(--paper);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+ul.clean{list-style:none;padding:0;margin:.5em 0}
+ul.clean li{position:relative;padding-left:21px;margin:.45em 0;font-size:13.5px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.62em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--paper-2);text-align:left;padding:10px 13px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+.framecap{display:flex;gap:10px;margin:0 auto 13px;max-width:372px;align-items:flex-start}
+.framecap .n{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-4);flex:none;padding-top:2px}
+.framecap .t{font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)}
+.framecap .d{font-size:12.5px;color:var(--ink-3)}
+
+/* ══════════ THE PHONE ═════════════════════════════════════════════════ */
+.rack{display:grid;grid-template-columns:repeat(auto-fit,minmax(324px,1fr));gap:36px;align-items:start}
+.phone{
+  width:100%;max-width:372px;margin:0 auto;
+  background:var(--paper);border:var(--bw-bold) solid var(--ink);
+  border-radius:34px 10px 34px 10px;box-shadow:var(--drop-lg);
+  overflow:hidden;position:relative;
+}
+.phone .notch{height:26px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;justify-content:center;gap:5px}
+.phone .notch i{display:block;width:34px;height:4px;border-radius:999px;background:var(--line-2)}
+
+/* ══════════ APP PRIMITIVES ════════════════════════════════════════════ */
+.btn{
+  appearance:none;border:var(--bw) solid var(--ink);cursor:pointer;
+  font-family:var(--sans);font-weight:800;font-size:14.5px;
+  min-height:46px;padding:0 20px;border-radius:var(--blade-xs);
+  background:var(--sky);color:#fff;box-shadow:var(--drop-sm);
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  transition:transform var(--t-press) var(--ease),box-shadow var(--t-press) var(--ease);
+}
+.btn:hover{background:var(--sky-deep)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.lg{min-height:56px;font-size:17px;border-radius:var(--blade-sm);box-shadow:var(--drop)}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.btn.ghost:hover{background:var(--paper-2);border-color:var(--ink)}
+.btn.quiet{background:transparent;color:var(--ink-3);border-color:transparent;box-shadow:none;font-weight:700;min-height:38px}
+.btn.quiet:hover{color:var(--ink);background:var(--paper-2)}
+.btn.auto{width:auto}
+.btn.sm{min-height:38px;font-size:13px;padding:0 14px}
+
+.label{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.pill{
+  appearance:none;display:inline-flex;align-items:center;gap:7px;
+  background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--r-pill);
+  padding:9px 16px;font-weight:800;font-size:13px;color:var(--ink-2);cursor:pointer;
+  transition:all var(--t-fast) var(--ease-out);font-family:var(--sans);
+}
+.pill:hover{border-color:var(--ink)}
+.pill.on{background:var(--sky);border-color:var(--ink);color:#fff;box-shadow:var(--drop-sm)}
+.pill.sm{padding:6px 12px;font-size:12px}
+
+.field{
+  display:flex;align-items:center;gap:9px;background:var(--white);
+  border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:11px 13px;transition:border-color var(--t-fast) var(--ease-out);
+}
+.field:focus-within{border-color:var(--sky);box-shadow:var(--drop-sm)}
+.field svg{color:var(--ink-4);flex:none}
+.field input{border:0;outline:none;background:transparent;font-family:var(--sans);font-size:14.5px;color:var(--ink);width:100%;padding:0}
+.field input::placeholder{color:var(--ink-4)}
+
+.appnote{
+  background:var(--sky-soft);border:var(--bw-hair) solid var(--sky-edge);
+  border-left:5px solid var(--sky);border-radius:var(--blade-xs);padding:11px 13px;font-size:12.5px;
+  color:var(--sky-on);
+}
+.appnote.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.appnote.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.appnote.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.appnote.crit{border-left-color:var(--critical);background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.steam{animation:steam 1.6s var(--ease-out) infinite;transform-origin:bottom}
+@keyframes steam{0%,100%{opacity:0;transform:translateY(3px) scaleY(.9)}50%{opacity:1;transform:translateY(-4px) scaleY(1.1)}}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE CHAT SURFACE — the only genuinely new layer in this document.
+   A transcript, not a wizard. Three bubble kinds and nothing more:
+     .say.pot   — KinniJije speaking. White card, blade, hard drop shadow.
+     .say.cook  — the cook's answer. Sky fill, mirrored blade, right aligned.
+     .say.sys   — the quiet rail: "saved", "changed", provenance. No bubble.
+   A bubble NEVER gets a pill radius. The blade survives the format change.
+   ═══════════════════════════════════════════════════════════════════════ */
+.chat{
+  padding:0;min-height:612px;display:flex;flex-direction:column;
+  background:var(--paper);position:relative;
+}
+.chat.tall{min-height:690px}
+
+/* The header stays put while the transcript scrolls under it. */
+.chathead{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  background:var(--white);border-bottom:var(--bw-hair) solid var(--line);flex:none;
+}
+.chathead .av{width:30px;height:30px;flex:none;background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);display:grid;place-items:center;color:#fff}
+.chathead .who{font-family:var(--display);font-weight:800;font-size:14px;color:var(--ink);line-height:1.15}
+.chathead .state{font-size:10.5px;color:var(--ink-3);font-weight:700;display:flex;align-items:center;gap:5px}
+.chathead .dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex:none}
+.chathead .act{margin-left:auto;display:flex;gap:6px;align-items:center}
+.iconbtn{
+  appearance:none;width:32px;height:32px;flex:none;display:grid;place-items:center;cursor:pointer;
+  background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);
+  color:var(--ink-2);transition:all var(--t-fast) var(--ease-out);
+}
+.iconbtn:hover{border-color:var(--ink);background:var(--paper-2)}
+
+/* The progress rail moves INTO the header as a thread meter. It is the one
+   wizard affordance worth keeping: a conversation with no visible end is a
+   conversation people abandon. */
+.meter{display:flex;gap:4px;align-items:center;padding:0 14px 9px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);flex:none}
+.meter i{flex:1;height:5px;background:var(--skeleton);border-radius:999px}
+.meter i.on{background:var(--sky)}
+.meter i.half{background:linear-gradient(90deg,var(--sky) 50%,var(--skeleton) 50%)}
+.meter .t{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600;white-space:nowrap;margin-left:4px}
+
+.thread{
+  flex:1;overflow:hidden;padding:15px 14px 8px;
+  display:flex;flex-direction:column;gap:13px;
+}
+
+.say{display:flex;gap:8px;max-width:100%}
+.say .av{
+  width:26px;height:26px;flex:none;align-self:flex-end;margin-bottom:1px;
+  background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);
+  display:grid;place-items:center;color:#fff;
+}
+.bub{
+  padding:11px 13px;font-size:13.5px;line-height:1.5;color:var(--ink-2);
+  max-width:84%;
+}
+/* Pot: white, blade, hard shadow — same object language as every other card. */
+.say.pot .bub{
+  background:var(--white);border:var(--bw) solid var(--ink);
+  border-radius:var(--blade-sm);box-shadow:var(--drop-sm);
+}
+.say.pot .bub strong{color:var(--ink)}
+/* Cook: sky fill, right aligned, blade mirrored so the sharp corner points
+   back at the person who said it. */
+.say.cook{justify-content:flex-end}
+.say.cook .bub{
+  background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);
+  border-radius:5px 16px 5px 16px;box-shadow:var(--drop-sm);font-weight:700;
+}
+.say.cook .bub b{color:#fff}
+/* System rail: no bubble at all. Centred, mono, quiet. This is where
+   "saved to your kitchen" and the provenance mark live. */
+.say.sys{justify-content:center}
+.say.sys .bub{
+  background:transparent;border:0;box-shadow:none;padding:2px 0;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink-4);
+  display:flex;align-items:center;gap:6px;max-width:100%;text-align:center;
+}
+.say.sys .bub.grape{color:var(--grape-onsoft)}
+
+/* An edited answer. The transcript is the record, so a change shows as a
+   change — it does not silently rewrite history. */
+.say.cook .bub .was{display:block;font-size:10.5px;font-weight:700;opacity:.72;text-decoration:line-through;margin-bottom:2px}
+
+/* Typing indicator. Three dots inside a real pot bubble, not a loose ellipsis. */
+.typing{display:flex;gap:4px;align-items:center;padding:3px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--sky-edge);animation:tp 1.2s var(--ease-out) infinite}
+.typing i:nth-child(2){animation-delay:.16s}
+.typing i:nth-child(3){animation-delay:.32s}
+@keyframes tp{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px);background:var(--sky)}}
+
+/* ── The answer dock ───────────────────────────────────────────────────
+   The single most important decision in this redesign. In a chat product the
+   bottom of the screen is a text input. Here it is a TAP SURFACE that can
+   also take text. Tiles and pills stay primary; the composer is the shortcut
+   lane underneath. Reversing that would trade four taps for a sentence
+   somebody has to compose while hungry. */
+.dock{
+  flex:none;background:var(--white);border-top:var(--bw) solid var(--ink);
+  padding:12px 14px 13px;display:flex;flex-direction:column;gap:10px;
+}
+.dockhint{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-4);display:flex;align-items:center;gap:7px}
+.dockhint .ln{flex:1;height:1.5px;background:var(--line)}
+.opts{display:flex;gap:7px;flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.tiles.c3{grid-template-columns:repeat(3,1fr)}
+.tile{
+  appearance:none;background:var(--white);border:var(--bw) solid var(--line-2);
+  border-radius:var(--blade-xs);padding:9px 5px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:var(--sans);font-weight:700;font-size:11px;color:var(--ink-2);
+  transition:all var(--t-fast) var(--ease-out);position:relative;
+}
+.tile:hover{border-color:var(--ink);transform:translateY(-2px)}
+.tile .art{width:30px;height:30px;color:var(--ink-2);flex:none}
+.tile.on{background:var(--sky-soft);border-color:var(--sky);color:var(--sky-on);box-shadow:var(--drop-sm)}
+.tile.on .art{color:var(--sky-deep)}
+.tile .tick{
+  position:absolute;top:-6px;right:-6px;width:17px;height:17px;
+  background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:50%;
+  display:grid;place-items:center;color:#fff;
+}
+.tile .cap{font-size:9.5px;font-weight:700;color:var(--ink-4)}
+.tile.on .cap{color:var(--sky-deep)}
+
+.composer{display:flex;align-items:center;gap:8px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);padding:8px 10px}
+.composer input{border:0;outline:none;background:transparent;font-family:var(--sans);font-size:13px;color:var(--ink);width:100%}
+.composer input::placeholder{color:var(--ink-4)}
+.composer .send{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);color:#fff;cursor:pointer}
+.mic{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);color:var(--ink-3);cursor:pointer}
+
+/* ── In-thread verdict card ───────────────────────────────────────────── */
+.vcard{
+  background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);
+  box-shadow:var(--drop);overflow:hidden;max-width:92%;
+}
+.vcard .vart{background:var(--sky-soft);border-bottom:var(--bw) solid var(--ink);padding:14px;display:grid;place-items:center}
+.vcard .vbody{padding:13px}
+.vcard h4{font-family:var(--display);font-weight:800;font-size:20px;color:var(--ink);letter-spacing:-.02em}
+.vcard .why{font-size:12.5px;color:var(--ink-2);margin:6px 0 0}
+.facts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.fact{
+  display:inline-flex;align-items:center;gap:5px;background:var(--paper-2);
+  border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:5px 9px;font-size:11px;font-weight:700;color:var(--ink-2);
+}
+.fact svg{color:var(--ink-3)}
+.hn{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.hnbox{border:var(--bw-hair) solid;border-radius:var(--blade-xs);padding:8px}
+.hnbox.have{background:var(--success-soft);border-color:var(--success-border)}
+.hnbox.need{background:var(--caution-soft);border-color:var(--caution-border)}
+.hnbox .h{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.hnbox.have .h{color:var(--success-onsoft)}
+.hnbox.need .h{color:var(--caution-onsoft)}
+.hnbox ul{list-style:none;margin:0;padding:0;font-size:11.5px;font-weight:700;line-height:1.5}
+.hnbox.have ul{color:var(--success-onsoft)}
+.hnbox.need ul{color:var(--caution-onsoft)}
+
+/* The alternates become a horizontal strip inside the thread rather than a
+   full-bleed swipe deck. Same pool, same promote-on-tap, one less gesture to
+   teach. The swipe still works — this just makes it visible. */
+.alts{display:flex;gap:7px;overflow:hidden;padding:2px 0}
+.alt{
+  flex:none;width:112px;background:var(--white);border:var(--bw-hair) solid var(--line-2);
+  border-radius:var(--blade-xs);padding:8px;cursor:pointer;
+  transition:all var(--t-fast) var(--ease-out);
+}
+.alt:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--drop-sm)}
+.alt .an{font-family:var(--display);font-weight:800;font-size:12px;color:var(--ink);line-height:1.2}
+.alt .am{font-family:var(--mono);font-size:9.5px;color:var(--ink-4);font-weight:600;margin-top:3px}
+
+/* ── Chips that sit under a pot bubble as quick replies ───────────────── */
+.quick{display:flex;gap:6px;flex-wrap:wrap;padding-left:34px}
+.quick .pill{box-shadow:none}
+
+/* ── Spec-only annotation callouts beside a frame ─────────────────────── */
+.anno{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.anno .row{display:flex;gap:9px;align-items:flex-start;font-size:12.5px}
+.anno .k{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--ink);border-radius:50%;width:17px;height:17px;flex:none;display:grid;place-items:center;margin-top:2px}
+.anno .v{color:var(--ink-2)}
+.anno .v b{color:var(--ink)}
+
+footer{margin-top:88px;padding-top:24px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MASTHEAD
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="docmast">
+  <div class="mastrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/><path d="M20 12h2v3h-2"/><path d="M4 12H2v3h2"/>
+        <path class="steam" d="M9 7c0-1 1-1.4 1-2.4"/><path class="steam" d="M13 7c0-1 1-1.4 1-2.4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brandname">KinniJije</div>
+      <div class="eyebrow">Product · Decide flow · v2</div>
+    </div>
+  </div>
+  <h1>Decide, as a conversation</h1>
+  <p class="deck">
+    A proposal to re-house the five-step decide wizard inside a chat transcript — without
+    turning a four-tap flow into a typing exercise. Same questions, same endpoint, same
+    verdict. What changes is that the flow becomes something you can <em>see</em>, go back
+    into, and talk to.
+  </p>
+  <div class="chiprow">
+    <span class="chip sky">Light mode only</span>
+    <span class="chip">Tokens unchanged from design.html</span>
+    <span class="chip ok">Functional parity held</span>
+    <span class="chip grape">4 new retention mechanics</span>
+    <span class="chip warn">Ships behind a flag</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     01 — THE PM VIEW
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="view">
+  <div class="sechead"><span class="secnum">01</span><h2>What I actually think</h2></div>
+  <p class="lede">
+    "Make it more AI-ish" is a request I want to push back on for one sentence before I
+    agree with it. A chat UI that is just the wizard with speech bubbles drawn around it
+    is <strong>strictly worse</strong> than what we have: more scrolling, less scannable,
+    slower to the verdict, and it invites people to type when tapping was already faster.
+    Plenty of products shipped that and quietly regressed conversion.
+  </p>
+  <p class="lede">
+    But there are three things the wizard genuinely cannot do, and all three are chat's
+    native strengths. Those are worth the rebuild.
+  </p>
+
+  <div class="grid g3">
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:11px">Reason one</span>
+      <h3 style="font-size:18px">The flow becomes a record</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        Right now "Change an answer" means leaving the verdict and re-entering a step you
+        can't see. In a transcript every answer you gave is still on screen, above you.
+        Tapping one re-opens it in place, and the correction is appended rather than
+        hidden — so you never lose your position or wonder what the system thinks you said.
+      </p>
+      <p class="note" style="margin-top:11px">
+        This is the one that matters most. It is the current flow's sharpest edge.
+      </p>
+    </div>
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:11px">Reason two</span>
+      <h3 style="font-size:18px">Dead air becomes personality</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        Between steps the wizard shows nothing. A transcript has a speaker who can react
+        to what you just said — <em>"Garri and panla. That already opens a few doors."</em>
+        It costs no model call (these are deterministic, written responses keyed to the
+        answer), and it is the single cheapest way to make the product feel like it is
+        paying attention.
+      </p>
+      <p class="note" style="margin-top:11px">
+        Voice rules from design.html §07 still bind: short beats clever, never a joke about
+        the food, no exclamation marks.
+      </p>
+    </div>
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:11px">Reason three</span>
+      <h3 style="font-size:18px">A shortcut lane opens</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        A chat container gives us somewhere honest to put free text. A cook who types
+        <em>"rice, one tomato, I'm exhausted, 20 minutes"</em> has answered four questions
+        in one line. We parse it, fill the tiles, and <strong>show them filled</strong> so
+        they can correct us. Taps stay the default; typing is the power move.
+      </p>
+      <p class="note" style="margin-top:11px">
+        Also unlocks voice, which is the right input for someone standing in a kitchen.
+      </p>
+    </div>
+  </div>
+
+  <h3 class="sublede">The design rule everything below follows</h3>
+  <div class="card soft">
+    <p style="font-size:17px;font-family:var(--display);font-weight:800;color:var(--ink);line-height:1.3;margin:0">
+      Taps stay primary. Typing is the shortcut. Chat is the container — not the input method.
+    </p>
+    <p style="font-size:13.5px;margin:12px 0 0">
+      Concretely: the bottom of the screen is a <strong>tap surface that can also take
+      text</strong>, never a bare text field. The thread above is the transcript. If we
+      ever ship a frame where the only way to answer is to type a sentence, we have broken
+      the rule and slowed the product down.
+    </p>
+  </div>
+
+  <h3 class="sublede">What I am deliberately not changing</h3>
+  <div class="grid g2">
+    <div class="card soft">
+      <ul class="clean" style="margin:0">
+        <li>The <strong>questions and their order</strong> — kitchen, mood, weight, time. Same four, same <code>DECIDE_STAGES</code>.</li>
+        <li>The <strong>single model call</strong>. One <code>POST /decide</code>, same payload shape. Chat does not mean chatty API.</li>
+        <li><strong>Local re-ranking.</strong> "Not feeling it" still promotes from <code>pool</code> and costs nothing.</li>
+        <li>The <strong>draft in sessionStorage</strong>, v1 shape untouched. A transcript is rendered <em>from</em> the draft, not stored alongside it.</li>
+      </ul>
+    </div>
+    <div class="card soft">
+      <ul class="clean" style="margin:0">
+        <li><strong>One invite, one dismissal.</strong> <code>inviteStore</code> rules hold exactly. A chat format must not become licence to ask twice.</li>
+        <li>The <strong>rate limit copy</strong> — the refusal is still the offer.</li>
+        <li><strong>Order mode</strong> swaps the time question for the place question, as today.</li>
+        <li>The <strong>blade</strong>. Bubbles get blade radii, never pills. This is the detail that keeps it looking like us and not like every other chatbot.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     02 — MAPPING
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="map">
+  <div class="sechead"><span class="secnum">02</span><h2>Wizard → transcript, step by step</h2></div>
+  <p class="lede">
+    Nothing is dropped and nothing is added to the critical path. Every row below is the
+    same state machine with a different surface. The right column is the only column
+    engineering needs to build.
+  </p>
+  <div class="tablewrap scroll">
+    <table>
+      <thead>
+        <tr><th style="width:13%">Stage</th><th style="width:29%">Today</th><th style="width:34%">As a transcript</th><th style="width:24%">Parity note</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>hero</strong></td>
+          <td>Full-screen headline, illustration, counters, one big CTA.</td>
+          <td>Unchanged. The front door stays a landing page — a cold visitor needs the pitch, not a greeting from a stranger.</td>
+          <td>Zero change. Chat begins on CTA tap.</td>
+        </tr>
+        <tr>
+          <td><strong>kitchen</strong></td>
+          <td>Step one. Search field, grouped tiles, "More groups", picked chips, Continue · n.</td>
+          <td>Pot asks; the dock holds the same search + tiles. Picks appear as one cook bubble that updates live, not one bubble per tap.</td>
+          <td>Same catalogue, same aliases, same <code>primary_group_count</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>mood</strong></td>
+          <td>Step two. Four illustrated tiles with captions.</td>
+          <td>Pot reacts to the kitchen, then asks. Same four tiles in the dock. Auto-advances on tap — no Continue.</td>
+          <td>Saves one tap per step versus today.</td>
+        </tr>
+        <tr>
+          <td><strong>weight</strong></td>
+          <td>Step three. Six tiles — the shape of the plate.</td>
+          <td>Same six tiles. Pot's reaction references the mood it just heard.</td>
+          <td>Identical option set.</td>
+        </tr>
+        <tr>
+          <td><strong>time</strong></td>
+          <td>Last one. Three minute pills + optional city field.</td>
+          <td>Pills in the dock, city as an optional follow-up bubble rather than a field stacked under the question.</td>
+          <td>Skip path preserved verbatim.</td>
+        </tr>
+        <tr>
+          <td><strong>place</strong></td>
+          <td>Order mode only. Area picker.</td>
+          <td>Same, as a dock picker. Pot's question swaps per <code>mode</code>.</td>
+          <td>Flag-gated as today.</td>
+        </tr>
+        <tr>
+          <td><strong>invite</strong></td>
+          <td>Interstitial sheet between steps.</td>
+          <td>An in-thread card from the pot. Skipping scrolls on; it does not dismiss a modal.</td>
+          <td>Still once per session, still <code>sessionStorage</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>thinking</strong></td>
+          <td>Progress bar with four phase labels.</td>
+          <td>Typing indicator, and the four phase labels print on the system rail as they pass.</td>
+          <td>Same four phases, same thresholds.</td>
+        </tr>
+        <tr>
+          <td><strong>verdict</strong></td>
+          <td>Full-bleed card, swipe deck of alternates, end slide.</td>
+          <td>Verdict card arrives as a message. Alternates become a scroll strip. Swipe still works.</td>
+          <td>Same <code>pool</code>, same promote, same end slide copy.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     03 — THE SCREENS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="screens">
+  <div class="sechead"><span class="secnum">03</span><h2>The screens</h2></div>
+  <p class="lede">
+    Nine frames, in order, at real phone width. Everything is drawn with the tokens from
+    <code>design.html</code> — no new colour, no new radius, no new font. The blade holds
+    everywhere, including on the bubbles.
+  </p>
+
+  <div class="rack">
+
+    <!-- ── 01 HERO — unchanged ───────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">01</span>
+        <div><span class="t">The front door</span><div class="d">Unchanged. A cold visitor needs a pitch, not small talk.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat" style="padding:18px;gap:15px;justify-content:center">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:30px;height:30px;background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);display:grid;place-items:center;color:#fff">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg>
+              </div>
+              <b style="font-family:var(--display);font-size:15px;color:var(--ink)">KinniJije</b>
+            </div>
+            <button class="btn quiet auto" style="font-size:12.5px">Sign in</button>
+          </div>
+          <div style="display:grid;place-items:center;padding:4px 0">
+            <svg width="150" height="118" viewBox="0 0 150 118" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="animation:bob 3.4s var(--ease-out) infinite">
+              <path class="steam" d="M60 30c0-6 7-7 7-14" stroke="var(--sky-600)"/>
+              <path class="steam" d="M75 27c0-6 7-7 7-14" stroke="var(--sky-600)"/>
+              <path class="steam" d="M90 30c0-6 7-7 7-14" stroke="var(--sky-600)"/>
+              <path d="M30 48h90v34c0 15-12 26-27 26H57c-15 0-27-11-27-26V48Z" fill="var(--dish-fill)"/>
+              <path d="M120 56h12v15h-12M30 56H18v15h12"/>
+              <path d="M24 44h102" stroke-width="3"/>
+            </svg>
+          </div>
+          <h2 style="font-family:var(--display);font-weight:800;font-size:31px;line-height:1.03;letter-spacing:-.025em">What do you want<br><span style="color:var(--sky-deep)">to eat today?</span></h2>
+          <p style="font-size:13.5px;color:var(--ink-2);margin:0">
+            Stop being hungry and indecisive. Tell us what you have at home and KinniJije picks the meal, gives you the recipe, and says what you still need to buy.
+          </p>
+          <button class="btn lg">Show me what to eat</button>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-3);font-weight:700;justify-content:center">
+            <span class="tnum">14,208</span> meals decided
+            <span style="color:var(--line-2)">·</span>
+            <span class="tnum">312</span> today
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>No bubbles yet.</b> The chat metaphor would make a first-time visitor read instead of scan. Marketing page first, conversation second.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 02 OPENING + KITCHEN ──────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">02</span>
+        <div><span class="t">It opens on step one</span><div class="d">One greeting line, then straight to work. No "hi, I'm an AI".</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div>
+              <div class="who">KinniJije</div>
+              <div class="state"><span class="dot"></span>Deciding with you</div>
+            </div>
+            <div class="act">
+              <button class="iconbtn" aria-label="Past decisions"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></button>
+              <button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            </div>
+          </div>
+          <div class="meter"><i class="half"></i><i></i><i></i><i></i><span class="t">1 / 4</span></div>
+          <div class="thread">
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">
+                Four quick questions and I'll pick your dinner.<br>
+                <strong>What have you got at home?</strong> Rough is fine.
+              </div>
+            </div>
+            <div class="quick">
+              <button class="pill sm">I have nothing</button>
+              <button class="pill sm">Just order it</button>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="composer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input placeholder="Search garri, ugu, panla…" aria-label="Search your kitchen">
+            </div>
+            <div class="dockhint"><span>Tap what you've got</span><span class="ln"></span></div>
+            <div class="tiles">
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="26" rx="13" ry="8" fill="var(--dish-fill)"/><path d="M12 22c2-4 6-5 8-5s6 1 8 5"/><circle cx="16" cy="25" r="1.3" fill="currentColor"/><circle cx="21" cy="27" r="1.3" fill="currentColor"/><circle cx="25" cy="24" r="1.3" fill="currentColor"/></svg>Rice</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="22" r="11" fill="var(--greens-fill)"/><path d="M20 11c-4 4-5 8-5 11s2 6 5 6 5-3 5-6-1-7-5-11Z"/></svg>Beans</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="23" r="10" fill="var(--berry-fill)"/><path d="M20 13c0-3 2-4 4-4"/><path d="M16 20c1-2 3-3 5-3"/></svg>Tomato</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 24c0-6 4-11 10-11s10 5 10 11-4 8-10 8-10-2-10-8Z" fill="var(--dish-fill)"/><path d="M20 13V9"/></svg>Onion</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 22c4-6 12-8 18-5 4 2 6 5 6 5s-2 3-6 5c-6 3-14 1-18-5Z" fill="var(--sky-200)"/><circle cx="14" cy="21" r="1.3" fill="currentColor"/><path d="M32 22l-4-4v8l4-4Z"/></svg>Panla</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="24" rx="12" ry="7" fill="var(--dish-fill)"/><path d="M9 20c3 2 8 3 11 3s8-1 11-3"/></svg>Garri</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 12h12l-2 20H16L14 12Z" fill="var(--dish-fill)"/><path d="M12 12h16"/></svg>Yam</button>
+              <button class="tile" style="border-style:dashed;color:var(--ink-3)"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 13v14M13 20h14"/></svg>More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The meter lives in the header.</b> The one wizard affordance worth keeping — a conversation with no visible end is one people abandon.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Tiles, not typing.</b> The dock is a tap surface. Search is there because the catalogue is 400+ items, exactly as today.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Quick replies carry the escape hatches.</b> "I have nothing" is a real answer (<code>kitchenSkipped</code>), and order mode moves here from a button buried under the tiles.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 03 PICKS ACCUMULATING ─────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">03</span>
+        <div><span class="t">Picks land in one bubble</span><div class="d">Not one bubble per tap. That would bury the question.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Deciding with you</div></div>
+            <div class="act">
+              <button class="iconbtn" aria-label="Past decisions"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></button>
+              <button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            </div>
+          </div>
+          <div class="meter"><i class="half"></i><i></i><i></i><i></i><span class="t">1 / 4</span></div>
+          <div class="thread">
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Four quick questions and I'll pick your dinner.<br><strong>What have you got at home?</strong> Rough is fine.</div>
+            </div>
+            <div class="say cook"><div class="bub">Garri, panla, tomato, onion, pepper</div></div>
+            <div class="say sys"><div class="bub">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg>
+              5 things · tap any to remove
+            </div></div>
+          </div>
+          <div class="dock">
+            <div class="opts">
+              <button class="pill sm on">Garri <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              <button class="pill sm on">Panla <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              <button class="pill sm on">Tomato <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              <button class="pill sm on">Onion <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              <button class="pill sm on">Pepper <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            </div>
+            <div class="tiles c3" style="margin-top:2px">
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="26" rx="13" ry="8" fill="var(--dish-fill)"/><path d="M12 22c2-4 6-5 8-5s6 1 8 5"/></svg>Rice</button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="22" r="11" fill="var(--greens-fill)"/><path d="M20 11c-4 4-5 8-5 11s2 6 5 6 5-3 5-6-1-7-5-11Z"/></svg>Ugu</button>
+              <button class="tile" style="border-style:dashed;color:var(--ink-3)"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 13v14M13 20h14"/></svg>More</button>
+            </div>
+            <button class="btn">That's everything · 5 picked</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>One cook bubble, edited in place</b> as taps land. Five bubbles for five taps is how a transcript becomes unreadable.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The picked chips stay in the dock</b>, not in the bubble — removing a thing is an edit to a pending answer, not a new message.</span></div>
+        <div class="row"><span class="k">3</span><span class="v">The Continue button keeps its live count, verbatim from <code>DECIDE_COPY.kitchen.continue</code>.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 04 THE SHORTCUT LANE ──────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">04</span>
+        <div><span class="t">New: the shortcut lane</span><div class="d">One sentence answers four questions. We show our work so it can be corrected.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Deciding with you</div></div>
+            <div class="act">
+              <button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            </div>
+          </div>
+          <div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><span class="t">4 / 4</span></div>
+          <div class="thread">
+            <div class="say cook"><div class="bub">I have rice and one tomato, I'm exhausted, 20 mins max</div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">
+                Got all four. <strong>Here's what I heard</strong> — fix anything that's wrong.
+              </div>
+            </div>
+            <div style="padding-left:34px;display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;gap:7px;flex-wrap:wrap">
+                <button class="pill sm on">Rice</button>
+                <button class="pill sm on">Tomato</button>
+                <button class="pill sm" style="border-style:dashed;color:var(--ink-3)">+ add</button>
+              </div>
+              <div style="display:flex;gap:7px;flex-wrap:wrap">
+                <button class="pill sm on">Drained</button>
+                <button class="pill sm on">15 min</button>
+                <button class="pill sm" style="border-color:var(--caution);background:var(--caution-soft);color:var(--caution-onsoft)">Shape? ↓</button>
+              </div>
+            </div>
+            <div class="say sys"><div class="bub grape">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+              20 mins rounded to the 15-minute budget
+            </div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Just the shape of the plate and I'm off.</div>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="dockhint"><span>Last one</span><span class="ln"></span></div>
+            <div class="tiles c3">
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="25" rx="12" ry="7" fill="var(--dish-fill)"/><path d="M14 20c2-3 10-3 12 0"/></svg>Solid<span class="cap">Filling</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="22" r="10" fill="var(--greens-fill)"/><path d="M14 22h12"/></svg>Light<span class="cap">Easy</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 20h22v4c0 5-5 9-11 9S9 29 9 24v-4Z" fill="var(--sky-200)"/><path d="M13 24c3 2 11 2 14 0"/></svg>Soupy<span class="cap">Broth</span></button>
+            </div>
+            <div class="composer">
+              <input placeholder="Or just tell me" aria-label="Type your answer">
+              <button class="mic" aria-label="Speak"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+              <button class="send" aria-label="Send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>We never silently accept a parse.</b> Every extracted answer renders as an editable chip. The amber chip is the gap we still need, and the dock already shows it.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Disagreements go on the system rail.</b> "20 mins rounded to 15" is the kind of lie-by-omission that loses trust if hidden.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Voice sits beside send.</b> The real decide moment happens with hands full. This is the strongest argument for the chat container.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 05 REACTION + MOOD ────────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">05</span>
+        <div><span class="t">Dead air becomes a reaction</span><div class="d">Written, deterministic, keyed to the answer. No model call.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Deciding with you</div></div>
+            <div class="act"><button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div>
+          </div>
+          <div class="meter"><i class="on"></i><i class="half"></i><i></i><i></i><span class="t">2 / 4</span></div>
+          <div class="thread">
+            <div class="say cook"><div class="bub">Garri, panla, tomato, onion, pepper</div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Panla and garri. That opens a few doors.</div>
+            </div>
+            <div class="say pot">
+              <div class="av" style="visibility:hidden"></div>
+              <div class="bub"><strong>How's your day going?</strong><br>Honestly. It changes what I pick.</div>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="tiles">
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="17" r="7" fill="var(--paper-3)"/><path d="M16 17h1.5M22.5 17H24"/><path d="M15 30c2-3 8-3 10 0"/></svg>Drained<span class="cap">Low fuel</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="18" r="9" fill="var(--caution-soft)"/><path d="M20 13v5l3 2"/></svg>Hurry<span class="cap">No time</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="18" r="9" fill="var(--success-soft)"/><path d="M16 21c2 2 6 2 8 0"/><circle cx="17" cy="16" r="1.2" fill="currentColor"/><circle cx="23" cy="16" r="1.2" fill="currentColor"/></svg>Up for it<span class="cap">Let's cook</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 30s-9-5-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 7-9 12-9 12Z" fill="var(--berry-fill)"/></svg>Comfort<span class="cap">Something kind</span></button>
+            </div>
+            <div class="composer">
+              <input placeholder="Or just tell me" aria-label="Type your answer">
+              <button class="mic" aria-label="Speak"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The reaction is a lookup, not inference.</b> Keyed on which catalogue groups were picked. ~30 written lines cover the realistic space; a generic fallback covers the rest.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Second bubble drops the avatar.</b> Consecutive pot messages share one avatar — standard chat grouping, and it keeps the thread from looking like a wall of logos.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Tap auto-advances.</b> Mood, weight and time each lose their Continue button. Three fewer taps than today.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 06 EDIT IN PLACE ──────────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">06</span>
+        <div><span class="t">Changing an earlier answer</span><div class="d">The transcript's whole reason for existing.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Deciding with you</div></div>
+            <div class="act"><button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div>
+          </div>
+          <div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="half"></i><span class="t">4 / 4</span></div>
+          <div class="thread">
+            <div class="say cook"><div class="bub">Garri, panla, tomato, onion, pepper <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="opacity:.8;margin-left:2px"><path d="M15 4l5 5-9 9H6v-5l9-9Z"/></svg></div></div>
+            <div class="say cook"><div class="bub"><span class="was">Up for it</span>Drained <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="opacity:.8;margin-left:2px"><path d="M15 4l5 5-9 9H6v-5l9-9Z"/></svg></div></div>
+            <div class="say sys"><div class="bub">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+              Changed. Later answers kept.
+            </div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Drained it is. Soupy still right, or shall I rethink that too?</div>
+            </div>
+            <div class="quick">
+              <button class="pill sm on">Soupy's fine</button>
+              <button class="pill sm">Change it</button>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="dockhint"><span>How long have you got?</span><span class="ln"></span></div>
+            <div class="opts">
+              <button class="pill">15 min</button>
+              <button class="pill on">40 min</button>
+              <button class="pill">90 min</button>
+            </div>
+            <button class="btn lg">Decide what I eat</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Every cook bubble is tappable.</b> The pencil is the affordance. Tapping re-opens that question in the dock without unwinding the thread.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The old answer is struck through, not erased.</b> The transcript is a record. Rewriting history is how a cook stops trusting what they're reading.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Later answers survive the edit.</b> Today changing step two sends you back through three and four. This is the clearest win over the wizard.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 07 INVITE IN THREAD ───────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">07</span>
+        <div><span class="t">The invite stops being a wall</span><div class="d">A message you can scroll past, not a sheet you must dismiss.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Deciding with you</div></div>
+            <div class="act"><button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div>
+          </div>
+          <div class="meter"><i class="on"></i><i class="on"></i><i class="half"></i><i></i><span class="t">3 / 4</span></div>
+          <div class="thread">
+            <div class="say cook"><div class="bub">Drained</div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Two to go. One thing first —</div>
+            </div>
+            <div class="say pot">
+              <div class="av" style="visibility:hidden"></div>
+              <div class="bub" style="padding:0;overflow:hidden;max-width:88%">
+                <div style="background:var(--grape-soft);border-bottom:var(--bw-hair) solid var(--grape-border);padding:11px 13px">
+                  <div style="font-family:var(--display);font-weight:800;font-size:16px;color:var(--grape-onsoft)">Want this remembered?</div>
+                  <div style="font-size:12px;color:var(--grape-onsoft);margin-top:2px">Takes ten seconds. You keep going right after.</div>
+                </div>
+                <div style="padding:11px 13px">
+                  <ul class="clean" style="margin:0 0 11px;font-size:12px">
+                    <li>Your kitchen saved, so you never tap it again</li>
+                    <li>A fresh idea every morning, before you ask</li>
+                    <li>The full recipe and method, step by step</li>
+                  </ul>
+                  <button class="btn sm" style="width:100%">Save my spot</button>
+                  <div style="font-size:10.5px;color:var(--ink-4);text-align:center;margin-top:8px">Free. No card. Your answers so far are kept either way.</div>
+                </div>
+              </div>
+            </div>
+            <div class="quick">
+              <button class="pill sm">Not now, keep deciding</button>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="dockhint"><span>What are you in the mood for?</span><span class="ln"></span></div>
+            <div class="tiles c3">
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="25" rx="12" ry="7" fill="var(--dish-fill)"/><path d="M14 20c2-3 10-3 12 0"/></svg>Solid<span class="cap">Filling</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="22" r="10" fill="var(--greens-fill)"/><path d="M14 22h12"/></svg>Light<span class="cap">Easy</span></button>
+              <button class="tile"><svg class="art" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 20h22v4c0 5-5 9-11 9S9 29 9 24v-4Z" fill="var(--sky-200)"/><path d="M13 24c3 2 11 2 14 0"/></svg>Soupy<span class="cap">Broth</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The dock stays live behind it.</b> You can ignore the card entirely and answer the next question — the clearest possible signal that it is skippable.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Grape, because grape means account.</b> Same token the provenance mark uses. The card is a bubble, so it keeps the blade.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Still once per session.</b> <code>inviteStore</code> unchanged — one dismissal ends it. Chat format is not licence to re-ask.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 08 THINKING ───────────────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">08</span>
+        <div><span class="t">Working it out</span><div class="d">Same four phases. Now they read as someone thinking out loud.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot" style="background:var(--caution)"></span>Working it out…</div></div>
+          </div>
+          <div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><span class="t">4 / 4</span></div>
+          <div class="thread">
+            <div class="say cook"><div class="bub">40 min</div></div>
+            <div class="say sys"><div class="bub">Reading what you have</div></div>
+            <div class="say sys"><div class="bub">Matching against recipes</div></div>
+            <div class="say sys"><div class="bub" style="color:var(--ink-2)">Narrowing it down</div></div>
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub"><div class="typing"><i></i><i></i><i></i></div></div>
+            </div>
+            <div style="display:grid;place-items:center;padding:14px 0">
+              <svg width="128" height="104" viewBox="0 0 150 118" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="animation:bob 2.6s var(--ease-out) infinite">
+                <path class="steam" d="M60 30c0-6 7-7 7-14" stroke="var(--sky-600)"/>
+                <path class="steam" d="M75 27c0-6 7-7 7-14" stroke="var(--sky-600)" style="animation-delay:.3s"/>
+                <path class="steam" d="M90 30c0-6 7-7 7-14" stroke="var(--sky-600)" style="animation-delay:.6s"/>
+                <path d="M30 48h90v34c0 15-12 26-27 26H57c-15 0-27-11-27-26V48Z" fill="var(--sky-100)"/>
+                <path d="M120 56h12v15h-12M30 56H18v15h12"/>
+                <path d="M24 44h102" stroke-width="3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="dock" style="opacity:.55;pointer-events:none">
+            <div class="composer"><input placeholder="One moment…" disabled aria-label="Waiting"></div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Phase labels print on the system rail</b> as they pass, at the same 0/30/60/82% thresholds. A list that grows reads as progress better than a bar that fills.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The dock dims rather than vanishing.</b> No layout jump when the verdict lands — the single most common chat-UI jank.</span></div>
+        <div class="row"><span class="k">3</span><span class="v">If the model times out we fall back to deterministic framing exactly as today. The typing dots are honest either way: something <em>is</em> happening.</span></div>
+      </div>
+    </div>
+
+    <!-- ── 09 VERDICT ────────────────────────────────────────────────── -->
+    <div>
+      <div class="framecap">
+        <span class="n">09</span>
+        <div><span class="t">The verdict arrives as a message</span><div class="d">And the conversation stays open underneath it.</div></div>
+      </div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="chat tall">
+          <div class="chathead">
+            <div class="av"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+            <div><div class="who">KinniJije</div><div class="state"><span class="dot"></span>Decided</div></div>
+            <div class="act">
+              <button class="iconbtn" aria-label="Save"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z"/></svg></button>
+              <button class="iconbtn" aria-label="Start again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            </div>
+          </div>
+          <div class="thread">
+            <div class="say pot">
+              <div class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+              <div class="bub">Drained, soupy, 40 minutes, and you've got panla. This is the one.</div>
+            </div>
+            <div class="say pot">
+              <div class="av" style="visibility:hidden"></div>
+              <div class="vcard">
+                <div class="vart">
+                  <svg width="104" height="78" viewBox="0 0 150 118" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="steam" d="M62 26c0-6 7-7 7-14" stroke="var(--sky-600)"/>
+                    <path class="steam" d="M82 26c0-6 7-7 7-14" stroke="var(--sky-600)" style="animation-delay:.4s"/>
+                    <ellipse cx="75" cy="72" rx="48" ry="26" fill="var(--dish-fill)"/>
+                    <path d="M27 72c0 14 21 26 48 26s48-12 48-26"/>
+                    <path d="M50 64c6-5 14-6 20-3M88 60c5 2 9 5 11 9"/>
+                    <circle cx="64" cy="70" r="2.6" fill="var(--berry-line)" stroke="none"/>
+                    <circle cx="84" cy="76" r="2.6" fill="var(--greens-line)" stroke="none"/>
+                  </svg>
+                </div>
+                <div class="vbody">
+                  <div class="label" style="margin-bottom:5px">Tonight</div>
+                  <h4>Panla Pepper Soup</h4>
+                  <p class="why">Light on the stomach, heavy on the pepper. It asks almost nothing of you and still tastes like somebody cooked.</p>
+                  <div class="facts">
+                    <span class="fact"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>35 min</span>
+                    <span class="fact">Easy</span>
+                    <span class="fact">Serves 2</span>
+                    <span class="fact" style="background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)">92% match</span>
+                  </div>
+                  <div class="hn">
+                    <div class="hnbox have">
+                      <div class="h">You have</div>
+                      <ul><li>Panla</li><li>Pepper</li><li>Onion</li></ul>
+                    </div>
+                    <div class="hnbox need">
+                      <div class="h">You'll need</div>
+                      <ul><li>Scent leaf</li><li>Uziza</li></ul>
+                    </div>
+                  </div>
+                  <button class="btn" style="margin-top:11px">Cook this</button>
+                </div>
+              </div>
+            </div>
+            <div class="say sys"><div class="bub grape">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+              Framed for you · 4 more in the shortlist
+            </div></div>
+            <div class="say pot">
+              <div class="av" style="visibility:hidden"></div>
+              <div class="bub" style="max-width:92%;padding:10px 11px">
+                <div style="font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-4);margin-bottom:7px">Or one of these</div>
+                <div class="alts">
+                  <div class="alt"><div class="an">Efo Riro</div><div class="am">45 min · 78%</div></div>
+                  <div class="alt"><div class="an">Garri &amp; Soup</div><div class="am">10 min · 74%</div></div>
+                  <div class="alt" style="opacity:.5"><div class="an">Asun Rice</div><div class="am">50 min · 61%</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dock">
+            <div class="opts">
+              <button class="pill sm">Not feeling it</button>
+              <button class="pill sm">Make it faster</button>
+              <button class="pill sm">Less pepper</button>
+            </div>
+            <div class="composer">
+              <input placeholder="Ask about this dish, or push back" aria-label="Reply">
+              <button class="mic" aria-label="Speak"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+              <button class="send" aria-label="Send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The thread does not end.</b> Today the verdict is a terminus with two escape buttons. Here it is a message you can argue with — and arguing is the retention mechanic.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Alternates become a visible strip.</b> Same <code>pool</code>, same promote-on-tap, no swipe to discover. The swipe gesture still works for anyone who learnt it.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>The grape rail carries provenance.</b> "Framed for you" when <code>ai_framed</code>; the mark is dropped on <code>deterministic</code> rather than claimed falsely.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>"Make it faster" and "Less pepper" re-rank locally.</b> They are filters over <code>pool</code> expressed as sentences. Zero model calls, which is what makes them affordable to offer.</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     04 — THE REFUSALS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="edges">
+  <div class="sechead"><span class="secnum">04</span><h2>The three states we must not make cute</h2></div>
+  <p class="lede">
+    A conversational voice is at its most dangerous when something has gone wrong. The rule
+    from design.html §07 — <strong>never a joke inside an error</strong> — gets stricter here,
+    because a bubble reads as a person talking. These three keep their current copy word for word.
+  </p>
+  <div class="grid g3">
+    <div class="card">
+      <span class="chip warn" style="margin-bottom:11px">Rate limited</span>
+      <div style="background:var(--paper);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-sm);padding:12px;margin-bottom:12px">
+        <div style="font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)">That's a lot of deciding</div>
+        <p style="font-size:12.5px;margin:5px 0 10px">Another one in 3 minutes, or make an account and we'll stop counting.</p>
+        <button class="btn sm" style="width:100%">Make a free account</button>
+        <button class="btn quiet sm" style="width:100%;margin-top:4px">I'll wait</button>
+      </div>
+      <p class="note" style="margin:0">The refusal <em>is</em> the offer. No apology bubble, no typing dots pretending to work. A countdown that ticks in the header, and a real way past it.</p>
+    </div>
+    <div class="card">
+      <span class="chip warn" style="margin-bottom:11px">Exhausted</span>
+      <div style="background:var(--paper);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-sm);padding:12px;margin-bottom:12px">
+        <div style="font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)">That's everything that fits</div>
+        <p style="font-size:12.5px;margin:5px 0 10px">Nothing left that matches what you asked for. Loosen the time, or tell us one more thing you have at home.</p>
+        <button class="btn sm ghost" style="width:100%">Change an answer</button>
+      </div>
+      <p class="note" style="margin:0">In a transcript this is better than today: "change an answer" points at bubbles that are still on screen, so the fix is one tap away instead of a step away.</p>
+    </div>
+    <div class="card">
+      <span class="chip" style="margin-bottom:11px;background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)">Nothing fits</span>
+      <div style="background:var(--paper);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-sm);padding:12px;margin-bottom:12px">
+        <div style="font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)">Nothing quite fits</div>
+        <p style="font-size:12.5px;margin:5px 0 10px">Nothing matched that combination of time and taste. Try loosening one of them.</p>
+      </div>
+      <p class="note" style="margin:0">Names the two answers at fault and makes both tappable. The pot does not say sorry — it says which lever to pull.</p>
+    </div>
+  </div>
+  <div class="appnote crit" style="margin-top:20px;max-width:none">
+    <strong>Hard rule for engineering:</strong> no state may show a typing indicator unless a
+    request is genuinely in flight. Fake thinking to seem smart is the one thing in this
+    redesign that would actively damage trust.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     05 — RETENTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="retention">
+  <div class="sechead"><span class="secnum">05</span><h2>Four new mechanics the chat format pays for</h2></div>
+  <p class="lede">
+    Each of these is impossible or awkward in the wizard and natural in a transcript. I have
+    ordered them by expected return against build cost. Only the first two are in scope for v1.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+        <span class="chip sky">Ship in v1</span><span class="chip ok">Cheap</span>
+      </div>
+      <h3 style="font-size:19px">1 · Push back on the verdict</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        Three standing quick replies under every verdict — <em>Not feeling it</em>,
+        <em>Make it faster</em>, <em>Less pepper</em> — plus free text. Each one is a filter
+        over the <code>pool</code> we already hold, so each costs <strong>zero model calls</strong>.
+      </p>
+      <p style="font-size:13.5px">
+        Why it retains: the current flow's only rejection path is "try again", which feels like
+        a dice roll. Pushing back feels like being heard, and a cook who pushes back twice and
+        then cooks has had a far better session than one who accepted the first thing.
+      </p>
+      <div class="appnote ok" style="margin-top:11px">
+        <strong>Measure:</strong> share of sessions with ≥1 push-back, and whether those sessions
+        convert to <em>Cook this</em> at a higher rate than single-shot sessions.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+        <span class="chip sky">Ship in v1</span><span class="chip ok">Cheap</span>
+      </div>
+      <h3 style="font-size:19px">2 · The thread resumes</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        A returning cook does not land on a cold hero. They land on their transcript with a new
+        pot message at the bottom: <em>"Last time you had panla and went soupy. Same kitchen
+        tonight?"</em> One tap re-uses the saved kitchen and jumps to mood.
+      </p>
+      <p style="font-size:13.5px">
+        Why it retains: this is the habit loop the wizard structurally cannot have. A wizard
+        always starts at step one. A conversation picks up. We already store everything needed —
+        <code>use-my-kitchen</code> and <code>DecideHistoryEntry</code> hold the kitchen and the answers.
+      </p>
+      <div class="appnote ok" style="margin-top:11px">
+        <strong>Measure:</strong> D7 return rate, and taps-to-verdict for returning versus new cooks.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+        <span class="chip grape">v2</span><span class="chip warn">Needs a parser</span>
+      </div>
+      <h3 style="font-size:19px">3 · One-line answers</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        Frame 04. A cook types or speaks one sentence and we fill every tile we can read from it,
+        then show the fill so it can be corrected. Voice is the real prize — the decide moment
+        happens with hands occupied.
+      </p>
+      <p style="font-size:13.5px">
+        Why it is v2 and not v1: it needs a parse step with a real failure mode, and a bad parse
+        is worse than no parse. It wants its own flag and its own metric before it goes near the
+        default path.
+      </p>
+      <div class="appnote warn" style="margin-top:11px">
+        <strong>Risk:</strong> if parse accuracy sits below roughly 85% on the chip set, the
+        correction tax exceeds the taps saved and we should not ship it.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+        <span class="chip grape">v2</span><span class="chip">Account only</span>
+      </div>
+      <h3 style="font-size:19px">4 · The morning message</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        The invite already promises "a fresh idea every morning, before you ask". A transcript
+        gives that promise somewhere to land: a pot message waiting in the thread, with the
+        kitchen it assumed and a one-tap <em>yes</em>.
+      </p>
+      <p style="font-size:13.5px">
+        Why it retains: it turns the product from a tool you remember to open into a thread that
+        has something in it. It is also the honest reason to make an account, which makes the
+        invite in frame 07 easier to say yes to.
+      </p>
+      <div class="appnote grape" style="margin-top:11px">
+        <strong>Guardrail:</strong> one message a day, no badge, no push until someone has cooked
+        at least twice. A thread that nags is a thread people mute.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     06 — RISKS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="risks">
+  <div class="sechead"><span class="secnum">06</span><h2>What could go wrong, and the mitigation</h2></div>
+  <p class="lede">
+    I would not ship this unflagged. The wizard is a known quantity with known numbers; a
+    transcript is a bet. Here is what I am actually worried about.
+  </p>
+  <div class="tablewrap scroll">
+    <table>
+      <thead>
+        <tr><th style="width:23%">Risk</th><th style="width:38%">Why it is real</th><th style="width:39%">Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Slower to verdict</strong></td>
+          <td>Chat UIs invite reading. If median time-to-verdict rises, we have made the product worse at its one job no matter how good it feels.</td>
+          <td>Auto-advance on tap removes three Continue presses, so taps actually go <em>down</em>. Gate the rollout on time-to-verdict, not on sentiment.</td>
+        </tr>
+        <tr>
+          <td><strong>People type instead of tapping</strong></td>
+          <td>A visible composer is an invitation. Typing is slower than tapping and parsing can fail.</td>
+          <td>Composer is visually secondary — smaller, grey, under the tiles. Placeholder reads "Or just tell me", with the "or" doing real work.</td>
+        </tr>
+        <tr>
+          <td><strong>The voice gets twee</strong></td>
+          <td>Reaction lines are where a brand voice goes to die. Thirty written lines is thirty chances to be annoying on the second read.</td>
+          <td>Reactions are a reviewable copy file like <code>decide.content.ts</code>, under the same §07 rules. Anything that would not survive being read five times gets cut.</td>
+        </tr>
+        <tr>
+          <td><strong>Scroll jank on small phones</strong></td>
+          <td>A growing thread plus a dock that changes height is the classic mobile chat bug — content jumps as the keyboard opens.</td>
+          <td>Dock height is fixed per stage and never animates. Thread scrolls to the newest pot message, not to the bottom. Dock dims rather than unmounting.</td>
+        </tr>
+        <tr>
+          <td><strong>It reads as a chatbot</strong></td>
+          <td>Generic bubbles would throw away the visual identity that makes this product memorable.</td>
+          <td>The blade holds on every bubble. No pill radii, no grey-on-grey, hard drop shadows throughout. Compare any frame above to a stock chat UI.</td>
+        </tr>
+        <tr>
+          <td><strong>Accessibility regression</strong></td>
+          <td>A live-updating transcript is a screen-reader hazard — chatty regions announce constantly.</td>
+          <td>Thread is <code>aria-live="polite"</code> with system-rail entries excluded. Each stage keeps a real heading. Full keyboard path through the dock before launch.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     07 — BUILD ORDER
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="build">
+  <div class="sechead"><span class="secnum">07</span><h2>How I would sequence it</h2></div>
+  <p class="lede">
+    Four stages. Each one is shippable and each one is measurable on its own, so we can stop
+    after any of them without having built something half-finished.
+  </p>
+  <div class="grid g4">
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage one</div>
+      <h3 style="font-size:17px">The shell</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Transcript renderer over the existing draft, three bubble kinds, the dock, the header
+        meter. Reuses every step component as dock content — the tiles do not get rewritten.
+      </p>
+      <p class="note" style="margin-top:9px">No new copy, no new endpoint. Behind <code>decide_chat</code>.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage two</div>
+      <h3 style="font-size:17px">Edit and react</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Tappable cook bubbles with later answers preserved, the strike-through record, and the
+        reaction copy file. This is the stage that justifies the rebuild.
+      </p>
+      <p class="note" style="margin-top:9px">A/B against the wizard here. Gate: time-to-verdict flat or better.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage three</div>
+      <h3 style="font-size:17px">Push back</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Verdict quick replies as local filters over <code>pool</code>, the alternates strip, and
+        the thread that resumes for signed-in cooks.
+      </p>
+      <p class="note" style="margin-top:9px">Still zero extra model calls. Gate: D7 return rate.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage four</div>
+      <h3 style="font-size:17px">Free text and voice</h3>
+      <p style="font-size:13px;margin-top:8px">
+        The parser, the editable-chip confirmation, the disagreement rail, and the mic. Its own
+        flag, its own accuracy bar.
+      </p>
+      <p class="note" style="margin-top:9px">Only if stage three cleared its gate. Easiest thing to cut.</p>
+    </div>
+  </div>
+
+  <h3 class="sublede">What I need from engineering to size this</h3>
+  <div class="card soft">
+    <ul class="clean" style="margin:0">
+      <li>Can the existing step components (<code>step-kitchen</code>, <code>step-mood</code>, <code>step-weight</code>, <code>step-time</code>) render inside a fixed-height dock without a rewrite? If yes, stage one is small.</li>
+      <li>Does editing an earlier answer without re-running later stages fit the current <code>use-decide</code> reducer, or does the draft need a per-field dirty flag?</li>
+      <li>Are <em>Make it faster</em> and <em>Less pepper</em> expressible as predicates over <code>DecideMeal</code> in <code>decide-rerank</code> — <code>cook_time_minutes</code> and <code>tags</code> — or do they need server support?</li>
+      <li>Is there an existing <code>aria-live</code> pattern in the app I should match, or is this the first live region?</li>
+    </ul>
+  </div>
+
+  <div class="appnote" style="margin-top:20px;max-width:none">
+    <strong>My recommendation:</strong> build stages one and two, A/B them honestly, and hold
+    three and four until the first two have earned it. The transcript is worth building for the
+    edit affordance alone — everything conversational on top of that is upside, not the point.
+  </div>
+</section>
+
+<footer>
+  <span>KinniJije · Decide flow v2 · Chat format proposal</span>
+  <span class="tnum">2026-10-01 · tokens from docs/v2/design.html</span>
+</footer>
+</div>
+</body>
+</html>

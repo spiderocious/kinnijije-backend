@@ -30,22 +30,29 @@ export const RATE_LIMITS = {
    * Raised with the rest: a client watching a job polls this endpoint
    * repeatedly, and the blanket limit must not be what stops it.
    */
-  GLOBAL: perWindow('global', 900, MINUTE),
+  GLOBAL: perWindow('global', 2700, MINUTE),
 
   /**
    * Credential-guessing is the threat; keyed by IP *and* by email.
    *
-   * DELIBERATELY NOT RAISED. Nothing polls login, so the poll-driven reason
-   * for loosening the others does not apply — and this is the one limit whose
-   * whole job is to be tight.
+   * Raised to 30 per quarter-hour. This is still the tightest policy in the
+   * system and still the one whose whole job is to be tight: 30 attempts in
+   * fifteen minutes is generous for somebody who has forgotten which password
+   * they used, and far below what a credential-stuffing run needs to be worth
+   * attempting. The email key matters more than the IP one here, since it
+   * bounds attempts against a single account however many addresses they come
+   * from.
    */
-  LOGIN: perWindow('login', 10, QUARTER_HOUR),
+  LOGIN: perWindow('login', 30, QUARTER_HOUR),
 
   /**
    * Registration is cheap to abuse and expensive to us (argon2 + an email).
-   * Not raised, for the same reason as LOGIN.
+   *
+   * Raised to 15 an hour. Still low enough that bulk signup from one address
+   * is not practical, and well above what a shared office or a family on one
+   * connection would ever need.
    */
-  REGISTER: perWindow('register', 5, HOUR),
+  REGISTER: perWindow('register', 15, HOUR),
 
   /** Refresh is legitimate and frequent, but not unbounded. */
   REFRESH: perWindow('refresh', 180, QUARTER_HOUR),
@@ -88,11 +95,14 @@ export const RATE_LIMITS = {
    * user were involved. A separate name states that this bucket guards a
    * surface with no account behind it.
    *
-   * 8 an hour is generous for a real person — who needs one, maybe three on a
-   * fussy day, and whose "not this" retries cost nothing — and useless to a
-   * scraper.
+   * 24 an hour leaves room for somebody genuinely undecided — changing an
+   * answer and deciding again costs a fresh call each time — while staying far
+   * below what makes scraping the catalogue through this route worthwhile.
+   *
+   * It is the one raised policy that can spend money at OpenAI, so it is worth
+   * watching: the decide dashboard's cost panel is where that would show.
    */
-  DECIDE_ANON: perWindow('decide_anon', 8, HOUR),
+  DECIDE_ANON: perWindow('decide_anon', 24, HOUR),
 
   /**
    * The tiles. In-memory, no database, no model — cheap enough to be generous,
