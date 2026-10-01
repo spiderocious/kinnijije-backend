@@ -94,6 +94,44 @@ export function indexStock(stock: readonly StockItemDocument[]): {
   return { byCatalogue, byName };
 }
 
+/**
+ * Ingredients that stand in for each other in practice.
+ *
+ * The catalogue separates varieties because a shopping list and an expiry date
+ * care about the difference. A RECIPE usually does not: somebody holding white
+ * garri can make garri soakings, and a recipe asking for Ijebu garri is not
+ * refusing theirs.
+ *
+ * Without this, tapping "White garri" matched NOTHING — both garri recipes
+ * name `garri_ijebu` — so a meal that used only salt outranked the one thing
+ * they could actually make.
+ *
+ * Deliberately conservative. Each group is things a Nigerian cook would swap
+ * without comment, never things that merely share a shelf: every rice is rice,
+ * every garri is garri, a frying oil is a frying oil. Palm oil is NOT in the
+ * oil group — it is a flavour, not a medium, and swapping it changes the dish.
+ */
+const INTERCHANGEABLE: readonly (readonly string[])[] = [
+  ['garri_white', 'garri_yellow', 'garri_ijebu', 'garri_soak'],
+  ['rice_long_grain', 'rice_parboiled', 'rice_local', 'rice_basmati', 'rice_jasmine', 'brown_rice'],
+  ['beans_brown', 'beans_white', 'beans_black_eyed', 'beans_iron'],
+  ['groundnut_oil', 'coconut_oil', 'olive_oil'],
+  ['onion_red', 'onion_white'],
+  ['milk_powder', 'milk_evaporated', 'milk_fresh', 'milk_peak', 'milk_dano', 'milk_three_crowns'],
+  ['stock_cube', 'chicken_stock_cube', 'seasoning_powder', 'chicken_seasoning'],
+  ['tomato', 'tomato_tin_whole'],
+  ['crayfish', 'crayfish_powder', 'cray_whole'],
+];
+
+/** Built once: id → every id it may be satisfied by, including itself. */
+const SUBSTITUTES: ReadonlyMap<string, readonly string[]> = (() => {
+  const map = new Map<string, readonly string[]>();
+  for (const group of INTERCHANGEABLE) {
+    for (const id of group) map.set(id, group);
+  }
+  return map;
+})();
+
 function findInStock(
   ingredient: MealIngredient,
   index: ReturnType<typeof indexStock>,
@@ -101,6 +139,12 @@ function findInStock(
   if (ingredient.catalogueId !== null) {
     const hit = index.byCatalogue.get(ingredient.catalogueId);
     if (hit !== undefined) return hit;
+
+    // Nothing exact: accept a variety the cook would swap without thinking.
+    for (const alternative of SUBSTITUTES.get(ingredient.catalogueId) ?? []) {
+      const swap = index.byCatalogue.get(alternative);
+      if (swap !== undefined) return swap;
+    }
   }
   return index.byName.get(ingredient.name.toLowerCase());
 }
@@ -210,7 +254,15 @@ export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStoc
     }
 
     ingredients.push({
-      name: ingredient.name,
+      /**
+       * THEIR word for it, not the recipe's.
+       *
+       * A substitution means these can differ: somebody who tapped "White
+       * garri" and matched a recipe asking for "Ijebu garri" should see their
+       * own ingredient listed under "you have". Showing the recipe's name
+       * reads as though we found something they never said they had.
+       */
+      name: stock.name,
       state: enough ? INGREDIENT_STATES.ENOUGH : INGREDIENT_STATES.LOW,
       needed: ingredient.quantity,
       needed_unit: ingredient.unit,
