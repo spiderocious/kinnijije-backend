@@ -72,10 +72,13 @@ export function record(input: AuditInput): void {
       let actorRole = input.actor?.role ?? context?.role;
 
       if (actorEmail === undefined) {
-        const { UserModel } = await import('@features/users/users.model.js');
-        const row = await UserModel.findById(actorId, { email: 1, role: 1 }).lean().exec();
+        // Resolved from STAFF, because every audited action is a console
+        // action. A customer id here would be a bug, and rendering 'unknown'
+        // is the honest outcome rather than inventing an identity.
+        const { StaffUserModel } = await import('@features/admin/staff/staff-user.model.js');
+        const row = await StaffUserModel.findById(actorId, { email: 1, tier: 1 }).lean().exec();
         actorEmail = row?.email ?? 'unknown';
-        actorRole ??= row?.role ?? 'unknown';
+        actorRole ??= row?.tier ?? 'unknown';
       }
 
       await AuditLogModel.create({
@@ -116,13 +119,15 @@ export function auditDenial(req: Request, neededScope: string): void {
 
   void (async () => {
     try {
-      const { UserModel } = await import('@features/users/users.model.js');
-      const row = await UserModel.findById(context.user_id, { email: 1, role: 1 }).lean().exec();
+      const { StaffUserModel } = await import('@features/admin/staff/staff-user.model.js');
+      const row = await StaffUserModel.findById(context.user_id, { email: 1, tier: 1 })
+        .lean()
+        .exec();
 
       await AuditLogModel.create({
         actorId: context.user_id,
         actorEmail: row?.email ?? 'unknown',
-        actorRole: row?.role ?? 'unknown',
+        actorRole: row?.tier ?? 'unknown',
         action: 'access.denied',
         resource: neededScope.slice(0, neededScope.indexOf(':')),
         resourceId: null,

@@ -66,7 +66,6 @@ export const authController = {
     analytics.setProfile(result.data.user.id, {
       email: body.email,
       created_at: new Date().toISOString(),
-      role: result.data.user.role,
       status: result.data.user.status,
       has_onboarded: false,
     });
@@ -92,7 +91,6 @@ export const authController = {
     // Keeps role and status current, so admin traffic and suspended accounts
     // can be excluded from product reports.
     analytics.setProfile(result.data.user.id, {
-      role: result.data.user.role,
       status: result.data.user.status,
     });
 

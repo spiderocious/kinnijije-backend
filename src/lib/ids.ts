@@ -27,6 +27,8 @@ export const ID_PREFIXES = {
   insight: 'ins',
   decideLog: 'dlog',
   audit: 'audit',
+  staff: 'stf',
+  staffSession: 'ssn',
   invite: 'inv',
   permissionGroup: 'grp',
   /** One saved decision, owned by a signed-in cook. */

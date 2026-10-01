@@ -109,6 +109,8 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.scripts.ALREADY_RUNNING]:
     'That operation is already running. Wait for it to finish before starting another.',
   [MESSAGE_KEYS.scripts.NOT_FOUND]: 'That operation does not exist.',
+  [MESSAGE_KEYS.scripts.ALREADY_RUN]:
+    'That operation is a one-off and has already been applied.',
   [MESSAGE_KEYS.common.HEALTHY]: 'Service is healthy.',
 };
 

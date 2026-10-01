@@ -9,7 +9,7 @@ import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
-import type { UserRole, UserStatus } from '@shared/constants/roles.js';
+import type { UserStatus } from '@shared/constants/roles.js';
 import {
   DEFAULT_RANKING_CONFIG,
   RANKING_CONFIG_ID,
@@ -163,16 +163,6 @@ export const adminController = {
     });
     analytics.setProfile(userId, { status });
 
-    ResponseUtil.noContent(res);
-  },
-
-  setUserRole: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
-    const { userId } = req.params as { userId: string };
-    const { role } = req.body as { role: UserRole };
-    // The actor's OWN role is what bounds what they may grant.
-    const result = await adminUsersService.setRole(userId, role, actor.userId, actor.role);
-    if (!result.success) return bail(result);
     ResponseUtil.noContent(res);
   },
 

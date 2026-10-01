@@ -4,27 +4,42 @@ import { AuditLogModel } from '@lib/audit/index.js';
 import { isoOrNull } from '@lib/dates.js';
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
-import { requireActor } from '@shared/middleware/authenticate.middleware.js';
-import { UserModel } from '@features/users/users.model.js';
-import type { UserRole } from '@shared/constants/roles.js';
+import { requireStaff } from '@shared/middleware/authenticate-staff.middleware.js';
 
+import { StaffUserModel, type StaffTier } from './staff-user.model.js';
 import { staffService } from './staff.service.js';
 
 /**
- * The actor's own effective scopes.
+ * The acting staff member, with their current scopes and name.
  *
- * Needed by every grant, because the first escalation rule is "nobody grants
- * what they do not hold". Read fresh rather than taken from the token, for the
- * same reason `requireScope` does.
+ * Read fresh rather than taken from the token, for the same reason
+ * `requireScope` does: the first escalation rule is "nobody grants what they
+ * do not hold", and a stale scope set would let somebody grant something they
+ * lost fifteen minutes ago.
  */
-async function actorScopes(userId: string): Promise<string[]> {
-  const row = await UserModel.findById(userId, { permissions: 1, name: 1 }).lean().exec();
-  return row?.permissions ?? [];
-}
+async function actingStaff(staffId: string): Promise<{
+  id: string;
+  name: string;
+  email: string;
+  tier: StaffTier;
+  scopes: string[];
+}> {
+  const row = await StaffUserModel.findById(staffId, {
+    name: 1,
+    email: 1,
+    tier: 1,
+    permissions: 1,
+  })
+    .lean()
+    .exec();
 
-async function actorName(userId: string): Promise<string> {
-  const row = await UserModel.findById(userId, { name: 1 }).lean().exec();
-  return row?.name ?? 'An administrator';
+  return {
+    id: staffId,
+    name: row?.name ?? 'An administrator',
+    email: row?.email ?? 'unknown',
+    tier: row?.tier ?? 'moderator',
+    scopes: row?.permissions ?? [],
+  };
 }
 
 export const staffController = {
@@ -39,11 +54,11 @@ export const staffController = {
   },
 
   invite: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const staff = requireStaff(req);
     const body = req.body as {
       email: string;
       name: string;
-      role: UserRole;
+      tier: StaffTier;
       group_keys?: string[];
       scopes?: string[];
     };
@@ -52,16 +67,11 @@ export const staffController = {
       {
         email: body.email,
         name: body.name,
-        role: body.role,
+        tier: body.tier,
         groupKeys: body.group_keys ?? [],
         scopes: body.scopes ?? [],
       },
-      {
-        id: actor.userId,
-        name: await actorName(actor.userId),
-        role: actor.role,
-        scopes: await actorScopes(actor.userId),
-      },
+      await actingStaff(staff.staffId),
     );
 
     if (!result.success) return bail(result);
@@ -69,22 +79,38 @@ export const staffController = {
   },
 
   revokeInvite: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
-    const { userId } = req.params as { userId: string };
-    const result = await staffService.revokeInvite(userId, actor.userId);
+    const staff = requireStaff(req);
+    const { staffId } = req.params as { staffId: string };
+    const result = await staffService.revokeInvite(staffId, staff.staffId);
+    if (!result.success) return bail(result);
+    ResponseUtil.noContent(res);
+  },
+
+  revokeAccess: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireStaff(req);
+    const { staffId } = req.params as { staffId: string };
+    const { reason } = req.body as { reason?: string };
+
+    const result = await staffService.revokeAccess(staffId, reason ?? null, {
+      id: actor.staffId,
+      email: actor.email,
+      tier: actor.tier,
+    });
+
     if (!result.success) return bail(result);
     ResponseUtil.noContent(res);
   },
 
   setPermissions: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
-    const { userId } = req.params as { userId: string };
+    const actor = requireStaff(req);
+    const { staffId } = req.params as { staffId: string };
     const body = req.body as { group_keys?: string[]; scopes?: string[] };
 
+    const acting = await actingStaff(actor.staffId);
     const result = await staffService.setPermissions(
-      userId,
+      staffId,
       { groupKeys: body.group_keys ?? [], scopes: body.scopes ?? [] },
-      { id: actor.userId, role: actor.role, scopes: await actorScopes(actor.userId) },
+      { id: acting.id, email: acting.email, tier: acting.tier, scopes: acting.scopes },
     );
 
     if (!result.success) return bail(result);
@@ -142,8 +168,6 @@ export const staffController = {
         request_id: row.requestId,
         created_at: isoOrNull(row.createdAt),
       })),
-      // The envelope's meta is cursor-shaped, so the count rides in the rows'
-      // own pagination rather than inventing a field for it.
       { next_cursor: null, has_more: skip + rows.length < total },
     );
   },

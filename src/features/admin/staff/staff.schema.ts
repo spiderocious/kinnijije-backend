@@ -13,12 +13,17 @@ const SCOPE_VALUES = [...ALL_SCOPES] as [string, ...string[]];
  * nobody notices until somebody cannot do their job. `z.enum` over the
  * generated list means a typo is a 422 with the field named.
  */
+export const RevokeStaffSchema = z.object({
+  /** Why. Shown in the staff list and recorded in the trail. */
+  reason: z.string().trim().min(1).max(500).optional(),
+});
+
 export const InviteStaffSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
   name: z.string().trim().min(1).max(120),
   // `super_admin` is absent on purpose: there is exactly one owner tier and it
   // is not handed out through a form.
-  role: z.enum(['moderator', 'admin']),
+  tier: z.enum(['moderator', 'admin']),
   group_keys: z.array(z.enum(GROUP_KEYS)).max(4).default([]),
   scopes: z.array(z.enum(SCOPE_VALUES)).max(40).default([]),
 });

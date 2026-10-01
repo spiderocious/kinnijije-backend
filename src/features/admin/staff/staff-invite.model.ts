@@ -11,8 +11,8 @@ import { newId } from '@lib/ids.js';
  */
 export interface StaffInviteAttributes {
   _id: string;
-  /** The `invited` user row this will activate. */
-  userId: string;
+  /** The `invited` staff row this will activate. Never a `users` id. */
+  staffId: string;
   email: string;
   /**
    * SHA-256 of the token, never the token.
@@ -31,7 +31,7 @@ export interface StaffInviteAttributes {
    */
   scopes: string[];
   groupKeys: string[];
-  role: string;
+  tier: string;
   invitedBy: string;
   expiresAt: Date;
   /** Set the moment it is spent. An invite works exactly once. */
@@ -44,12 +44,12 @@ export interface StaffInviteAttributes {
 const staffInviteSchema = new Schema<StaffInviteAttributes>(
   {
     _id: { type: String, default: () => newId('invite') },
-    userId: { type: String, required: true, index: true },
+    staffId: { type: String, required: true, index: true },
     email: { type: String, required: true, lowercase: true, trim: true, index: true },
     tokenHash: { type: String, required: true, unique: true },
     scopes: { type: [String], default: [] },
     groupKeys: { type: [String], default: [] },
-    role: { type: String, required: true },
+    tier: { type: String, required: true },
     invitedBy: { type: String, required: true },
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },
@@ -66,7 +66,7 @@ const staffInviteSchema = new Schema<StaffInviteAttributes>(
  * Mongo removes expired rows on its own, so nothing accumulates and no spent
  * token lingers where it could be looked up.
  *
- * NOTE: the `invited` USER row deliberately survives this — the staff list
+ * NOTE: the `invited` STAFF row deliberately survives this — the staff list
  * should show "invited, expired" so somebody can chase it, rather than the
  * person silently vanishing.
  */

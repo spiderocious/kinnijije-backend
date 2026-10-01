@@ -38,6 +38,20 @@ export interface ScriptDefinition {
   /** What it does, in a sentence an operator can act on. */
   readonly description: string;
   /**
+   * A one-off. Once it has SUCCEEDED for real, Run is disabled rather than
+   * hidden — an operator needs to see that it exists and that it is already
+   * done, or they will go looking for it. Dry runs never count.
+   */
+  readonly runOnce: boolean;
+  /**
+   * Undoes the last real run, where that is genuinely possible.
+   *
+   * Absent on purpose for most scripts: `prune-unknown-scopes` has discarded
+   * the strings it removed, so there is nothing to put back. A generic "undo"
+   * that silently did nothing would be worse than no button at all.
+   */
+  readonly revert?: (context: ScriptContext) => Promise<Record<string, unknown>>;
+  /**
    * What it changes when it is not a dry run. Shown beside the button —
    * the same convention as a feature flag's `whenOff`.
    */
@@ -50,58 +64,56 @@ export interface ScriptDefinition {
 }
 
 /**
- * Backfills permission scopes onto existing admins.
+ * Reports staff whose granted scopes no longer match the group they were
+ * given.
  *
- * This was `scripts/migrate-admin-permissions.ts`. It has to run exactly once,
- * immediately after scope enforcement deploys, or every existing admin locks
- * out on their next request — which makes "you cannot run scripts on prod" a
- * genuine blocker rather than an inconvenience.
+ * Groups are FLATTENED onto a staff row when assigned, deliberately — the row
+ * is the single source of truth, so editing a group does not retroactively
+ * change existing members. That is the right trade, but it means drift is
+ * invisible without something like this.
+ *
+ * Read-only: whether to re-apply the group or leave a deliberate exception
+ * alone is a judgement call, not something a script should make.
  */
-const backfillAdminPermissions: ScriptDefinition = {
-  id: 'backfill-admin-permissions',
-  name: 'Backfill admin permissions',
+const auditGroupDrift: ScriptDefinition = {
+  id: 'audit-group-drift',
+  name: 'Find permission drift',
   description:
-    'Gives every existing admin the Operator scope set, so nobody is locked out when scope enforcement goes live. Super admins are skipped — they bypass scope checks rather than holding them.',
-  effect: 'Sets permissions on admin accounts that currently have none.',
+    'Lists staff whose permissions no longer match the group assigned to them — usually because the group was edited after they were granted it.',
+  effect: 'Reads only. Changes nothing.',
   destructive: false,
-  supportsDryRun: true,
-  run: async ({ dryRun, job }) => {
-    const { UserModel } = await import('@features/users/users.model.js');
+  supportsDryRun: false,
+  runOnce: false,
+  run: async () => {
+    const { StaffUserModel } = await import('../staff/staff-user.model.js');
     const { SEEDED_GROUPS } = await import('@shared/constants/permission-groups.js');
-    const { USER_ROLES } = await import('@shared/constants/roles.js');
 
-    const operator = SEEDED_GROUPS.find((group) => group.key === 'operator');
-    if (operator === undefined) throw new Error('the operator group is missing from the seed');
+    const staff = await StaffUserModel.find(
+      { permissionGroupKeys: { $ne: [] } },
+      { email: 1, permissions: 1, permissionGroupKeys: 1 },
+    )
+      .lean()
+      .exec();
 
-    // Only an EMPTY set is filled, so re-running cannot clobber a set somebody
-    // has since narrowed by hand.
-    const filter = {
-      role: USER_ROLES.ADMIN,
-      $or: [{ permissions: { $size: 0 } }, { permissions: { $exists: false } }],
-    };
+    const drifted = staff
+      .map((row) => {
+        const expected = new Set<string>(
+          row.permissionGroupKeys.flatMap(
+            (key): readonly string[] =>
+              SEEDED_GROUPS.find((group) => group.key === key)?.scopes ?? [],
+          ),
+        );
+        const held = new Set<string>(row.permissions);
+        return {
+          email: row.email,
+          groups: row.permissionGroupKeys,
+          missing: [...expected].filter((scope) => !held.has(scope)),
+          extra: [...held].filter((scope) => !expected.has(scope)),
+        };
+      })
+      .filter((row) => row.missing.length > 0 || row.extra.length > 0);
 
-    const candidates = await UserModel.find(filter, { email: 1 }).lean().exec();
-    await job.setProgress(0.5, `${String(candidates.length)} to update`);
-
-    if (dryRun) {
-      return {
-        dry_run: true,
-        would_update: candidates.length,
-        emails: candidates.map((row) => row.email),
-        scopes: [...operator.scopes],
-      };
-    }
-
-    const result = await UserModel.updateMany(filter, {
-      $set: { permissions: [...operator.scopes], permissionGroupKeys: [operator.key] },
-    }).exec();
-
-    return {
-      matched: result.matchedCount,
-      modified: result.modifiedCount,
-      group: operator.key,
-      scopes: [...operator.scopes],
-    };
+    return { checked: staff.length, drifted_count: drifted.length, drifted };
   },
 };
 
@@ -115,18 +127,19 @@ const backfillAdminPermissions: ScriptDefinition = {
 const auditStuckInvites: ScriptDefinition = {
   id: 'audit-stuck-invites',
   name: 'Find stranded invitations',
+  // A report. Run it whenever.
+  runOnce: false,
   description:
     'Lists accounts still marked invited whose invitation has expired or been revoked — people who were invited and can no longer accept.',
   effect: 'Reads only. Changes nothing.',
   destructive: false,
   supportsDryRun: false,
   run: async () => {
-    const { UserModel } = await import('@features/users/users.model.js');
     const { StaffInviteModel } = await import('../staff/staff-invite.model.js');
-    const { USER_STATUSES } = await import('@shared/constants/roles.js');
+    const { STAFF_STATUSES, StaffUserModel } = await import('../staff/staff-user.model.js');
 
-    const invited = await UserModel.find(
-      { status: USER_STATUSES.INVITED },
+    const invited = await StaffUserModel.find(
+      { status: STAFF_STATUSES.INVITED },
       { email: 1, name: 1, createdAt: 1 },
     )
       .lean()
@@ -134,17 +147,17 @@ const auditStuckInvites: ScriptDefinition = {
 
     const open = await StaffInviteModel.find(
       {
-        userId: { $in: invited.map((row) => row._id) },
+        staffId: { $in: invited.map((row) => row._id) },
         usedAt: null,
         revokedAt: null,
         expiresAt: { $gt: new Date() },
       },
-      { userId: 1 },
+      { staffId: 1 },
     )
       .lean()
       .exec();
 
-    const withOpenInvite = new Set(open.map((row) => row.userId));
+    const withOpenInvite = new Set(open.map((row) => row.staffId));
     const stranded = invited.filter((row) => !withOpenInvite.has(row._id));
 
     return {
@@ -171,6 +184,7 @@ const auditStuckInvites: ScriptDefinition = {
 const pruneUnknownScopes: ScriptDefinition = {
   id: 'prune-unknown-scopes',
   name: 'Prune unknown permission scopes',
+  runOnce: false,
   description:
     'Removes permission strings that are no longer defined in the code — left behind when a resource is renamed or removed.',
   effect: 'Rewrites the permissions array on any account holding a scope that no longer exists.',
@@ -215,7 +229,7 @@ const pruneUnknownScopes: ScriptDefinition = {
 };
 
 export const SCRIPTS: readonly ScriptDefinition[] = [
-  backfillAdminPermissions,
+  auditGroupDrift,
   auditStuckInvites,
   pruneUnknownScopes,
 ];

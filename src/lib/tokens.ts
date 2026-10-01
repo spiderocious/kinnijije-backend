@@ -3,11 +3,10 @@ import { createHash, randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 
 import { env } from '@app/env.js';
-import type { UserRole, UserStatus } from '@shared/constants/roles.js';
+import type { UserStatus } from '@shared/constants/roles.js';
 
 export interface AccessTokenClaims {
   sub: string;
-  role: UserRole;
   status: UserStatus;
   sid: string;
 }
@@ -19,9 +18,12 @@ export const accessTokenTtlSeconds = (): number => env.ACCESS_TOKEN_TTL_MINUTES 
 export const refreshTokenTtlSeconds = (): number => env.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60;
 
 /**
- * The access token carries role and status as claims so an ordinary request
- * needs no user lookup. The trade-off is staleness: a role or status changed
- * mid-token is not seen until the token expires.
+ * The access token carries the status as a claim so an ordinary request needs
+ * no user lookup. The trade-off is staleness: a status changed mid-token is
+ * not seen until the token expires.
+ *
+ * There is NO role claim: staff are a separate identity domain with their own
+ * token audience, so a customer token has nothing to say about the console.
  *
  * That is why the TTL is short (15 min default) and why anything that must act
  * immediately — a ban — also revokes the sessions, which the refresh path
@@ -47,17 +49,12 @@ export function verifyAccessToken(token: string): VerifyResult {
 
     if (typeof decoded === 'string') return { valid: false, reason: 'invalid' };
 
-    const { sub, role, status, sid } = decoded as Partial<AccessTokenClaims>;
-    if (
-      typeof sub !== 'string' ||
-      typeof role !== 'string' ||
-      typeof status !== 'string' ||
-      typeof sid !== 'string'
-    ) {
+    const { sub, status, sid } = decoded as Partial<AccessTokenClaims>;
+    if (typeof sub !== 'string' || typeof status !== 'string' || typeof sid !== 'string') {
       return { valid: false, reason: 'invalid' };
     }
 
-    return { valid: true, claims: { sub, role, status, sid } };
+    return { valid: true, claims: { sub, status, sid } };
   } catch (error) {
     // Expiry is an ordinary outcome the client resolves by refreshing; every
     // other failure is a bad token. The client needs to tell them apart.

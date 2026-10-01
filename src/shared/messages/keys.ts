@@ -93,6 +93,8 @@ export const MESSAGE_KEYS = {
     /** A second run of the same script while one is still going. */
     ALREADY_RUNNING: 'scripts.already_running',
     NOT_FOUND: 'scripts.not_found',
+    /** A one-off that has already been applied. */
+    ALREADY_RUN: 'scripts.already_run',
   },
   jobs: {
     FETCHED: 'jobs.fetched',

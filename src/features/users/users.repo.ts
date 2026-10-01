@@ -7,7 +7,6 @@ import type { UserRole, UserStatus } from '@shared/constants/roles.js';
 import { UserModel, type UserDocument } from './users.model.js';
 
 export interface ListUsersFilter {
-  role?: UserRole;
   status?: UserStatus;
   cursor?: string;
   limit: number;
@@ -39,7 +38,6 @@ export class UsersRepository {
    */
   async list(filter: ListUsersFilter): Promise<ListUsersPage> {
     const query: FilterQuery<UserDocument> = {};
-    if (filter.role !== undefined) query.role = filter.role;
     if (filter.status !== undefined) query.status = filter.status;
 
     const cursor: Cursor | null = decodeCursor(filter.cursor);

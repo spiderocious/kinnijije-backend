@@ -3,13 +3,10 @@ import { model, Schema, type HydratedDocument } from 'mongoose';
 import { newId } from '@lib/ids.js';
 import {
   ALL_DIFFICULTIES,
-  ALL_ROLES,
   ALL_STATUSES,
   DIFFICULTIES,
-  USER_ROLES,
   USER_STATUSES,
   type Difficulty,
-  type UserRole,
   type UserStatus,
 } from '@shared/constants/roles.js';
 
@@ -50,8 +47,6 @@ const userSchema = new Schema(
 
     name: { type: String, required: true, trim: true, maxlength: 120 },
 
-    role: { type: String, required: true, enum: ALL_ROLES, default: USER_ROLES.USER, index: true },
-
     status: {
       type: String,
       required: true,
@@ -87,12 +82,6 @@ const userSchema = new Schema(
      * who bypasses scope checks rather than holding every scope.
      */
     permissions: { type: [String], default: [] },
-
-    /**
-     * Which groups were applied. DISPLAY ONLY — never consulted when
-     * authorising, so a stale group reference cannot confer access.
-     */
-    permissionGroupKeys: { type: [String], default: [] },
 
     /**
      * When the person finished setting up. Null means they still owe us
@@ -197,7 +186,6 @@ export interface UserAttributes {
   email: string;
   passwordHash: string | null;
   name: string;
-  role: UserRole;
   status: UserStatus;
   emailVerifiedAt: Date | null;
   lastLoginAt: Date | null;

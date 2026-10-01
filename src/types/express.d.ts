@@ -1,4 +1,5 @@
-import type { UserRole, UserStatus } from '../shared/constants/roles.js';
+import type { UserStatus } from '../shared/constants/roles.js';
+import type { StaffStatus, StaffTier } from '../features/admin/staff/staff-user.model.js';
 
 /**
  * Adds the authenticated actor to Express's Request.
@@ -11,10 +12,25 @@ import type { UserRole, UserStatus } from '../shared/constants/roles.js';
 declare global {
   namespace Express {
     interface Request {
+      /**
+       * The CUSTOMER actor. Carries no role: staff are a separate identity
+       * domain with their own token audience and their own request field.
+       */
       actor?: {
         userId: string;
-        role: UserRole;
         status: UserStatus;
+        sessionId: string;
+      };
+      /**
+       * The console actor. Set only by `authenticateStaff`, and NEVER by the
+       * customer `authenticate` — the two are separate identity domains, so a
+       * request carries one or the other and never both.
+       */
+      staff?: {
+        staffId: string;
+        email: string;
+        tier: StaffTier;
+        status: StaffStatus;
         sessionId: string;
       };
     }

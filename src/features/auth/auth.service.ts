@@ -26,7 +26,6 @@ import {
   SESSION_ALLOWED_STATUSES,
   USER_ROLES,
   USER_STATUSES,
-  type UserRole,
   type UserStatus,
 } from '@shared/constants/roles.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
@@ -117,10 +116,7 @@ export class AuthService {
       throw error;
     }
 
-    const issued = await this.issueSession(
-      user._id,
-      user.role,
-      user.status,
+    const issued = await this.issueSession(user._id, user.status,
       origin,
     );
 
@@ -195,7 +191,7 @@ export class AuthService {
 
     await this.repo.recordSuccessfulLogin(user._id);
 
-    const issued = await this.issueSession(user._id, user.role, status, origin);
+    const issued = await this.issueSession(user._id, status, origin);
     const fresh = await this.repo.findById(user._id);
 
     return ok({ user: toUserView(fresh ?? user), tokens: issued.tokens });
@@ -300,7 +296,7 @@ export class AuthService {
       );
     }
 
-    const issued = await this.issueSession(user._id, user.role, status, origin);
+    const issued = await this.issueSession(user._id, status, origin);
     await this.repo.revokeSession(session._id, issued.sessionId, 'rotated');
 
     return ok({ user: toUserView(user), tokens: issued.tokens });
@@ -473,7 +469,6 @@ export class AuthService {
 
   private async issueSession(
     userId: string,
-    role: UserRole,
     status: UserStatus,
     origin: SessionOrigin,
   ): Promise<IssuedSession> {
@@ -488,7 +483,7 @@ export class AuthService {
       ip: origin.ip,
     });
 
-    const accessToken = signAccessToken({ sub: userId, role, status, sid: session._id });
+    const accessToken = signAccessToken({ sub: userId, status, sid: session._id });
 
     const tokens: AuthTokens = {
       access_token: accessToken,

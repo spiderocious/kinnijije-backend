@@ -155,7 +155,6 @@ export class UsersService {
     const page = await this.repo.list({
       limit: clampLimit(query.limit, MAX_ADMIN_PAGE_SIZE),
       ...(query.cursor !== undefined && { cursor: query.cursor }),
-      ...(query.role !== undefined && { role: query.role as UserRole }),
       ...(query.status !== undefined && { status: query.status as UserStatus }),
     });
 

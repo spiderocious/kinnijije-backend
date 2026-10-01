@@ -1,15 +1,21 @@
 import { Router, type Express } from 'express';
 
 import { RATE_LIMITS } from '@lib/ratelimit/index.js';
-import { USER_ROLES, USER_STATUSES } from '@shared/constants/roles.js';
 import { asyncHandler } from '@shared/middleware/async-handler.js';
-import { authenticate } from '@shared/middleware/authenticate.middleware.js';
-import { requireRole, requireStatus, requireScope } from '@shared/middleware/authorize.middleware.js';
-import { rateLimit } from '@shared/middleware/rate-limit.middleware.js';
+import { authenticateStaff } from '@shared/middleware/authenticate-staff.middleware.js';
+import { requireScope, requireTier } from '@shared/middleware/authorize-staff.middleware.js';
+import { STAFF_TIERS } from './staff/staff-user.model.js';
+import { byBodyField, byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
 import { adminController } from './admin.controller.js';
 import { auditRead } from '@lib/audit/index.js';
+import { staffAuthController } from './auth/staff-auth.controller.js';
+import {
+  StaffLoginSchema,
+  StaffLogoutSchema,
+  StaffRefreshSchema,
+} from './auth/staff-auth.schema.js';
 import { scriptsController } from './scripts/scripts.controller.js';
 import { RunScriptSchema } from './scripts/scripts.schema.js';
 import { staffController } from './staff/staff.controller.js';
@@ -17,6 +23,7 @@ import {
   AcceptInviteSchema,
   InviteStaffSchema,
   ListAuditSchema,
+  RevokeStaffSchema,
   SetPermissionsSchema,
 } from './staff/staff.schema.js';
 import { adminImagesController } from './images/admin-images.controller.js';
@@ -44,7 +51,6 @@ import {
   SetFeatureFlagSchema,
   SetMailProviderSchema,
   SetRecipeStatusSchema,
-  SetUserRoleSchema,
   SetUserStatusSchema,
   TestMailProviderSchema,
 } from './admin.schema.js';
@@ -64,8 +70,39 @@ const router = Router();
  */
 
 // ── Setup: unauthenticated, and closed the moment an admin exists ────
-router.get('/admin/setup', rateLimit(RATE_LIMITS.REGISTER), asyncHandler(adminController.setupState));
-router.post('/admin/setup', rateLimit(RATE_LIMITS.REGISTER), asyncHandler(adminController.bootstrap));
+router.get('/admin/setup', rateLimit(RATE_LIMITS.REGISTER), asyncHandler(staffAuthController.setupState));
+router.post('/admin/setup', rateLimit(RATE_LIMITS.REGISTER), asyncHandler(staffAuthController.bootstrap));
+
+/**
+ * Console sign-in. A SEPARATE credential from the customer app.
+ *
+ * Staff authenticate against `staff_users`, and the token they get is issued
+ * for the console audience — so it cannot be used on the customer API, and a
+ * customer token cannot be used here. That is the separation, enforced by
+ * signature rather than by a claim check.
+ *
+ * LOGIN policy, keyed by IP and by email: nothing polls this, and credential
+ * guessing is the threat.
+ */
+router.post(
+  '/admin/auth/login',
+  rateLimit(RATE_LIMITS.LOGIN, byIp, 'ip'),
+  validate(StaffLoginSchema),
+  rateLimit(RATE_LIMITS.LOGIN, byBodyField('email'), 'email'),
+  asyncHandler(staffAuthController.login),
+);
+router.post(
+  '/admin/auth/refresh',
+  rateLimit(RATE_LIMITS.REFRESH, byIp),
+  validate(StaffRefreshSchema),
+  asyncHandler(staffAuthController.refresh),
+);
+router.post(
+  '/admin/auth/logout',
+  rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE, byIp),
+  validate(StaffLogoutSchema),
+  asyncHandler(staffAuthController.logout),
+);
 
 /**
  * Accepting an invitation. PUBLIC, of necessity: the person has no password
@@ -88,12 +125,22 @@ router.post(
 );
 
 // ── Everything else ──────────────────────────────────────────────────
-const guard = [
-  authenticate,
-  requireStatus(USER_STATUSES.ACTIVE),
-  requireRole(USER_ROLES.ADMIN),
-  rateLimit(RATE_LIMITS.ADMIN),
-];
+/**
+ * The console door.
+ *
+ * `authenticateStaff` verifies a token on the CONSOLE audience, so a customer
+ * token fails signature verification here rather than failing a role check —
+ * it cannot reach an admin route at all. The status is re-read from
+ * `staff_users` on every request, so a suspension takes effect immediately
+ * rather than when a token happens to expire.
+ *
+ * No tier gate on the shared guard: reaching the console is enough to be here,
+ * and WHICH actions are allowed is the scope's job, per route.
+ */
+const guard = [asyncHandler(authenticateStaff), rateLimit(RATE_LIMITS.ADMIN)];
+
+// Who am I. Drives what the console renders.
+router.get('/admin/auth/me', ...guard, asyncHandler(staffAuthController.me));
 
 router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 
@@ -158,9 +205,7 @@ router.post(
   // call costs an order of magnitude more than a text one. The middleware is
   // therefore re-listed by hand — and `requireScope` must come AFTER
   // `authenticate`, since it reads the actor that authenticate sets.
-  authenticate,
-  requireStatus(USER_STATUSES.ACTIVE),
-  requireRole(USER_ROLES.ADMIN),
+  asyncHandler(authenticateStaff),
   rateLimit(RATE_LIMITS.IMAGE_GENERATE),
   requireScope('images:write'),
   validate(GenerateImageSchema),
@@ -200,11 +245,8 @@ router.patch(
   validate(SetUserStatusSchema),
   asyncHandler(adminController.setUserStatus),
 );
-router.patch(
-  '/admin/users/:userId/role', ...guard, requireScope('users:write'),
-  validate(SetUserRoleSchema),
-  asyncHandler(adminController.setUserRole),
-);
+// No customer role route: a customer account has no role. Console access is a
+// staff_users row, managed under /admin/staff.
 
 // AI audit — the literal first.
 router.get('/admin/ai/prompt-ids', ...guard, requireScope('ai:read'), asyncHandler(adminController.aiPromptIds));
@@ -270,19 +312,34 @@ router.get('/admin/staff', ...guard, requireScope('staff:read'), asyncHandler(st
 router.post(
   '/admin/staff/invites',
   ...guard,
+  // Tier AND scope: inviting somebody is the one place seniority matters on
+  // its own, because a moderator with staff:write could otherwise build a
+  // peer. The service enforces the grant ceiling on top of this.
+  requireTier(STAFF_TIERS.ADMIN),
   requireScope('staff:write'),
   validate(InviteStaffSchema),
   asyncHandler(staffController.invite),
 );
 router.delete(
-  '/admin/staff/:userId/invite',
+  '/admin/staff/:staffId/invite',
   ...guard,
   requireScope('staff:write'),
   asyncHandler(staffController.revokeInvite),
 );
-router.patch(
-  '/admin/staff/:userId/permissions',
+// Removing console access. The row survives so the audit trail still
+// resolves who they were; their customer account is untouched.
+router.post(
+  '/admin/staff/:staffId/revoke',
   ...guard,
+  requireTier(STAFF_TIERS.ADMIN),
+  requireScope('staff:write'),
+  validate(RevokeStaffSchema),
+  asyncHandler(staffController.revokeAccess),
+);
+router.patch(
+  '/admin/staff/:staffId/permissions',
+  ...guard,
+  requireTier(STAFF_TIERS.ADMIN),
   requireScope('staff:write'),
   validate(SetPermissionsSchema),
   asyncHandler(staffController.setPermissions),
@@ -303,6 +360,14 @@ router.post(
   requireScope('scripts:write'),
   validate(RunScriptSchema),
   asyncHandler(scriptsController.run),
+);
+// Undo, only where a script declared one. Same scope as running: an undo is a
+// write, and a destructive one.
+router.post(
+  '/admin/scripts/:scriptId/revert',
+  ...guard,
+  requireScope('scripts:write'),
+  asyncHandler(scriptsController.revert),
 );
 
 // Reading the trail is itself auditable — see the auditRead on this route.

@@ -13,13 +13,7 @@ import { fail, ok, type ServiceResult } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
-import {
-  USER_ROLES,
-  USER_STATUSES,
-  roleAtLeast,
-  type UserRole,
-  type UserStatus,
-} from '@shared/constants/roles.js';
+import { USER_STATUSES, type UserStatus } from '@shared/constants/roles.js';
 
 /**
  * The people half of the console.
@@ -46,7 +40,6 @@ export class AdminUsersService {
   }): Promise<ServiceResult<{ items: unknown[]; total: number }>> {
     const filter: Record<string, unknown> = {};
     if (query.status !== undefined) filter['status'] = query.status;
-    if (query.role !== undefined) filter['role'] = query.role;
     if (query.search !== undefined && query.search.length > 0) {
       const escaped = query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter['$or'] = [
@@ -66,7 +59,6 @@ export class AdminUsersService {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role,
         status: user.status,
         has_onboarded: user.onboardingCompletedAt !== null,
         email_verified: user.emailVerifiedAt !== null,
@@ -111,7 +103,6 @@ export class AdminUsersService {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role,
         status: user.status,
         has_onboarded: user.onboardingCompletedAt !== null,
         email_verified_at: isoOrNull(user.emailVerifiedAt),
@@ -160,23 +151,6 @@ export class AdminUsersService {
   }
 
   /**
-   * How many super admins could still act.
-   *
-   * The floor that stops an organisation locking itself out of its own
-   * console. `bootstrap()` only ever mints ONE super admin and then closes
-   * forever by design, so if the last one is demoted, banned or deleted,
-   * recovery is a database job — which is not a thing to discover at 2am.
-   */
-  private async activeSuperAdminCount(excludingUserId?: string): Promise<number> {
-    const filter: Record<string, unknown> = {
-      role: USER_ROLES.SUPER_ADMIN,
-      status: USER_STATUSES.ACTIVE,
-    };
-    if (excludingUserId !== undefined) filter['_id'] = { $ne: excludingUserId };
-    return UserModel.countDocuments(filter).exec();
-  }
-
-  /**
    * Whether this change would remove the last super admin who can act.
    *
    * Counts everyone EXCEPT the target, so "is there somebody else?" is the
@@ -185,10 +159,9 @@ export class AdminUsersService {
   private async wouldOrphanConsole(targetUserId: string): Promise<boolean> {
     const target = await UserModel.findById(targetUserId, { role: 1, status: 1 }).lean().exec();
     if (target === null) return false;
-    const targetCounts =
-      target.role === USER_ROLES.SUPER_ADMIN && target.status === USER_STATUSES.ACTIVE;
-    if (!targetCounts) return false;
-    return (await this.activeSuperAdminCount(targetUserId)) === 0;
+    // Console orphaning is a STAFF concern now — see staffService. A customer
+    // account cannot be the last administrator of anything.
+    return false;
   }
 
   /**
@@ -245,75 +218,15 @@ export class AdminUsersService {
     return ok(null);
   }
 
-  /**
-   * Role change, from the console.
-   *
-   * THE HOLE THIS CLOSES: this used to be a bare
-   * `updateOne({_id}, {$set:{role}})` with the schema accepting `super_admin`,
-   * so any admin could promote themselves — and the old access token kept
-   * working because nothing revoked the sessions.
-   *
-   * Three rules now, in the order they are cheapest to check:
-   *   1. Nobody edits their own role. Self-demotion locks an organisation out;
-   *      self-promotion is the escalation.
-   *   2. Nobody grants a role at or above their own rank. An admin may make a
-   *      moderator; only a super admin may make a super admin.
-   *   3. The console must keep at least one super admin who can act.
-   */
-  async setRole(
-    targetUserId: string,
-    role: UserRole,
-    actingUserId: string,
-    actingRole: UserRole,
-  ): Promise<ServiceResult<null>> {
-    // Rule 1. Also enforced inside `usersService.updateRole`; checked here so
-    // the console gets the specific rejection reason rather than a generic one.
-    if (targetUserId === actingUserId) {
-      return fail(
-        ERROR_CODES.FORBIDDEN,
-        MESSAGE_KEYS.users.CANNOT_DEMOTE_SELF,
-        HTTP_STATUS.FORBIDDEN,
-        { rejectionReason: 'self_role_change' },
-      );
-    }
-
-    // Rule 2. `roleAtLeast(role, actingRole)` is true when the granted role
-    // MEETS OR EXCEEDS the actor's own — which is exactly what must not happen.
-    if (actingRole !== USER_ROLES.SUPER_ADMIN && roleAtLeast(role, actingRole)) {
-      return fail(
-        ERROR_CODES.FORBIDDEN,
-        MESSAGE_KEYS.access.INSUFFICIENT_ROLE,
-        HTTP_STATUS.FORBIDDEN,
-        { rejectionReason: `cannot_grant_${role}_as_${actingRole}` },
-      );
-    }
-
-    // Rule 3. Demoting the last super admin orphans the console.
-    if (role !== USER_ROLES.SUPER_ADMIN && (await this.wouldOrphanConsole(targetUserId))) {
-      return fail(
-        ERROR_CODES.FORBIDDEN,
-        MESSAGE_KEYS.access.FORBIDDEN,
-        HTTP_STATUS.FORBIDDEN,
-        { rejectionReason: 'last_super_admin' },
-      );
-    }
-
-    // Delegated: revokes the target's sessions so the old token's stale role
-    // claim cannot outlive the change.
-    const before = await UserModel.findById(targetUserId, { role: 1 }).lean().exec();
-
-    const result = await usersService.updateRole(targetUserId, actingUserId, role);
-    if (!result.success) return result;
-
-    record({
-      action: 'users.role.changed',
-      resource: 'users',
-      resourceId: targetUserId,
-      changes: [{ field: 'role', from: before?.role ?? null, to: role }],
-    });
-
-    return ok(null);
-  }
 }
+
+/**
+ * NOTE: there is no `setRole` here any more.
+ *
+ * A customer account has no role — console access is a `staff_users` row, and
+ * a staff member's tier is managed by `staff.service`. That removes the
+ * privilege-escalation path this method used to be: it was a bare `updateOne`
+ * that let any admin promote themselves to super admin.
+ */
 
 export const adminUsersService = AdminUsersService.getInstance();

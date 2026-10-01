@@ -5,12 +5,11 @@ import { requestContext } from '@lib/http/request-context.js';
 import { verifyAccessToken } from '@lib/tokens.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
-import { SESSION_ALLOWED_STATUSES, type UserRole, type UserStatus } from '@shared/constants/roles.js';
+import { SESSION_ALLOWED_STATUSES, type UserStatus } from '@shared/constants/roles.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 
 export interface AuthenticatedActor {
   userId: string;
-  role: UserRole;
   status: UserStatus;
   sessionId: string;
 }
@@ -73,7 +72,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
     return;
   }
 
-  const { sub, role, status, sid } = result.claims;
+  const { sub, status, sid } = result.claims;
 
   // A token minted before a ban is cryptographically valid but must not act.
   // Checked here so every authenticated route inherits it without opting in.
@@ -93,12 +92,11 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
     return;
   }
 
-  req.actor = { userId: sub, role, status, sessionId: sid };
+  req.actor = { userId: sub, status, sessionId: sid };
 
   const context = requestContext.getStore();
   if (context !== undefined) {
     context.user_id = sub;
-    context.role = role;
     context.status = status;
     context.session_id = sid;
   }

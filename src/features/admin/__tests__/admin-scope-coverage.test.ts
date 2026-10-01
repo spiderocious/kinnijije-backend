@@ -37,6 +37,14 @@ const EXEMPT = new Set([
   '/admin/overview',
   '/admin/invites/:token',
   '/admin/invites/:token/accept',
+  // Console sign-in: pre-authentication by definition — there is no actor yet
+  // to hold a scope. Guarded by the LOGIN rate limit, keyed by IP and email.
+  '/admin/auth/login',
+  '/admin/auth/refresh',
+  '/admin/auth/logout',
+  // "Who am I" must answer for ANY staff member, including one with a single
+  // narrow scope — it is what the console reads to decide what to render.
+  '/admin/auth/me',
 ]);
 
 interface RouteDecl {

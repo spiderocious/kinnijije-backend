@@ -1,10 +1,9 @@
 import { Router, type Express } from 'express';
 
 import { RATE_LIMITS } from '@lib/ratelimit/index.js';
-import { USER_ROLES, USER_STATUSES } from '@shared/constants/roles.js';
 import { asyncHandler } from '@shared/middleware/async-handler.js';
-import { authenticate } from '@shared/middleware/authenticate.middleware.js';
-import { requireRole, requireStatus, requireScope } from '@shared/middleware/authorize.middleware.js';
+import { authenticateStaff } from '@shared/middleware/authenticate-staff.middleware.js';
+import { requireScope } from '@shared/middleware/authorize-staff.middleware.js';
 import { byIp, rateLimit } from '@shared/middleware/rate-limit.middleware.js';
 import { validate } from '@shared/middleware/validate.middleware.js';
 
@@ -68,7 +67,7 @@ router.post(
 
 // ── Console ──────────────────────────────────────────────────────────────
 
-const admin = [authenticate, requireStatus(USER_STATUSES.ACTIVE), requireRole(USER_ROLES.ADMIN)];
+const admin = [asyncHandler(authenticateStaff)];
 const read = [...admin, rateLimit(RATE_LIMITS.CHOWDECK_ADMIN_READ)];
 const action = [...admin, rateLimit(RATE_LIMITS.CHOWDECK_ADMIN_ACTION)];
 

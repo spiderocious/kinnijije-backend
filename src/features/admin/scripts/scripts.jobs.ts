@@ -22,6 +22,8 @@ export const SCRIPT_JOB_TYPE = 'admin-script';
 
 export interface ScriptJobPayload {
   readonly scriptId: string;
+  /** `revert` undoes the last real run, where the script supports it. */
+  readonly mode: 'run' | 'revert';
   readonly dryRun: boolean;
   /** Carried so the audit row names a person rather than the queue. */
   readonly actorId: string;
@@ -39,11 +41,18 @@ async function runScript(payload: unknown, job: JobContext): Promise<unknown> {
     throw new Error(`unknown script: ${input.scriptId}`);
   }
 
+  const reverting = input.mode === 'revert';
+  const execute = reverting ? script.revert : script.run;
+
+  if (execute === undefined) {
+    throw new Error(`script ${script.id} cannot be reverted`);
+  }
+
   const startedAt = Date.now();
-  await job.setProgress(0.05, 'starting');
+  await job.setProgress(0.05, reverting ? 'reverting' : 'starting');
 
   try {
-    const result = await script.run({ job, dryRun: input.dryRun });
+    const result = await execute({ job, dryRun: input.dryRun });
 
     await job.setProgress(1, 'done');
     logger.info('operator script finished', {
@@ -53,10 +62,15 @@ async function runScript(payload: unknown, job: JobContext): Promise<unknown> {
     });
 
     record({
-      action: input.dryRun ? 'scripts.previewed' : 'scripts.ran',
+      action: reverting
+        ? 'scripts.reverted'
+        : input.dryRun
+          ? 'scripts.previewed'
+          : 'scripts.ran',
       resource: 'scripts',
       resourceId: script.id,
       meta: {
+        mode: input.mode,
         dry_run: input.dryRun,
         destructive: script.destructive,
         duration_ms: Date.now() - startedAt,
@@ -78,7 +92,7 @@ async function runScript(payload: unknown, job: JobContext): Promise<unknown> {
       resource: 'scripts',
       resourceId: script.id,
       outcome: 'error',
-      meta: { dry_run: input.dryRun, error: message },
+      meta: { mode: input.mode, dry_run: input.dryRun, error: message },
       actor: { id: input.actorId, email: input.actorEmail, role: input.actorRole },
     });
 
