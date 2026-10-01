@@ -1,0 +1,26 @@
+{
+  "intro": "Twelve things in, and the plantain is asking to be used today.",
+  "reasons": [
+    {
+      "mealId": "meal_mock_breakfast",
+      "reason": "Quick enough before work, and it uses the eggs."
+    },
+    {
+      "mealId": "meal_mock_lunch",
+      "reason": "Light for the heat, and nothing is missing."
+    },
+    {
+      "mealId": "meal_mock_dinner",
+      "reason": "Worth the time this evening, and it finishes the plantain."
+    }
+  ],
+  "closing": "If the rain holds off, the market trip can wait until tomorrow.",
+  "notes": {},
+  "metrics": {
+    "outputLevel": "complete",
+    "outputConfidence": 0.88,
+    "clarity": 0.9,
+    "ambiguity": 0.1,
+    "tuneSuggestion": "none"
+  }
+}

@@ -14,6 +14,13 @@ export interface RawCallInput {
   readonly images?: { base64: string; contentType: string }[];
   /** Small and fast for cheap checks; the bigger one for generation. */
   readonly tier: 'small' | 'large';
+  /**
+   * Sampling temperature. Omitted means the extraction default below.
+   *
+   * Set it only for prompts that WRITE something — a rundown, a framing line.
+   * For reading a receipt, creativity is a bug.
+   */
+  readonly temperature?: number;
 }
 
 export interface RawCallOutput {
@@ -88,8 +95,9 @@ export class OpenAiProvider implements AiProvider {
       // Forces syntactically valid JSON. It does NOT guarantee our shape —
       // that is what the zod pass afterwards is for.
       response_format: { type: 'json_object' },
-      // Low but not zero: these are extraction tasks, where creativity is a bug.
-      temperature: 0.2,
+      // Low but not zero: these are extraction tasks, where creativity is a
+      // bug. A prose prompt overrides it — see RawCallInput.temperature.
+      temperature: input.temperature ?? 0.2,
     });
 
     return {

@@ -16,6 +16,14 @@ import {
   StaffLogoutSchema,
   StaffRefreshSchema,
 } from './auth/staff-auth.schema.js';
+import { campaignsController } from './campaigns/campaigns.controller.js';
+import {
+  ComposeSchema,
+  EditDraftSchema,
+  ExcludeDraftSchema,
+  ListBatchesSchema,
+  UpdateEmailSettingSchema,
+} from './campaigns/campaigns.schema.js';
 import { scriptsController } from './scripts/scripts.controller.js';
 import { RunScriptSchema } from './scripts/scripts.schema.js';
 import { staffController } from './staff/staff.controller.js';
@@ -305,6 +313,60 @@ router.post(
 );
 router.post('/admin/jobs/:jobId/cancel', ...guard, requireScope('jobs:write'), asyncHandler(adminController.cancelJob));
 router.get('/admin/jobs/:jobId', ...guard, requireScope('jobs:read'), asyncHandler(adminController.jobDetail));
+
+/**
+ * Automated email: the dashboard, the review pipeline and the composer.
+ *
+ * ROUTE ORDER IS LOAD-BEARING here as everywhere: every literal must precede
+ * the parameterised route that would otherwise swallow it.
+ */
+router.get('/admin/campaigns/overview', ...guard, requireScope('emails:read'), asyncHandler(campaignsController.overview));
+router.get('/admin/campaigns/kinds', ...guard, requireScope('emails:read'), campaignsController.kinds);
+router.get('/admin/campaigns/users', ...guard, requireScope('emails:read'), asyncHandler(campaignsController.searchUsers));
+router.get(
+  '/admin/campaigns/batches',
+  ...guard,
+  requireScope('emails:read'),
+  validate(ListBatchesSchema, 'query'),
+  asyncHandler(campaignsController.listBatches),
+);
+router.get('/admin/campaigns/batches/:batchId', ...guard, requireScope('emails:read'), asyncHandler(campaignsController.batch));
+
+// The composer: build a kind for named users. Nothing sends until approved.
+router.post(
+  '/admin/campaigns/compose',
+  ...guard,
+  requireScope('emails:write'),
+  validate(ComposeSchema),
+  asyncHandler(campaignsController.compose),
+);
+// Run a sweep's drafting now rather than waiting for its schedule.
+router.post('/admin/campaigns/kinds/:kind/draft', ...guard, requireScope('emails:write'), asyncHandler(campaignsController.draftNow));
+router.patch(
+  '/admin/campaigns/kinds/:kind/settings',
+  ...guard,
+  requireScope('emails:write'),
+  validate(UpdateEmailSettingSchema),
+  asyncHandler(campaignsController.updateSettings),
+);
+
+router.patch(
+  '/admin/campaigns/drafts/:draftId',
+  ...guard,
+  requireScope('emails:write'),
+  validate(EditDraftSchema),
+  asyncHandler(campaignsController.editDraft),
+);
+router.post(
+  '/admin/campaigns/drafts/:draftId/exclude',
+  ...guard,
+  requireScope('emails:write'),
+  validate(ExcludeDraftSchema),
+  asyncHandler(campaignsController.excludeDraft),
+);
+// Approval is what sends. Everything before this is reversible.
+router.post('/admin/campaigns/batches/:batchId/approve', ...guard, requireScope('emails:write'), asyncHandler(campaignsController.approve));
+router.post('/admin/campaigns/batches/:batchId/discard', ...guard, requireScope('emails:write'), asyncHandler(campaignsController.discard));
 
 // ── Staff, permissions and the trail ─────────────────────────────────
 router.get('/admin/staff/groups', ...guard, requireScope('staff:read'), staffController.groups);

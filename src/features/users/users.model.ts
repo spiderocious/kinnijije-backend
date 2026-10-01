@@ -146,11 +146,21 @@ const userSchema = new Schema(
           // useful; "have you eaten?" is personal, and lumping them together
           // meant turning off the first also turned off the third — or worse,
           // kept it on.
-          runningLow: { type: Boolean, default: false },
-          useItUp: { type: Boolean, default: false },
-          haveYouEaten: { type: Boolean, default: false },
-          dailyDigest: { type: Boolean, default: false },
-          weeklySummary: { type: Boolean, default: false },
+          /**
+           * ON BY DEFAULT.
+           *
+           * Signing up is taken as wanting these. Every one of them is
+           * switchable off per person in settings, and every non-transactional
+           * send carries an unsubscribe header — that is how somebody opts out.
+           *
+           * They defaulted to false, which meant almost nobody received
+           * anything and the whole notification feature was dormant.
+           */
+          runningLow: { type: Boolean, default: true },
+          useItUp: { type: Boolean, default: true },
+          haveYouEaten: { type: Boolean, default: true },
+          dailyDigest: { type: Boolean, default: true },
+          weeklySummary: { type: Boolean, default: true },
         },
         { _id: false },
       ),

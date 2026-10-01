@@ -499,11 +499,20 @@ stock before you were called. Your job is the words:
            writing to somebody he knows. It sits under "Good morning <name>,"
            which is already printed, so do NOT greet them again.
 
-           Say what you did and why, plainly: "I went through what you have
-           this morning and there is enough for a proper day." Not a headline,
-           not a slogan, no exclamation marks. The weather is printed
-           separately, so only mention it here if it genuinely changes what
-           they should eat.
+           Say what you did and why, plainly. Not a headline, not a slogan,
+           no exclamation marks. The weather is printed separately, so only
+           mention it here if it genuinely changes what they should eat.
+
+           THIS LINE MUST BE SPECIFIC TO THIS PERSON. Build it from what you
+           were actually given — what is in their kitchen, what is going off,
+           what they cooked recently, how much there is. Two people with
+           different kitchens must not receive the same sentence.
+
+           NO SAMPLE SENTENCE IS GIVEN ON PURPOSE. An earlier version of this
+           prompt included one as an illustration, and the model returned it
+           verbatim to every single user — hundreds of identical emails. If you
+           find yourself writing a generic opener that would fit anybody, you
+           have the wrong line.
 "reasons"  For EACH meal id you were given, one line saying why that one,
            today. This is where you earn your place: connect it to the
            weather, to what is spoiling, to what they have not eaten in a

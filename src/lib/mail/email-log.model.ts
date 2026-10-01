@@ -25,6 +25,11 @@ export const EMAIL_KINDS = {
    * throw on the log write.
    */
   STAFF_INVITE: 'staff_invite',
+  /**
+   * Nothing in the kitchen. Suggests from their preferences and city, and
+   * offers to have it brought instead of cooked.
+   */
+  EMPTY_KITCHEN: 'empty_kitchen',
 } as const;
 
 export type EmailKind = (typeof EMAIL_KINDS)[keyof typeof EMAIL_KINDS];

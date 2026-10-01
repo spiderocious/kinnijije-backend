@@ -104,6 +104,8 @@ class AiService {
     images?: { base64: string; contentType: string }[];
     imageRefs?: string[];
     tier?: 'small' | 'large';
+    /** Only for prompts that write prose. Omitted keeps the extraction default. */
+    temperature?: number;
   }): Promise<AiCallResult<z.infer<TSchema>>> {
     const systemPrompt = SYSTEM_PROMPTS[input.promptId];
     const started = Date.now();
@@ -150,6 +152,7 @@ class AiService {
           // raw provider interface having to know about prompt ids at all.
           userPrompt: `[[prompt:${input.promptId}]]\n${input.userPrompt}${correction}`,
           ...(input.images !== undefined && { images: input.images }),
+          ...(input.temperature !== undefined && { temperature: input.temperature }),
           tier: input.tier ?? 'large',
         });
         raw = output.text;

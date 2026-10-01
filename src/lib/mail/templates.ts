@@ -670,3 +670,56 @@ Feranmi
 KinniJije`,
   };
 };
+
+/**
+ * Nothing in the kitchen.
+ *
+ * The one automated email most at risk of reading as spam: it is unprompted, it
+ * tells somebody their kitchen is empty, and it suggests spending money. So the
+ * tone leads with the suggestion rather than the emptiness, and the ordering
+ * line is a quiet aside — never the headline.
+ *
+ * `orderFrom` is null unless a curated Chowdeck place matches their city. A
+ * dead "order from X" link in this email would be worse than no link.
+ */
+export const emptyKitchenEmail = (
+  name: string | null,
+  meals: readonly { name: string; minutes: number }[],
+  orderFrom: { place: string; url: string } | null,
+): EmailContent => {
+  const who = firstName(name);
+  const first = meals[0];
+
+  return {
+    subject: first === undefined ? 'Something to cook this week' : `${first.name}, maybe?`,
+    html: shell(
+      `${h('Something to cook this week')}
+       ${p(`Hello ${esc(who)},`)}
+       ${p('Your kitchen is looking bare. Here are a few things worth picking up for — none of them complicated.')}
+       ${list(meals.map((meal) => `${esc(meal.name)} — about ${String(meal.minutes)} minutes`))}
+       ${
+         orderFrom === null
+           ? ''
+           : p(
+               `Not up for cooking? You can order online from ${esc(orderFrom.place)} instead.`,
+               { muted: true },
+             )
+       }
+       ${p('Add what you buy to your kitchen and the app will start suggesting around it.', { muted: true })}
+       ${signOff()}`,
+    ),
+    text: `Something to cook this week
+
+Hello ${who},
+
+Your kitchen is looking bare. Here are a few things worth picking up for — none of them complicated.
+
+${meals.map((meal) => `- ${meal.name} — about ${String(meal.minutes)} minutes`).join('\n')}
+${orderFrom === null ? '' : `\nNot up for cooking? You can order online from ${orderFrom.place} instead.\n`}
+Add what you buy to your kitchen and the app will start suggesting around it.
+
+Bye for now,
+Feranmi
+KinniJije`,
+  };
+};

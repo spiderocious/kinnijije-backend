@@ -28,6 +28,8 @@ export const ID_PREFIXES = {
   decideLog: 'dlog',
   audit: 'audit',
   staff: 'stf',
+  batch: 'bat',
+  draft: 'drf',
   staffSession: 'ssn',
   invite: 'inv',
   permissionGroup: 'grp',

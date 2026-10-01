@@ -64,6 +64,73 @@ export interface ScriptDefinition {
 }
 
 /**
+ * Turns every notification preference on, for every existing user.
+ *
+ * The schema defaults changed to `true`, which only affects accounts created
+ * from now on — existing rows keep whatever they were stored with. This brings
+ * them in line.
+ *
+ * UNCONDITIONAL, by decision: it sets all five for everybody, with no check for
+ * whether somebody had previously turned one off. Signing up is taken as
+ * wanting them; the per-kind toggle in settings and the unsubscribe header in
+ * every send are how somebody opts out afterwards.
+ */
+const enableAllNotifications: ScriptDefinition = {
+  id: 'enable-all-notifications',
+  name: 'Turn on notifications for everyone',
+  description:
+    'Sets all five notification preferences to on for every existing user, so older accounts match the new default. Does not check whether anybody had turned one off.',
+  effect: 'Overwrites all five notification preferences on every user document.',
+  destructive: true,
+  supportsDryRun: true,
+  runOnce: true,
+  run: async ({ dryRun, job }) => {
+    const { UserModel } = await import('@features/users/users.model.js');
+
+    const total = await UserModel.countDocuments().exec();
+    await job.setProgress(0.4, `${String(total)} users`);
+
+    // What would change — counted before the write, so the dry run reports the
+    // same number the real run will modify.
+    const alreadyOn = await UserModel.countDocuments({
+      'notifications.runningLow': true,
+      'notifications.useItUp': true,
+      'notifications.haveYouEaten': true,
+      'notifications.dailyDigest': true,
+      'notifications.weeklySummary': true,
+    }).exec();
+
+    if (dryRun) {
+      return {
+        dry_run: true,
+        total_users: total,
+        already_fully_on: alreadyOn,
+        would_change: total - alreadyOn,
+      };
+    }
+
+    const result = await UserModel.updateMany(
+      {},
+      {
+        $set: {
+          'notifications.runningLow': true,
+          'notifications.useItUp': true,
+          'notifications.haveYouEaten': true,
+          'notifications.dailyDigest': true,
+          'notifications.weeklySummary': true,
+        },
+      },
+    ).exec();
+
+    return {
+      total_users: total,
+      matched: result.matchedCount,
+      modified: result.modifiedCount,
+    };
+  },
+};
+
+/**
  * Reports staff whose granted scopes no longer match the group they were
  * given.
  *
@@ -229,6 +296,7 @@ const pruneUnknownScopes: ScriptDefinition = {
 };
 
 export const SCRIPTS: readonly ScriptDefinition[] = [
+  enableAllNotifications,
   auditGroupDrift,
   auditStuckInvites,
   pruneUnknownScopes,
