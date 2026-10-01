@@ -212,7 +212,7 @@ router.post(
   // NOT `...guard`: this route swaps in a tighter rate limit because an image
   // call costs an order of magnitude more than a text one. The middleware is
   // therefore re-listed by hand — and `requireScope` must come AFTER
-  // `authenticate`, since it reads the actor that authenticate sets.
+  // `authenticateStaff`, since it reads the staff member that sets.
   asyncHandler(authenticateStaff),
   rateLimit(RATE_LIMITS.IMAGE_GENERATE),
   requireScope('images:write'),

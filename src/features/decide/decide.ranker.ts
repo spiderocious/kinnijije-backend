@@ -102,13 +102,37 @@ export function ceilingFor(mood: Mood, minutes: TimeBudget): number {
 /**
  * Which meals a weight preference admits.
  *
- * Read off the meal's own cuisines and name, because the catalogue has no
- * explicit "weight" field and inventing one would mean re-tagging 340 recipes
- * before any of this could ship.
+ * Read off the meal's own name, cuisines, description AND INGREDIENTS, because
+ * the catalogue has no explicit "weight" field and inventing one would mean
+ * re-tagging 340 recipes before any of this could ship.
+ *
+ * The ingredients are the fix for a real bug: "Nigerian Tea" is made of Milo
+ * and milk, and its name, cuisine and description contain none of the `light`
+ * terms — so somebody who said they had Milo was handed a pap recipe they had
+ * nothing for, because the one meal that used it had already been filtered out
+ * a stage earlier. Fifteen of thirty-three breakfast meals failed the same way.
+ *
+ * This is still keyword matching over free text and it is still fragile: a
+ * recipe that merely mentions egg becomes `light`. It is a stopgap until meals
+ * carry a real weight tag, and it is deliberately GENEROUS, because this filter
+ * stands down entirely when it would empty the pool — a false positive costs a
+ * slightly odd suggestion, a false negative costs the only meal that fit.
  */
 const WEIGHT_TERMS: Readonly<Record<Weight, readonly string[]>> = {
   [WEIGHTS.SOLID]: ['rice', 'yam', 'plantain', 'beans', 'potato', 'spaghetti', 'pasta', 'bread'],
-  [WEIGHTS.LIGHT]: ['salad', 'vegetable', 'soup', 'moi', 'akara', 'pap', 'fruit', 'egg'],
+  /**
+   * Extended for breakfast, which the original list had no vocabulary for.
+   *
+   * A cup of tea, a bowl of oats and a plate of cornflakes are the lightest
+   * things in the catalogue, and none of them contained any of the first eight
+   * terms — so "light" silently excluded every drink and cereal we had. That
+   * is what left somebody holding Milo with nothing to cook.
+   */
+  [WEIGHTS.LIGHT]: [
+    'salad', 'vegetable', 'soup', 'moi', 'akara', 'pap', 'fruit', 'egg',
+    'tea', 'coffee', 'milo', 'bournvita', 'oats', 'cornflakes', 'custard',
+    'yoghurt', 'milk', 'smoothie', 'juice', 'banana', 'cereal', 'toast',
+  ],
   [WEIGHTS.SOUPY]: ['soup', 'stew', 'pepper', 'broth', 'egusi', 'ogbono', 'efo', 'okra', 'banga'],
   [WEIGHTS.SWALLOW]: ['amala', 'eba', 'fufu', 'pounded', 'semo', 'swallow', 'garri', 'starch', 'tuwo'],
   [WEIGHTS.RICE]: ['rice', 'jollof', 'fried rice', 'ofada', 'tuwo'],
@@ -116,7 +140,9 @@ const WEIGHT_TERMS: Readonly<Record<Weight, readonly string[]>> = {
 };
 
 export function matchesWeight(meal: MealDocument, weight: Weight): boolean {
-  const haystack = `${meal.name} ${meal.cuisines.join(' ')} ${meal.description}`.toLowerCase();
+  const ingredients = meal.ingredients.map((i) => i.name).join(' ');
+  const haystack =
+    `${meal.name} ${meal.cuisines.join(' ')} ${meal.description} ${ingredients}`.toLowerCase();
   return WEIGHT_TERMS[weight].some((term) => haystack.includes(term));
 }
 
@@ -355,6 +381,26 @@ export function rankCandidates(
     config.requireSomeMatch && toldUsSomething
       ? candidates.filter((c) => c.have.length > 0)
       : candidates;
+
+  /**
+   * When somebody told us what they have and NOTHING uses any of it, that is
+   * an empty result — not a reason to serve the pool we just rejected.
+   *
+   * This used to fall back to `candidates` unconditionally, which is how a
+   * person who said "I have Milo" was handed Quick Instant Pap with every
+   * single ingredient missing, under a confident sentence about how well it
+   * suited them. An honest "nothing matched" lets the screen offer to widen
+   * the time or add to the kitchen; a confident wrong answer offers nothing
+   * and costs trust.
+   *
+   * The fallback still applies when they told us nothing: with an empty
+   * kitchen every score is zero by definition, and "here is the closest
+   * thing" is then the correct reading rather than a failure.
+   */
+  if (withSomeMatch.length === 0 && config.requireSomeMatch && toldUsSomething) {
+    return [];
+  }
+
   const usable = withSomeMatch.length > 0 ? withSomeMatch : candidates;
 
   const shortlist = config.collapseVariants ? collapseVariants(usable) : usable;

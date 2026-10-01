@@ -15,6 +15,7 @@ import {
   ChowdeckClickModel,
   ChowdeckOfferModel,
   ChowdeckPlaceModel,
+  chowdeckQuery,
   offerKey,
   type ChowdeckOfferAttributes,
   type ChowdeckPlaceAttributes,
@@ -180,7 +181,8 @@ export class ChowdeckService {
       });
     }
 
-    const query = meal.name.trim();
+    // "Nigerian" is how we classify a dish, not how a vendor lists it.
+    const query = chowdeckQuery(meal.name);
     const key = offerKey(place._id, query);
     const now = Date.now();
     const cached = await ChowdeckOfferModel.findOne({ key }).lean().exec();

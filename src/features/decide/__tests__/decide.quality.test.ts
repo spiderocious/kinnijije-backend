@@ -173,10 +173,23 @@ describe('never suggest a meal they have nothing for', () => {
     assert.equal(out.length, 2);
   });
 
-  it('falls back rather than showing an empty screen', () => {
-    // Nothing overlaps: an honest "here is the closest thing" beats nothing.
+  it('returns nothing when the shortlist uses none of what they have', () => {
+    /**
+     * REVERSED, deliberately. This asserted the opposite — that a shortlist
+     * using none of their ingredients beat an empty screen.
+     *
+     * In practice that produced the worse outcome: somebody who said they had
+     * Milo was shown Quick Instant Pap with every ingredient missing, under a
+     * model-written sentence about how well it suited them. A confident
+     * recommendation for an uncookable dish costs more trust than an empty
+     * state, and the empty state is not blank — the service turns it into
+     * "nothing matched" with an offer to widen the time or add to the kitchen.
+     *
+     * The fallback still applies when they told us NOTHING, which the test
+     * above this one pins.
+     */
     const out = rankCandidates([unrelated], { ...input, kitchenItems: ['Beans'] }, {});
-    assert.equal(out.length, 1, 'a blank screen is worse than an imperfect suggestion');
+    assert.equal(out.length, 0, 'a confident wrong answer is worse than an honest empty one');
   });
 
   it('can be switched off from the config', () => {

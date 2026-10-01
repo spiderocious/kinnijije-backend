@@ -8,7 +8,10 @@ import { bail } from '@lib/service-result.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
-import { requireActor } from '@shared/middleware/authenticate.middleware.js';
+// The STAFF actor. Every route this controller serves is behind
+// `authenticateStaff`, which sets `req.staff`; the customer `requireActor`
+// reads `req.actor`, which is never set here, and 401'd every write.
+import { requireStaff } from '@shared/middleware/authenticate-staff.middleware.js';
 import type { UserStatus } from '@shared/constants/roles.js';
 import {
   DEFAULT_RANKING_CONFIG,
@@ -80,16 +83,16 @@ export const adminController = {
   },
 
   createRecipe: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
-    const result = await adminRecipesService.create(req.body as RecipeInput, actor.userId);
+    const actor = requireStaff(req);
+    const result = await adminRecipesService.create(req.body as RecipeInput, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.created(res, result.data);
   },
 
   bulkRecipes: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { recipes } = req.body as { recipes: RecipeInput[] };
-    const result = await adminRecipesService.createBulk(recipes, actor.userId);
+    const result = await adminRecipesService.createBulk(recipes, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -144,13 +147,13 @@ export const adminController = {
   },
 
   setUserStatus: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { userId } = req.params as { userId: string };
     const { status, reason } = req.body as { status: UserStatus; reason?: string };
     const result = await adminUsersService.setStatus(
       userId,
       status,
-      actor.userId,
+      actor.staffId,
       reason ?? null,
     );
     if (!result.success) return bail(result);
@@ -204,7 +207,7 @@ export const adminController = {
   },
 
   setFeatureFlag: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { flag } = req.params as { flag: string };
     const { enabled, reason } = req.body as { enabled: boolean; reason?: string };
 
@@ -220,7 +223,7 @@ export const adminController = {
       });
     }
 
-    await flagsService.set(flag as FeatureFlag, enabled, actor.userId, reason);
+    await flagsService.set(flag as FeatureFlag, enabled, actor.staffId, reason);
     ResponseUtil.noContent(res);
   },
 
@@ -239,7 +242,7 @@ export const adminController = {
   },
 
   sendEmail: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const body = req.body as {
       audience: ComposeInput['audience'];
       user_ids?: string[];
@@ -253,7 +256,7 @@ export const adminController = {
         subject: body.subject,
         body: body.body,
       },
-      actor.userId,
+      actor.staffId,
     );
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
@@ -285,9 +288,9 @@ export const adminController = {
   },
 
   resendEmail: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { emailId } = req.params as { emailId: string };
-    const result = await adminEmailsService.resend(emailId, actor.userId);
+    const result = await adminEmailsService.resend(emailId, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -299,13 +302,13 @@ export const adminController = {
   },
 
   setEmailKind: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { kind } = req.params as { kind: string };
     const { enabled, reason } = req.body as { enabled: boolean; reason?: string };
     const result = await adminEmailsService.setKindEnabled(
       kind as never,
       enabled,
-      actor.userId,
+      actor.staffId,
       reason,
     );
     if (!result.success) return bail(result);
@@ -319,17 +322,17 @@ export const adminController = {
   },
 
   setMailProvider: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { provider, reason } = req.body as { provider: MailProvider; reason?: string };
-    const result = await adminEmailsService.setProvider(provider, actor.userId, reason);
+    const result = await adminEmailsService.setProvider(provider, actor.staffId, reason);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   testMailProvider: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { provider, to } = req.body as { provider: MailProvider; to: string };
-    const result = await adminEmailsService.testProvider(provider, to, actor.userId);
+    const result = await adminEmailsService.testProvider(provider, to, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -407,12 +410,12 @@ export const adminController = {
    * next request rather than up to a minute later.
    */
   saveRankingConfig: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const merged = resolveRankingConfig(req.body);
 
     await RankingSettingsModel.findOneAndUpdate(
       { _id: RANKING_CONFIG_ID },
-      { $set: { config: merged, updatedBy: actor.userId } },
+      { $set: { config: merged, updatedBy: actor.staffId } },
       { upsert: true, new: true },
     ).exec();
 

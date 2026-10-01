@@ -2,7 +2,10 @@ import type { Request, Response } from 'express';
 
 import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
-import { requireActor } from '@shared/middleware/authenticate.middleware.js';
+// The STAFF actor. Every console route here sits behind `authenticateStaff`,
+// which sets `req.staff` — `requireActor` reads the customer's `req.actor`,
+// which is never set on these routes, and 401'd every action.
+import { requireStaff } from '@shared/middleware/authenticate-staff.middleware.js';
 
 import { chowdeckAdminService } from './chowdeck.admin.service.js';
 import { ensurePlacesSeeded } from './chowdeck.jobs.js';
@@ -85,7 +88,7 @@ export const chowdeckController = {
   },
 
   resetBreaker: (req: Request, res: Response): void => {
-    chowdeckAdminService.resetBreaker(requireActor(req).userId);
+    chowdeckAdminService.resetBreaker(requireStaff(req).staffId);
     ResponseUtil.noContent(res);
   },
 
@@ -97,14 +100,14 @@ export const chowdeckController = {
 
   autocomplete: async (req: Request, res: Response): Promise<void> => {
     const { input } = req.body as { input: string };
-    const result = await chowdeckAdminService.autocomplete(input, requireActor(req).userId);
+    const result = await chowdeckAdminService.autocomplete(input, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   savePlace: async (req: Request, res: Response): Promise<void> => {
     const body = req.body as z.infer<typeof SavePlaceSchema>;
-    const result = await chowdeckAdminService.savePlace(body, requireActor(req).userId);
+    const result = await chowdeckAdminService.savePlace(body, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.created(res, result.data);
   },
@@ -117,27 +120,27 @@ export const chowdeckController = {
   },
 
   deletePlace: async (req: Request, res: Response): Promise<void> => {
-    const result = await chowdeckAdminService.deletePlace(param(req, 'placeId'), requireActor(req).userId);
+    const result = await chowdeckAdminService.deletePlace(param(req, 'placeId'), requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   deletePlaces: async (req: Request, res: Response): Promise<void> => {
     const body = req.body as z.infer<typeof DeletePlacesSchema>;
-    const result = await chowdeckAdminService.deletePlaces(body.ids, requireActor(req).userId);
+    const result = await chowdeckAdminService.deletePlaces(body.ids, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   purgePlaces: async (req: Request, res: Response): Promise<void> => {
-    const result = await chowdeckAdminService.purgePlaces(requireActor(req).userId);
+    const result = await chowdeckAdminService.purgePlaces(requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   importPlaces: async (req: Request, res: Response): Promise<void> => {
     const body = req.body as z.infer<typeof ImportPlacesSchema>;
-    const result = await chowdeckAdminService.importPlaces(body, requireActor(req).userId);
+    const result = await chowdeckAdminService.importPlaces(body, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.accepted(res, result.data);
   },
@@ -156,14 +159,14 @@ export const chowdeckController = {
   },
 
   refreshCache: async (req: Request, res: Response): Promise<void> => {
-    const result = await chowdeckAdminService.refreshCache(param(req, 'id'), requireActor(req).userId);
+    const result = await chowdeckAdminService.refreshCache(param(req, 'id'), requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   clearCache: async (req: Request, res: Response): Promise<void> => {
     const body = req.body as z.infer<typeof ClearCacheSchema>;
-    const result = await chowdeckAdminService.clearCache(body, requireActor(req).userId);
+    const result = await chowdeckAdminService.clearCache(body, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -176,7 +179,7 @@ export const chowdeckController = {
 
   fetchAhead: async (req: Request, res: Response): Promise<void> => {
     const body = req.body as z.infer<typeof FetchAheadSchema>;
-    const result = await chowdeckAdminService.fetchAhead(body, requireActor(req).userId);
+    const result = await chowdeckAdminService.fetchAhead(body, requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.accepted(res, result.data);
   },
@@ -195,7 +198,7 @@ export const chowdeckController = {
   },
 
   replay: async (req: Request, res: Response): Promise<void> => {
-    const result = await chowdeckAdminService.replay(param(req, 'id'), requireActor(req).userId);
+    const result = await chowdeckAdminService.replay(param(req, 'id'), requireStaff(req).staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },

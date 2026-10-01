@@ -10,7 +10,9 @@ import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
 import { AppError } from '@lib/errors.js';
-import { requireActor } from '@shared/middleware/authenticate.middleware.js';
+// The STAFF actor — these routes sit behind `authenticateStaff`. The customer
+// `requireActor` reads `req.actor`, which is never set here, and 401'd.
+import { requireStaff } from '@shared/middleware/authenticate-staff.middleware.js';
 
 import { adminImagesService } from './admin-images.service.js';
 
@@ -24,9 +26,9 @@ export const adminImagesController = {
   },
 
   requestUpload: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const body = req.body as { content_type: string; content_length: number };
-    const result = await adminImagesService.requestUpload(params(req).mealId, body, actor.userId);
+    const result = await adminImagesService.requestUpload(params(req).mealId, body, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -68,7 +70,7 @@ export const adminImagesController = {
    * The console follows the job over the SSE stream jobs.sse.ts already serves.
    */
   generate: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { mealId } = params(req);
     const body = req.body as { prompt_override?: string };
 
@@ -84,13 +86,13 @@ export const adminImagesController = {
 
     const payload: RecipeImagePayload = {
       mealId,
-      actorId: actor.userId,
+      actorId: actor.staffId,
       ...(body.prompt_override !== undefined && { promptOverride: body.prompt_override }),
     };
 
     const job = await jobQueue.enqueue({
       type: RECIPE_IMAGE_JOB_TYPE,
-      ownerId: actor.userId,
+      ownerId: actor.staffId,
       payload,
     });
 
@@ -100,18 +102,18 @@ export const adminImagesController = {
   },
 
   publish: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { mealId, imageId } = params(req);
-    const result = await adminImagesService.publish(mealId, imageId, actor.userId);
+    const result = await adminImagesService.publish(mealId, imageId, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
 
   reject: async (req: Request, res: Response): Promise<void> => {
-    const actor = requireActor(req);
+    const actor = requireStaff(req);
     const { mealId, imageId } = params(req);
     const body = req.body as { reason: string };
-    const result = await adminImagesService.reject(mealId, imageId, body.reason, actor.userId);
+    const result = await adminImagesService.reject(mealId, imageId, body.reason, actor.staffId);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },

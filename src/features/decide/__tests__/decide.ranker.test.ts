@@ -276,3 +276,74 @@ describe('the cook-time ceiling', () => {
     }
   });
 });
+
+/**
+ * The "I have Milo" bug, in two parts.
+ *
+ * Somebody said they had Milo and was handed a pap recipe with every
+ * ingredient missing, under a confident sentence about how well it suited
+ * them. Two independent faults produced that one screen, so both are pinned
+ * here: a meal that was wrongly filtered out, and a fallback that served the
+ * pool it had just rejected.
+ */
+describe('the Milo regression', () => {
+  const tea = meal({
+    _id: 'm_tea',
+    name: 'Nigerian Tea',
+    description: 'Milo or Bournvita, hot water, milk.',
+    cookTimeMinutes: 7,
+    ingredients: [ingredient('Milo'), ingredient('Powdered milk')],
+  });
+
+  const pap = meal({
+    _id: 'm_pap',
+    name: 'Quick Instant Pap',
+    description: 'Instant pap, hot water, milk.',
+    cookTimeMinutes: 6,
+    ingredients: [ingredient('Instant pap'), ingredient('Powdered milk')],
+  });
+
+  it('admits a drink as LIGHT', () => {
+    // It was excluded before a single ingredient was compared: the haystack
+    // read name, cuisines and description only, and none of them held a term
+    // the `light` list knew about.
+    assert.equal(matchesWeight(tea, WEIGHTS.LIGHT), true);
+  });
+
+  it('matches a meal on an ingredient the person actually has', () => {
+    const out = rankCandidates([tea, pap], {
+      ...baseInput,
+      kitchenItems: ['Milo'],
+      weight: WEIGHTS.LIGHT,
+    });
+
+    assert.equal(out.length, 1);
+    assert.equal(out[0]?.meal.name, 'Nigerian Tea');
+    assert.deepEqual(out[0]?.have, ['Milo']);
+  });
+
+  it('returns NOTHING rather than a shortlist that uses none of it', () => {
+    // The old code fell back to the rejected pool, which is how a confident
+    // recommendation for an uncookable dish reached the screen. Empty is the
+    // honest answer; the service turns it into "nothing matched".
+    const out = rankCandidates([tea, pap], {
+      ...baseInput,
+      kitchenItems: ['Goat meat'],
+      weight: WEIGHTS.LIGHT,
+    });
+
+    assert.equal(out.length, 0);
+  });
+
+  it('still suggests something when the kitchen is empty', () => {
+    // The guard must not fire here: with nothing stated every score is zero by
+    // definition, and "the closest thing" is the correct reading.
+    const out = rankCandidates([tea, pap], {
+      ...baseInput,
+      kitchenItems: [],
+      weight: WEIGHTS.LIGHT,
+    });
+
+    assert.ok(out.length > 0);
+  });
+});

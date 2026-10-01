@@ -22,6 +22,7 @@ import {
   ChowdeckClickModel,
   ChowdeckOfferModel,
   ChowdeckPlaceModel,
+  chowdeckQuery,
   CALL_LOG_TTL_DAYS,
   type ChowdeckCallAttributes,
   type ChowdeckOfferAttributes,
@@ -551,7 +552,10 @@ export class ChowdeckAdminService {
     ]);
 
     const now = new Date();
-    const byQuery = new Map(meals.map((m) => [m.name.trim().toLowerCase(), m.slug]));
+    // Keyed on the SENT query, not the raw name: rows are stored under the
+    // normalised one, so matching on `m.name` would orphan every cell whose
+    // meal had "Nigerian" in it.
+    const byQuery = new Map(meals.map((m) => [chowdeckQuery(m.name).toLowerCase(), m.slug]));
 
     return ok({
       meals: meals.map((m) => ({ slug: m.slug, name: m.name })),

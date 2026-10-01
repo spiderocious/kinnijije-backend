@@ -214,6 +214,38 @@ offerSchema.index({ 'vendors.vendorId': 1 });
 export type ChowdeckOfferDocument = HydratedDocument<ChowdeckOfferAttributes>;
 export const ChowdeckOfferModel = model<ChowdeckOfferAttributes>('ChowdeckOffer', offerSchema);
 
+/**
+ * A meal name as Chowdeck should see it.
+ *
+ * "Nigerian" is stripped because it is how WE classify a dish, not how a
+ * vendor lists it: nobody sells "Nigerian Jollof Rice", they sell "Jollof
+ * Rice", and the extra word narrows a search that should have been wide.
+ *
+ * Deliberately a whole-word match, case-insensitive. A substring replace would
+ * also eat the middle of a word, and the apostrophe case ("Nigerian-style")
+ * is handled by collapsing whatever separator is left behind.
+ *
+ * It NEVER returns empty: a meal called exactly "Nigerian" would otherwise
+ * become a blank query, which searches everything rather than nothing. The
+ * original name is the honest fallback there.
+ */
+export function chowdeckQuery(mealName: string): string {
+  const stripped = mealName
+    // "Nigerian-style" is one idea, so the suffix goes with the word. Handled
+    // before the bare match, which would otherwise leave "style" behind.
+    .replace(/\bnigerian[-–—]?\s*style\b/gi, ' ')
+    .replace(/\bnigerian\b/gi, ' ')
+    // Separators orphaned by the removal: "X (Nigerian)" leaves empty
+    // brackets, "Nigerian - Suya" leaves a dangling dash.
+    .replace(/\(\s*\)/g, ' ')
+    .replace(/\s[-–—]\s/g, ' ')
+    .replace(/^\s*[-–—]\s*|\s*[-–—]\s*$/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return stripped.length > 0 ? stripped : mealName.trim();
+}
+
 export const offerKey = (placeId: string, query: string): string =>
   `${placeId}:${query.trim().toLowerCase()}`;
 

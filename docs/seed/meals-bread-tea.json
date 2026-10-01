@@ -1,0 +1,451 @@
+[
+  {
+    "_id": "meal_a9qsp5zmhyh0wdjr571d78n439",
+    "slug": "bread-and-tea",
+    "name": "Bread and Tea",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 8,
+    "serves": 1,
+    "whatMakesItGood": "The most common breakfast in the country, and nobody writes it down. Bread, hot tea, done.",
+    "description": "Agege bread with a hot cup of Milo or Bournvita.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "milo",
+        "name": "Milo",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "butter",
+        "name": "Butter",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the water",
+        "description": "A full kettle, then off the heat for a moment so it does not scald the milk.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Build the cup",
+        "description": "Milo at the bottom, milk and sugar if you have them, then pour and stir.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Serve the bread",
+        "description": "Torn, not sliced. Butter it if you have some.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "milo",
+      "milk_powder",
+      "sugar",
+      "butter"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_xvgmyfzssbrc3eyp0g9s2pc2fh",
+    "slug": "bread-and-black-tea",
+    "name": "Bread and Black Tea",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 7,
+    "serves": 1,
+    "whatMakesItGood": "No milk needed. The tea is sharp enough that plain bread tastes like something.",
+    "description": "Lipton and bread, the way it is taken when the milk has finished.",
+    "ingredients": [
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tea",
+        "name": "Tea",
+        "quantity": 1,
+        "unit": "sachet",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil",
+        "description": "Fresh water, fully boiling. Reboiled water makes tea taste flat.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Steep",
+        "description": "Three minutes for ordinary strength, five if you want it dark.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Serve",
+        "description": "Bread alongside, sugar in the cup if you take it.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "bread",
+      "tea",
+      "sugar",
+      "milk_powder"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_njtwbvy48458238f35z9s6msxj",
+    "slug": "bread-tea-egg",
+    "name": "Bread, Tea and Egg",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 14,
+    "serves": 1,
+    "whatMakesItGood": "The full version. The egg is what turns a cup of tea into a breakfast that lasts till afternoon.",
+    "description": "Bread, a fried egg and hot tea on one plate.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "milo",
+        "name": "Milo",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Set the kettle",
+        "description": "Boil while you cook, so everything lands hot at once.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Fry the egg",
+        "description": "With onion if you have it. Soft yolk, so the bread has something to take.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Make the tea",
+        "description": "Milo, milk and sugar, poured and stirred.",
+        "estMinutes": 2
+      },
+      {
+        "index": 4,
+        "heading": "Plate",
+        "description": "Bread, egg on top or beside it, tea in the hand.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "egg_chicken",
+      "milo",
+      "groundnut_oil",
+      "milk_powder",
+      "sugar",
+      "onion_red",
+      "salt"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_2rwabrsgrgvytpr1azx1hetd79",
+    "slug": "bread-and-coffee",
+    "name": "Bread and Coffee",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 8,
+    "serves": 1,
+    "whatMakesItGood": "For anyone who does not take Milo. Same breakfast, different cup.",
+    "description": "Buttered bread with black or milky coffee.",
+    "ingredients": [
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "coffee",
+        "name": "Coffee",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "butter",
+        "name": "Butter",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "milk_evaporated",
+        "name": "Evaporated milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil and rest",
+        "description": "Off the boil for thirty seconds so the coffee does not scorch.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Make the cup",
+        "description": "Pour over the coffee, stir, add milk and sugar if you take them.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Butter the bread",
+        "description": "And eat it while the cup is still too hot to finish.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "bread",
+      "coffee",
+      "butter",
+      "milk_evaporated",
+      "sugar"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_t7v0v90xz7kqsh9tmdktqtrw35",
+    "slug": "agege-bread-milo",
+    "name": "Agege Bread and Milo",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 7,
+    "serves": 2,
+    "whatMakesItGood": "Agege bread is soft enough to dip, which is the entire reason this pairing exists.",
+    "description": "Soft agege bread dipped in hot Milo.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "milo",
+        "name": "Milo",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the water",
+        "description": "Enough for two cups.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Mix the Milo",
+        "description": "Thicker than usual if you plan to dip. A thin cup soaks the bread apart.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Serve",
+        "description": "Bread torn into pieces, cup beside it.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "milo",
+      "milk_powder",
+      "sugar"
+    ],
+    "heroIcon": "loafBread",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T07:00:00.000Z"
+    }
+  }
+]

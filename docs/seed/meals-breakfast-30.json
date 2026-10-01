@@ -1,0 +1,2802 @@
+[
+  {
+    "_id": "meal_fmqs79c482bxrdnchgsdm1efgy",
+    "slug": "nigerian-tea",
+    "name": "Nigerian Tea",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 7,
+    "serves": 1,
+    "whatMakesItGood": "What most people actually mean by tea: chocolate malt, powdered milk and enough sugar to start a morning.",
+    "description": "Milo or Bournvita, hot water, milk. The drink that goes with bread.",
+    "ingredients": [
+      {
+        "catalogueId": "milo",
+        "name": "Milo",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the water",
+        "description": "Bring a kettle to the boil and let it sit thirty seconds off the heat.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Build the cup",
+        "description": "Milo at the bottom, then milk powder, then sugar if you take it.",
+        "estMinutes": 1
+      },
+      {
+        "index": 3,
+        "heading": "Pour and stir",
+        "description": "Pour slowly while stirring so the milk does not clump.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "milo",
+      "milk_powder",
+      "sugar"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_wbqr3wrz76zrbvbj3zw1fww8yh",
+    "slug": "bournvita-tea",
+    "name": "Bournvita and Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 7,
+    "serves": 1,
+    "whatMakesItGood": "Darker and less sweet than Milo on its own. The cocoa comes through properly.",
+    "description": "Bournvita made the way it is actually drunk at home.",
+    "ingredients": [
+      {
+        "catalogueId": "bournvita",
+        "name": "Bournvita",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_evaporated",
+        "name": "Evaporated milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the water",
+        "description": "A full kettle, then off the heat for a moment.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Dissolve",
+        "description": "Bournvita first with a splash of hot water, worked into a smooth paste.",
+        "estMinutes": 1
+      },
+      {
+        "index": 3,
+        "heading": "Finish",
+        "description": "Top up with water and stir the evaporated milk through.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "bournvita",
+      "milk_evaporated",
+      "sugar"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_ef5ccd3ndw7qm59wxzqzg9cqw3",
+    "slug": "black-tea-lipton",
+    "name": "Black Tea",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 6,
+    "serves": 1,
+    "whatMakesItGood": "Five minutes and nothing to clean. The brew is the whole decision.",
+    "description": "Plain black tea, taken with milk and sugar or neither.",
+    "ingredients": [
+      {
+        "catalogueId": "tea",
+        "name": "Tea",
+        "quantity": 1,
+        "unit": "sachet",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil",
+        "description": "Fresh water, fully boiling. Reboiled water makes tea taste flat.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Steep",
+        "description": "Three minutes for ordinary strength, five if you want it dark.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Finish",
+        "description": "Milk and sugar to taste, or leave it plain.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "tea",
+      "sugar",
+      "milk_powder"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_xee3rw84ebykebcpqd9ha6xybb",
+    "slug": "ginger-tea-morning",
+    "name": "Ginger Tea",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 12,
+    "serves": 2,
+    "whatMakesItGood": "Fresh ginger rather than a sachet, so it actually bites. Good on a cold morning or a blocked nose.",
+    "description": "Ginger simmered with lemon and sweetened with honey.",
+    "ingredients": [
+      {
+        "catalogueId": "ginger",
+        "name": "Ginger",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "lemon",
+        "name": "Lemon",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "honey",
+        "name": "Honey",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Prepare the ginger",
+        "description": "Peel and slice thinly. More surface, more flavour.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Simmer",
+        "description": "Ten minutes in gently boiling water, lid on.",
+        "estMinutes": 8
+      },
+      {
+        "index": 3,
+        "heading": "Finish",
+        "description": "Strain, squeeze in the lemon and stir honey in off the heat.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "ginger",
+      "lemon",
+      "honey"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_b8msg2ee1s2d9y9x6nmxjjscqf",
+    "slug": "green-tea-lemon",
+    "name": "Green Tea with Lemon",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 6,
+    "serves": 1,
+    "whatMakesItGood": "Water just off the boil, never fully boiling. Green tea turns bitter if you scald it.",
+    "description": "A lighter morning cup for anyone skipping the sugar.",
+    "ingredients": [
+      {
+        "catalogueId": "green_tea",
+        "name": "Green tea",
+        "quantity": 1,
+        "unit": "sachet",
+        "optional": false
+      },
+      {
+        "catalogueId": "lemon",
+        "name": "Lemon",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "honey",
+        "name": "Honey",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Heat the water",
+        "description": "Boil, then wait a full minute before pouring.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Steep briefly",
+        "description": "Two minutes only. Longer and it goes bitter.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "green_tea",
+      "lemon",
+      "honey"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_n0mcw7tz9nq89pha1r97aqgwda",
+    "slug": "black-coffee",
+    "name": "Black Coffee",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 5,
+    "serves": 1,
+    "whatMakesItGood": "Nothing hiding behind milk, so the water temperature matters.",
+    "description": "Instant or ground, taken black.",
+    "ingredients": [
+      {
+        "catalogueId": "coffee",
+        "name": "Coffee",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil and rest",
+        "description": "Off the boil for thirty seconds so it does not scorch.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Pour",
+        "description": "Over the coffee, stir once, sugar if you take it.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "coffee",
+      "sugar"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_5y68angv0k9hs1c89hkwa0wb69",
+    "slug": "cafe-au-lait-ng",
+    "name": "Coffee with Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 7,
+    "serves": 1,
+    "whatMakesItGood": "Evaporated milk rather than fresh. It is thicker, and it is what most kitchens have.",
+    "description": "Milky coffee, the everyday version.",
+    "ingredients": [
+      {
+        "catalogueId": "coffee",
+        "name": "Coffee",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_evaporated",
+        "name": "Evaporated milk",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Make the coffee",
+        "description": "Strong, in half a cup of hot water.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Warm the milk",
+        "description": "Briefly, so it does not cool the cup.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Combine",
+        "description": "Pour the milk in slowly and stir.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "coffee",
+      "milk_evaporated",
+      "sugar"
+    ],
+    "heroIcon": "kettle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_71b3wtfmef3q6z391pbtwsdkpz",
+    "slug": "pap-and-milk",
+    "name": "Pap and Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 12,
+    "serves": 2,
+    "whatMakesItGood": "The texture is everything. Boiling water poured fast and stirred hard is what makes it smooth.",
+    "description": "Ogi, akamu, koko. Fermented corn pap with evaporated milk.",
+    "ingredients": [
+      {
+        "catalogueId": "pap",
+        "name": "Pap",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_evaporated",
+        "name": "Evaporated milk",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Slake the pap",
+        "description": "Mix with a little cold water until completely lump free.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Pour boiling water",
+        "description": "Fast, from a height, stirring hard the whole time until it thickens and turns glossy.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Finish",
+        "description": "Sugar and milk stirred through while hot.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "pap",
+      "milk_evaporated",
+      "sugar"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_wk47ms7mr85hk6z60dyz85nk9x",
+    "slug": "pap-akara-plate",
+    "name": "Pap and Akara",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "The classic pairing. Hot pap against crisp bean cakes is the point.",
+    "description": "Akara fried fresh and eaten with smooth pap.",
+    "ingredients": [
+      {
+        "catalogueId": "akara_mix",
+        "name": "Akara bean paste",
+        "quantity": 500,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "pap",
+        "name": "Pap",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Season the paste",
+        "description": "Whisk the bean paste with chopped onion, pepper and salt until light and airy.",
+        "estMinutes": 5
+      },
+      {
+        "index": 2,
+        "heading": "Heat the oil",
+        "description": "Deep and properly hot. Cool oil makes akara greasy.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Fry",
+        "description": "Spoon in and fry until deep gold on both sides. Drain well.",
+        "estMinutes": 12
+      },
+      {
+        "index": 4,
+        "heading": "Make the pap",
+        "description": "Slake, pour boiling water and stir until smooth.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "akara_mix",
+      "pap",
+      "onion_red",
+      "groundnut_oil",
+      "dry_pepper",
+      "salt"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_64j6mb5ps4nkx9h83sqfyac5qd",
+    "slug": "instant-pap-quick",
+    "name": "Quick Instant Pap",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 6,
+    "serves": 1,
+    "whatMakesItGood": "Five minutes when there is no time to stand over a pot.",
+    "description": "Instant pap, hot water, milk.",
+    "ingredients": [
+      {
+        "catalogueId": "instant_pap",
+        "name": "Instant pap",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Mix dry",
+        "description": "Pap, milk powder and sugar together in the bowl first.",
+        "estMinutes": 1
+      },
+      {
+        "index": 2,
+        "heading": "Add water",
+        "description": "Boiling water, poured while stirring, until it thickens.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "instant_pap",
+      "milk_powder",
+      "sugar"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_qpq2n4kgkyppv1bnkxa4hbx7g4",
+    "slug": "oats-and-milk",
+    "name": "Oats and Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 10,
+    "serves": 2,
+    "whatMakesItGood": "Cooked in milk rather than water, which is the difference between breakfast and wallpaper paste.",
+    "description": "Oats simmered with milk, sweetened lightly.",
+    "ingredients": [
+      {
+        "catalogueId": "oats",
+        "name": "Oats",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_fresh",
+        "name": "Fresh milk",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Simmer",
+        "description": "Oats and milk on low, stirring now and then.",
+        "estMinutes": 7
+      },
+      {
+        "index": 2,
+        "heading": "Season",
+        "description": "A pinch of salt lifts it. Sugar to taste.",
+        "estMinutes": 1
+      },
+      {
+        "index": 3,
+        "heading": "Rest",
+        "description": "Two minutes off the heat to thicken properly.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "oats",
+      "milk_fresh",
+      "sugar",
+      "salt"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_rpej1zhe30sf9s2376wfpn981m",
+    "slug": "banana-oats",
+    "name": "Banana Oats",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 12,
+    "serves": 2,
+    "whatMakesItGood": "Mash half the banana into the pot and it sweetens the whole thing without sugar.",
+    "description": "Oats with banana, groundnut and honey.",
+    "ingredients": [
+      {
+        "catalogueId": "oats",
+        "name": "Oats",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "banana",
+        "name": "Banana",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_fresh",
+        "name": "Fresh milk",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_roasted",
+        "name": "Roasted groundnut",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "honey",
+        "name": "Honey",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the oats",
+        "description": "In milk, low heat, until thick.",
+        "estMinutes": 7
+      },
+      {
+        "index": 2,
+        "heading": "Mash one banana",
+        "description": "Stir it through the pot so it sweetens everything.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Top",
+        "description": "Slice the second banana over, with groundnut and honey.",
+        "estMinutes": 3
+      }
+    ],
+    "ingredientKeys": [
+      "oats",
+      "banana",
+      "milk_fresh",
+      "groundnut_roasted",
+      "honey"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_9ewktxm3nevznz5886ken2av3r",
+    "slug": "cornflakes-milk",
+    "name": "Cornflakes and Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 3,
+    "serves": 1,
+    "whatMakesItGood": "No cooking at all. Honest about what it is.",
+    "description": "Cornflakes, cold milk, done.",
+    "ingredients": [
+      {
+        "catalogueId": "cornflakes",
+        "name": "Cornflakes",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Mix the milk",
+        "description": "Powdered milk into cold water until smooth, or use it straight from a carton.",
+        "estMinutes": 2
+      },
+      {
+        "index": 2,
+        "heading": "Pour",
+        "description": "Over the flakes, and eat before they go soft.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "cornflakes",
+      "milk_powder",
+      "sugar"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_ybm9se189gg9nvjv1ktq5wpc4a",
+    "slug": "custard-and-milk",
+    "name": "Custard and Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 10,
+    "serves": 2,
+    "whatMakesItGood": "Same technique as pap, different flavour. Boiling water and a hard stir.",
+    "description": "Custard powder made thick, with milk.",
+    "ingredients": [
+      {
+        "catalogueId": "custard",
+        "name": "Custard powder",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_evaporated",
+        "name": "Evaporated milk",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Make a paste",
+        "description": "Custard powder with a little cold water, no lumps.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Pour boiling water",
+        "description": "Stirring hard until it thickens and the colour deepens.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Finish",
+        "description": "Milk and sugar stirred in.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "custard",
+      "milk_evaporated",
+      "sugar"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_ysea5mq6ntj0n0j6g725ca3qqc",
+    "slug": "pap-moin-moin",
+    "name": "Pap and Moin Moin",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 50,
+    "serves": 4,
+    "whatMakesItGood": "Steamed bean pudding instead of fried. Lighter than akara and it keeps better.",
+    "description": "Moin moin steamed and served with smooth pap.",
+    "ingredients": [
+      {
+        "catalogueId": "moin_moin_mix",
+        "name": "Moin moin paste",
+        "quantity": 600,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "pap",
+        "name": "Pap",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Season the paste",
+        "description": "Blend in onion, palm oil and salt until loose enough to pour.",
+        "estMinutes": 8
+      },
+      {
+        "index": 2,
+        "heading": "Fill",
+        "description": "Into bowls or wraps. Add egg if you are using it.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Steam",
+        "description": "Forty minutes, covered, until a knife comes out clean.",
+        "estMinutes": 35
+      },
+      {
+        "index": 4,
+        "heading": "Make the pap",
+        "description": "While it steams.",
+        "estMinutes": 5
+      }
+    ],
+    "ingredientKeys": [
+      "moin_moin_mix",
+      "pap",
+      "palm_oil",
+      "onion_red",
+      "egg_chicken",
+      "salt"
+    ],
+    "heroIcon": "personMeasuringOutCup",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_gcz905rmkd7e0j8ttm5qfcj89h",
+    "slug": "bread-egg-sauce",
+    "name": "Bread and Egg Sauce",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 20,
+    "serves": 2,
+    "whatMakesItGood": "The sauce does the work. Eggs go in last and stay soft, so the bread has something to soak up.",
+    "description": "Agege bread with a proper tomato and egg sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Start the sauce",
+        "description": "Fry diced tomato and onion until the raw smell goes and the oil separates.",
+        "estMinutes": 8
+      },
+      {
+        "index": 2,
+        "heading": "Season",
+        "description": "Dry pepper and salt. Cook it down until thick, not watery.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Fold in the eggs",
+        "description": "Beaten, poured in, stirred slowly and off the heat while still glossy.",
+        "estMinutes": 4
+      },
+      {
+        "index": 4,
+        "heading": "Serve",
+        "description": "Tear the bread rather than slicing it.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "egg_chicken",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "loafBread",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_czhthhxs7yxd8p2fpgz6120e30",
+    "slug": "fried-egg-sandwich",
+    "name": "Fried Egg Sandwich",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 10,
+    "serves": 1,
+    "whatMakesItGood": "Ten minutes from nothing to a full meal, and the yolk is the sauce.",
+    "description": "Toasted bread, fried eggs, raw onion.",
+    "ingredients": [
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "butter",
+        "name": "Butter",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "black_pepper",
+        "name": "Black pepper",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Toast",
+        "description": "Butter one side of each slice and toast face down in a dry pan.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Fry the eggs",
+        "description": "Soft yolk is the point, so pull them early.",
+        "estMinutes": 4
+      },
+      {
+        "index": 3,
+        "heading": "Build",
+        "description": "Eggs, raw onion, close it and press once.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "bread",
+      "egg_chicken",
+      "butter",
+      "onion_red",
+      "black_pepper",
+      "salt"
+    ],
+    "heroIcon": "egg",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_h3nt2zgn38vhj4n4ddzq54x0te",
+    "slug": "egg-bread-toast",
+    "name": "Bread and Egg Toast",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 15,
+    "serves": 2,
+    "whatMakesItGood": "Bread soaked in seasoned egg and fried. Nothing extra, and it still tastes like an effort.",
+    "description": "French toast, the way it is made here.",
+    "ingredients": [
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "milk_fresh",
+        "name": "Fresh milk",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Make the dip",
+        "description": "Eggs beaten with milk, salt and sugar until smooth.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Soak briefly",
+        "description": "A few seconds each side only, or the middle collapses.",
+        "estMinutes": 3
+      },
+      {
+        "index": 3,
+        "heading": "Fry",
+        "description": "Medium heat until both sides are gold and the centre is set.",
+        "estMinutes": 8
+      }
+    ],
+    "ingredientKeys": [
+      "bread",
+      "egg_chicken",
+      "milk_fresh",
+      "groundnut_oil",
+      "sugar",
+      "salt"
+    ],
+    "heroIcon": "loafBread",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_vtw6m4erq7dq5qcjv0jwb6nw69",
+    "slug": "egg-sardine-bread",
+    "name": "Egg and Sardine Bread",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 15,
+    "serves": 2,
+    "whatMakesItGood": "Sardine and egg together make it a meal instead of a snack. Store cupboard, start to finish.",
+    "description": "Flaked sardine scrambled through egg, in bread.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "sardine_tin",
+        "name": "Tinned sardine",
+        "quantity": 1,
+        "unit": "tin",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "green_pepper",
+        "name": "Green chilli",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Fry the base",
+        "description": "Onion and chilli in oil, keeping some bite.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Add the sardine",
+        "description": "Drained and flaked, oil and all. Break it up, do not mash it.",
+        "estMinutes": 3
+      },
+      {
+        "index": 3,
+        "heading": "Scramble",
+        "description": "Beaten eggs folded through until just set. Taste before salting.",
+        "estMinutes": 5
+      },
+      {
+        "index": 4,
+        "heading": "Serve",
+        "description": "Into split bread while hot.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "egg_chicken",
+      "sardine_tin",
+      "onion_red",
+      "green_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "egg",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_2xpns67azyz5srnrxzk0an55j2",
+    "slug": "egg-sausage-roll-bread",
+    "name": "Egg and Sausage Bread",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 20,
+    "serves": 2,
+    "whatMakesItGood": "Sausage renders its own fat and the egg cooks in it, so nothing tastes dry.",
+    "description": "Sausage, pepper and egg in buttered bread.",
+    "ingredients": [
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "sausage",
+        "name": "Sausage",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "spring_onion",
+        "name": "Spring onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "bell_pepper",
+        "name": "Bell pepper",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "butter",
+        "name": "Butter",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Brown the sausage",
+        "description": "Sliced into coins, fried until the edges catch. Keep the fat.",
+        "estMinutes": 7
+      },
+      {
+        "index": 2,
+        "heading": "Add vegetables",
+        "description": "Bell pepper and the white of the spring onion, into the fat.",
+        "estMinutes": 4
+      },
+      {
+        "index": 3,
+        "heading": "Set the eggs",
+        "description": "Poured over, stirred until just cooked. Green tops last.",
+        "estMinutes": 5
+      },
+      {
+        "index": 4,
+        "heading": "Fill",
+        "description": "Butter the bread and fill generously.",
+        "estMinutes": 3
+      }
+    ],
+    "ingredientKeys": [
+      "bread",
+      "egg_chicken",
+      "sausage",
+      "spring_onion",
+      "bell_pepper",
+      "butter",
+      "salt"
+    ],
+    "heroIcon": "egg",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_qx67nfbt44ynsbjny7kyvcwxa0",
+    "slug": "bread-egg-plantain",
+    "name": "Bread, Egg and Fried Plantain",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "Sweet plantain against peppery egg. The plate that turns breakfast into something you sit down for.",
+    "description": "Fried plantain, egg sauce and agege bread.",
+    "ingredients": [
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "plantain_ripe",
+        "name": "Ripe plantain",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Fry the plantain",
+        "description": "Thick rounds, lightly salted, until the edges go dark gold. Drain.",
+        "estMinutes": 12
+      },
+      {
+        "index": 2,
+        "heading": "Pour off the oil",
+        "description": "Keep two spoons. Save the rest.",
+        "estMinutes": 2
+      },
+      {
+        "index": 3,
+        "heading": "Build the egg sauce",
+        "description": "Onion and tomato with pepper until thick, then fold in beaten eggs.",
+        "estMinutes": 10
+      },
+      {
+        "index": 4,
+        "heading": "Plate",
+        "description": "Bread one side, plantain the other, egg in the middle.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "agege_bread",
+      "egg_chicken",
+      "plantain_ripe",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_gpsdj7jzbr15jfw77a6qtwjrpw",
+    "slug": "boiled-egg-bread",
+    "name": "Boiled Egg and Bread",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 14,
+    "serves": 2,
+    "whatMakesItGood": "The simplest thing on this list. Timing the egg is the only skill involved.",
+    "description": "Soft-boiled eggs, buttered bread, salt and pepper.",
+    "ingredients": [
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "bread",
+        "name": "Bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "butter",
+        "name": "Butter",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      },
+      {
+        "catalogueId": "black_pepper",
+        "name": "Black pepper",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil",
+        "description": "Seven minutes from boiling for a set white and a soft yolk.",
+        "estMinutes": 9
+      },
+      {
+        "index": 2,
+        "heading": "Cool",
+        "description": "Straight into cold water so they peel cleanly.",
+        "estMinutes": 3
+      },
+      {
+        "index": 3,
+        "heading": "Serve",
+        "description": "Buttered bread, egg sliced over, salt and pepper.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "egg_chicken",
+      "bread",
+      "butter",
+      "salt",
+      "black_pepper"
+    ],
+    "heroIcon": "egg",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_thx91f2bh74gcvy734z9z31q2t",
+    "slug": "boiled-yam-egg-sauce",
+    "name": "Boiled Yam and Egg Sauce",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "Yam needs salt in the water, not after. That is the whole trick.",
+    "description": "Boiled yam with a peppery egg sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "yam",
+        "name": "Yam",
+        "quantity": 500,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the yam",
+        "description": "Peeled, cut into rounds, salted water, until a knife slides through.",
+        "estMinutes": 18
+      },
+      {
+        "index": 2,
+        "heading": "Fry the sauce",
+        "description": "Tomato and onion in palm oil until thick and the oil clears.",
+        "estMinutes": 8
+      },
+      {
+        "index": 3,
+        "heading": "Add the eggs",
+        "description": "Beaten, folded through, taken off while soft.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "yam",
+      "egg_chicken",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "palm_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_tm3tzf1eky113wwq0j82k9zpn7",
+    "slug": "fried-yam-pepper",
+    "name": "Fried Yam and Pepper Sauce",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 25,
+    "serves": 3,
+    "whatMakesItGood": "Dry the yam before it hits the oil or it will never crisp.",
+    "description": "Yam chips with ata din din.",
+    "ingredients": [
+      {
+        "catalogueId": "yam",
+        "name": "Yam",
+        "quantity": 500,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "ata_din_din",
+        "name": "Fried pepper sauce",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cut and salt",
+        "description": "Batons, rinsed, then patted completely dry.",
+        "estMinutes": 6
+      },
+      {
+        "index": 2,
+        "heading": "Fry",
+        "description": "Hot oil, in batches, until gold and crisp at the edges.",
+        "estMinutes": 14
+      },
+      {
+        "index": 3,
+        "heading": "Drain and serve",
+        "description": "On paper, salted while hot, with the pepper sauce.",
+        "estMinutes": 5
+      }
+    ],
+    "ingredientKeys": [
+      "yam",
+      "ata_din_din",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_zts7sw37xwq493mfvh0f8tpzh0",
+    "slug": "dodo-egg",
+    "name": "Fried Plantain and Eggs",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 20,
+    "serves": 2,
+    "whatMakesItGood": "Ripe plantain only. Anything less and it fries without sweetening.",
+    "description": "Dodo with scrambled eggs.",
+    "ingredients": [
+      {
+        "catalogueId": "plantain_ripe",
+        "name": "Ripe plantain",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Fry the dodo",
+        "description": "Diced or sliced, until the edges caramelise.",
+        "estMinutes": 11
+      },
+      {
+        "index": 2,
+        "heading": "Scramble",
+        "description": "In a spoon of the same oil with onion, soft and just set.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Serve",
+        "description": "Together, hot.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "plantain_ripe",
+      "egg_chicken",
+      "onion_red",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_kmr39yezk5g2d9f4p0kq9vpvxq",
+    "slug": "yam-porridge-light",
+    "name": "Light Yam Porridge",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Igbo"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 35,
+    "serves": 4,
+    "whatMakesItGood": "A breakfast version: less oil, more water, so it stays light.",
+    "description": "Yam cooked soft in a thin palm oil broth.",
+    "ingredients": [
+      {
+        "catalogueId": "yam",
+        "name": "Yam",
+        "quantity": 600,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "crayfish",
+        "name": "Crayfish",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the yam",
+        "description": "Cubed, in just enough water to cover.",
+        "estMinutes": 18
+      },
+      {
+        "index": 2,
+        "heading": "Season",
+        "description": "Palm oil, onion, pepper and crayfish in while it cooks.",
+        "estMinutes": 8
+      },
+      {
+        "index": 3,
+        "heading": "Mash lightly",
+        "description": "Crush some of the yam against the pot to thicken the liquid.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "yam",
+      "palm_oil",
+      "onion_red",
+      "dry_pepper",
+      "crayfish",
+      "salt"
+    ],
+    "heroIcon": "potStew",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_33ys9jdj9014sa8catadk7kyxc",
+    "slug": "sweet-potato-egg",
+    "name": "Boiled Sweet Potato and Egg",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 28,
+    "serves": 3,
+    "whatMakesItGood": "Sweeter than yam and it cooks faster, so watch it.",
+    "description": "Sweet potato boiled, with egg sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "sweet_potato",
+        "name": "Sweet potato",
+        "quantity": 500,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil",
+        "description": "Peeled and cut, in salted water, until just tender.",
+        "estMinutes": 15
+      },
+      {
+        "index": 2,
+        "heading": "Make the sauce",
+        "description": "Tomato and onion fried down, eggs folded in.",
+        "estMinutes": 10
+      },
+      {
+        "index": 3,
+        "heading": "Serve",
+        "description": "Together, while both are hot.",
+        "estMinutes": 3
+      }
+    ],
+    "ingredientKeys": [
+      "sweet_potato",
+      "egg_chicken",
+      "tomato",
+      "onion_red",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_ns79scy65gy9dktnqv46kwfkj5",
+    "slug": "akara-bread",
+    "name": "Akara and Bread",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 28,
+    "serves": 3,
+    "whatMakesItGood": "Hot akara inside soft bread. Eaten standing up on the way out of the house.",
+    "description": "Bean cakes in agege bread.",
+    "ingredients": [
+      {
+        "catalogueId": "akara_mix",
+        "name": "Akara bean paste",
+        "quantity": 500,
+        "unit": "g",
+        "optional": false
+      },
+      {
+        "catalogueId": "agege_bread",
+        "name": "Agege bread",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Season",
+        "description": "Whisk the paste with onion, pepper and salt until airy.",
+        "estMinutes": 5
+      },
+      {
+        "index": 2,
+        "heading": "Fry",
+        "description": "Properly hot oil, until deep gold. Drain.",
+        "estMinutes": 16
+      },
+      {
+        "index": 3,
+        "heading": "Fill",
+        "description": "Split the bread and pack it in.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "akara_mix",
+      "agege_bread",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "loafBread",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_3gteh93ks4cztqy5pvd72f4h0q",
+    "slug": "garri-groundnut",
+    "name": "Soaked Garri and Groundnut",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 4,
+    "serves": 1,
+    "whatMakesItGood": "No fire at all. Cold water, garri, groundnut, sugar.",
+    "description": "Garri soaked and eaten with roasted groundnut.",
+    "ingredients": [
+      {
+        "catalogueId": "garri_ijebu",
+        "name": "Ijebu garri",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_roasted",
+        "name": "Roasted groundnut",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "sugar",
+        "name": "Sugar",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "milk_powder",
+        "name": "Powdered milk",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Soak",
+        "description": "Garri into cold water and let it swell for two minutes.",
+        "estMinutes": 3
+      },
+      {
+        "index": 2,
+        "heading": "Top",
+        "description": "Groundnut, sugar and milk over the top.",
+        "estMinutes": 1
+      }
+    ],
+    "ingredientKeys": [
+      "garri_ijebu",
+      "groundnut_roasted",
+      "sugar",
+      "milk_powder"
+    ],
+    "heroIcon": "basket",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_0xte3gw0t5pzzc2ebtvexamees",
+    "slug": "fruit-bowl-morning",
+    "name": "Morning Fruit Bowl",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 10,
+    "serves": 2,
+    "whatMakesItGood": "Cut it the moment you eat it. Fruit sitting in a bowl loses everything.",
+    "description": "Pawpaw, pineapple, watermelon and banana.",
+    "ingredients": [
+      {
+        "catalogueId": "pawpaw",
+        "name": "Pawpaw",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "pineapple",
+        "name": "Pineapple",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "watermelon",
+        "name": "Watermelon",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "banana",
+        "name": "Banana",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "lemon",
+        "name": "Lemon",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Prepare",
+        "description": "Peel and cube everything to roughly the same size.",
+        "estMinutes": 8
+      },
+      {
+        "index": 2,
+        "heading": "Dress",
+        "description": "A squeeze of lemon stops the banana browning and lifts the rest.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "pawpaw",
+      "pineapple",
+      "watermelon",
+      "banana",
+      "lemon"
+    ],
+    "heroIcon": "basket",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_khezyq9y34qkfw69tw0gmxz00f",
+    "slug": "yoghurt-fruit-granola",
+    "name": "Yoghurt with Fruit and Groundnut",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 6,
+    "serves": 1,
+    "whatMakesItGood": "Assembly, not cooking. The groundnut is what stops it feeling like a snack.",
+    "description": "Yoghurt layered with fruit, groundnut and honey.",
+    "ingredients": [
+      {
+        "catalogueId": "yoghurt",
+        "name": "Yoghurt",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "banana",
+        "name": "Banana",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_roasted",
+        "name": "Roasted groundnut",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "honey",
+        "name": "Honey",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "oats",
+        "name": "Oats",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Layer",
+        "description": "Yoghurt, then sliced banana, then oats if using.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Finish",
+        "description": "Groundnut over the top and honey across it.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "yoghurt",
+      "banana",
+      "groundnut_roasted",
+      "honey",
+      "oats"
+    ],
+    "heroIcon": "bottleAlmonds",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_z2wrevpqvqkckb3nvkqbvb5zda",
+    "slug": "indomie-egg-breakfast",
+    "name": "Indomie and Egg",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 12,
+    "serves": 2,
+    "whatMakesItGood": "Two minutes of noodles and an egg folded in. Nobody is pretending otherwise.",
+    "description": "Noodles with egg, onion and pepper.",
+    "ingredients": [
+      {
+        "catalogueId": "indomie",
+        "name": "Indomie",
+        "quantity": 2,
+        "unit": "pack",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "green_pepper",
+        "name": "Green chilli",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": false
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the noodles",
+        "description": "Three minutes, then drain almost all the water.",
+        "estMinutes": 5
+      },
+      {
+        "index": 2,
+        "heading": "Fry the base",
+        "description": "Onion and chilli in oil until soft.",
+        "estMinutes": 4
+      },
+      {
+        "index": 3,
+        "heading": "Combine",
+        "description": "Noodles in with the seasoning, then the beaten egg folded through.",
+        "estMinutes": 3
+      }
+    ],
+    "ingredientKeys": [
+      "indomie",
+      "egg_chicken",
+      "onion_red",
+      "green_pepper",
+      "groundnut_oil"
+    ],
+    "heroIcon": "fryingPan",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_vh36c1ddma8wma5rd8spdakhw3",
+    "slug": "tiger-nut-milk-drink",
+    "name": "Tiger Nut Milk",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Northern"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 15,
+    "serves": 3,
+    "whatMakesItGood": "Blended and strained properly, it is thick enough to drink on its own.",
+    "description": "Kunu aya, blended fresh with dates.",
+    "ingredients": [
+      {
+        "catalogueId": "tiger_nut",
+        "name": "Tiger nuts",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "date",
+        "name": "Dates",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "coconut",
+        "name": "Coconut",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "ginger",
+        "name": "Ginger",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Soak",
+        "description": "Overnight if you can, or an hour in warm water.",
+        "estMinutes": 5
+      },
+      {
+        "index": 2,
+        "heading": "Blend",
+        "description": "With dates, coconut and ginger, and plenty of water.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Strain",
+        "description": "Through a clean cloth, pressing hard. Chill before drinking.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "tiger_nut",
+      "date",
+      "coconut",
+      "ginger"
+    ],
+    "heroIcon": "milkBottle",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T07:00:00.000Z"
+    }
+  }
+]

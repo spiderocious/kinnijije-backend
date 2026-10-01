@@ -6,7 +6,12 @@ import type { JobContext } from '@lib/jobs/jobs.types.js';
 import { logger } from '@lib/logger/index.js';
 
 import { chowdeckClient, type RefusalReason } from './chowdeck.client.js';
-import { ChowdeckOfferModel, ChowdeckPlaceModel, offerKey } from './chowdeck.model.js';
+import {
+  ChowdeckOfferModel,
+  ChowdeckPlaceModel,
+  chowdeckQuery,
+  offerKey,
+} from './chowdeck.model.js';
 import { DEFAULT_SEED_PLACES, type SeedPlace } from './chowdeck.places-seed.js';
 import { chowdeckService, FRESH_MS } from './chowdeck.service.js';
 
@@ -164,7 +169,9 @@ async function runFetchAhead(payload: unknown, ctx: JobContext): Promise<unknown
     if (await ctx.isCancelled()) break;
     await ctx.setProgress(i / Math.max(1, pairs.length), `${pair.meal.name} · ${pair.placeId}`);
 
-    const query = pair.meal.name.trim();
+    // Same normalisation as the user path, or the two would warm and read
+    // different cache keys for the same meal.
+    const query = chowdeckQuery(pair.meal.name);
     if (!force) {
       const row = await ChowdeckOfferModel.findOne({ key: offerKey(pair.placeId, query) }, { fetchedAt: 1 })
         .lean()
