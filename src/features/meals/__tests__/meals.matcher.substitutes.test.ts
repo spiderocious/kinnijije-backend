@@ -47,16 +47,32 @@ describe('interchangeable ingredients', () => {
     assert.equal(result.missing.length, 0);
   });
 
-  it('lists what THEY have, not what the recipe called it', () => {
-    // Showing "Ijebu garri" under "you have" reads as though we found
-    // something they never said they had.
-    const soakings = meal([ing('garri_ijebu', 'Ijebu garri')]);
+  it('labels each row with the RECIPE name, never the stock name', () => {
+    /**
+     * The regression this replaced.
+     *
+     * Showing the cook's own wording looked friendlier, but a single stock row
+     * can satisfy several ingredients — and every one of them then rendered
+     * under that one name. Garri Soakings came back as
+     * `have: [White garri, White garri, White garri, White garri]`.
+     *
+     * The recipe's name is the only thing that distinguishes one ingredient
+     * from another, so it is the only safe label.
+     */
+    const soakings = meal([
+      ing('garri_ijebu', 'Ijebu garri'),
+      ing('sugar', 'Sugar', true),
+      ing('milk_powder', 'Powdered milk', true),
+    ]);
     const result = matchMeal(
       soakings,
       indexStock(stock([{ id: 'garri_white', name: 'White garri' }])),
     );
 
-    assert.equal(result.ingredients[0]?.name, 'White garri');
+    assert.equal(result.ingredients[0]?.name, 'Ijebu garri');
+
+    const names = result.ingredients.map((i) => i.name);
+    assert.equal(new Set(names).size, names.length, 'no ingredient name repeats');
   });
 
   it('swaps within rice, beans and frying oils', () => {

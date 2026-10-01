@@ -255,14 +255,20 @@ export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStoc
 
     ingredients.push({
       /**
-       * THEIR word for it, not the recipe's.
+       * THE RECIPE's name, always.
        *
-       * A substitution means these can differ: somebody who tapped "White
-       * garri" and matched a recipe asking for "Ijebu garri" should see their
-       * own ingredient listed under "you have". Showing the recipe's name
-       * reads as though we found something they never said they had.
+       * Using the stock item's name instead looked friendlier — somebody who
+       * tapped "White garri" would see their own wording — but it is wrong:
+       * every ingredient a single stock row satisfies then renders under that
+       * one name. Garri Soakings came back as
+       * `have: [White garri, White garri, White garri, White garri]` because
+       * four of its ingredients matched, and the row said so four times.
+       *
+       * The recipe's name is what distinguishes one ingredient from another,
+       * so it is the only safe label here. Any "you tapped X, we matched Y"
+       * nicety belongs beside the name, never in place of it.
        */
-      name: stock.name,
+      name: ingredient.name,
       state: enough ? INGREDIENT_STATES.ENOUGH : INGREDIENT_STATES.LOW,
       needed: ingredient.quantity,
       needed_unit: ingredient.unit,
