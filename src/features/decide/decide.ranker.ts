@@ -300,6 +300,11 @@ export interface RankOptions {
   /** Tunable weights. Defaults to the shipped config when absent. */
   config?: RankingConfig | undefined;
   /**
+   * Internal. Set on the one retry that drops the cook-time ceiling, so the
+   * recursion below can never go round twice.
+   */
+  relaxed?: boolean | undefined;
+  /**
    * Order mode only: meal names (trimmed, lowercased) that a cached Chowdeck
    * search already found restaurants for in the chosen place. Read from our
    * cache, never fetched for this — the decision must not wait on Chowdeck.
@@ -358,6 +363,7 @@ export function rankCandidates(
   const limit = options.limit ?? POOL_SIZE;
   const weather = options.weather ?? null;
   const hour = options.hour ?? null;
+  const relaxed = options.relaxed ?? false;
   const config = options.config ?? DEFAULT_RANKING_CONFIG;
   const ordering = input.mode === 'order';
   // Nobody is cooking, so the clock the person picked says nothing about the dish.
@@ -369,7 +375,8 @@ export function rankCandidates(
   const published = meals.filter((meal) => {
     if (meal.status !== 'published') return false;
     if (refused.has(meal._id)) return false;
-    if (meal.cookTimeMinutes > ceiling) return false;
+    // Dropped on the relaxed retry: see the recursion below.
+    if (!relaxed && meal.cookTimeMinutes > ceiling) return false;
     return true;
   });
 
@@ -483,8 +490,50 @@ export function rankCandidates(
    * kitchen every score is zero by definition, and "here is the closest
    * thing" is then the correct reading rather than a failure.
    */
+  /**
+   * Nothing within the time budget uses any of it.
+   *
+   * Before returning an empty screen, try again WITHOUT the clock. The two
+   * failures look identical from here and mean completely different things:
+   *
+   *   "you have rice, and nothing uses rice"      → genuinely nothing to offer
+   *   "you have rice, and rice takes 25 minutes"  → it is the TIME that is wrong
+   *
+   * The second is common and fixable, and answering it with "nothing quite
+   * fits" is the bad behaviour. A meal that overruns is served with its real
+   * cook time on the card, so nobody is misled about the wait.
+   */
   if (withSomeMatch.length === 0 && config.requireSomeMatch && toldUsSomething) {
-    return [];
+    /**
+     * Already relaxed and still nothing uses any of it: genuinely empty.
+     *
+     * Falling through here would serve the pool we just rejected — meals that
+     * use none of what they have, under a confident sentence. That is the
+     * "I have Milo, here is pap" failure, and it is worse than an honest
+     * empty state.
+     */
+    if (relaxed) return [];
+
+    /**
+     * One retry, with the clock removed.
+     *
+     * The two ways this filter can empty look identical from here and mean
+     * completely different things:
+     *
+     *   "you have rice, and nothing uses rice"     → genuinely nothing to offer
+     *   "you have rice, and rice takes 25 minutes" → it is the TIME that is wrong
+     *
+     * The second is common and fixable — somebody holding rice and beans who
+     * asks for fifteen minutes is not in an impossible position — and
+     * answering it with "nothing quite fits" is the bad behaviour. Recursing
+     * once with `relaxed` reruns the whole pipeline without the ceiling, and
+     * the flag stops it recursing again.
+     *
+     * The card still shows the real cook time, so nobody is misled about the
+     * wait; they are simply told the dish takes longer than they hoped rather
+     * than that nothing exists.
+     */
+    return rankCandidates(meals, input, { ...options, relaxed: true });
   }
 
   const usable = withSomeMatch.length > 0 ? withSomeMatch : candidates;

@@ -442,3 +442,79 @@ describe('timeOfDayMultiplier', () => {
     assert.equal(timeOfDayMultiplier(served, 15), 1);
   });
 });
+
+/**
+ * "I have rice and beans, 15 minutes" → "Nothing quite fits".
+ *
+ * Forty meals fitted the time budget and none used rice or beans, so
+ * `requireSomeMatch` emptied the shortlist and the screen said nothing
+ * existed. The real obstacle was the CLOCK — rice takes twenty-five minutes —
+ * and that is a completely different message from "we have nothing for you".
+ */
+describe('relaxing the clock before giving up', () => {
+  const quickEgg = meal({
+    _id: 'm_egg',
+    name: 'Egg Sauce',
+    cookTimeMinutes: 10,
+    ingredients: [ingredient('Eggs'), ingredient('Tomatoes')],
+  });
+
+  const riceDish = meal({
+    _id: 'm_rice',
+    name: 'White Rice',
+    cookTimeMinutes: 25,
+    ingredients: [ingredient('Long-grain rice')],
+  });
+
+  it('offers the slower meal they CAN make rather than nothing', () => {
+    // 25 minutes is over a 15-minute budget, but it is the only thing that
+    // uses their rice — and "this takes a bit longer" beats "nothing fits".
+    const out = rankCandidates([quickEgg, riceDish], {
+      ...baseInput,
+      kitchenItems: ['Long-grain rice'],
+      mood: MOODS.FAST,
+      minutes: 15,
+    });
+
+    assert.equal(out.length, 1);
+    assert.equal(out[0]?.meal.name, 'White Rice');
+  });
+
+  it('still returns nothing when nothing uses any of it', () => {
+    // The relaxed retry must not become a licence to serve meals that match
+    // nothing — that is the "I have Milo, here is pap" failure.
+    const out = rankCandidates([quickEgg, riceDish], {
+      ...baseInput,
+      kitchenItems: ['Aluminium foil'],
+      mood: MOODS.FAST,
+      minutes: 15,
+    });
+
+    assert.equal(out.length, 0);
+  });
+
+  it('does not relax when something already fits the budget', () => {
+    // The fast path must stay untouched: a meal inside the budget wins, and
+    // the slower one is not dragged in beside it.
+    const out = rankCandidates([quickEgg, riceDish], {
+      ...baseInput,
+      kitchenItems: ['Eggs'],
+      mood: MOODS.FAST,
+      minutes: 15,
+    });
+
+    assert.equal(out.length, 1);
+    assert.equal(out[0]?.meal.name, 'Egg Sauce');
+  });
+
+  it('still suggests something when the kitchen is empty', () => {
+    const out = rankCandidates([quickEgg, riceDish], {
+      ...baseInput,
+      kitchenItems: [],
+      mood: MOODS.FAST,
+      minutes: 15,
+    });
+
+    assert.ok(out.length > 0);
+  });
+});
