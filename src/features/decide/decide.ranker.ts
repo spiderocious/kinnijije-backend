@@ -23,8 +23,15 @@ import {
  * rather than merely unlikely.
  */
 
-/** How many candidates the shortlist carries. Six is two on the card and four in reserve. */
-export const POOL_SIZE = 6;
+/**
+ * How many candidates the shortlist carries.
+ *
+ * Ten, raised from six. The deck is swipeable and "not feeling it" re-ranks
+ * locally over this pool, so a bigger shortlist costs nothing extra — no
+ * additional model call, no additional query — and gives somebody who refuses
+ * three suggestions somewhere left to go.
+ */
+export const POOL_SIZE = 10;
 
 /**
  * Turns tapped item names into the stock rows the matcher expects.
@@ -159,6 +166,56 @@ export interface WeatherHint {
   raining: boolean;
 }
 
+/**
+ * Whether a dish is breakfast food.
+ *
+ * Read off the name and description, like the weight filter — meals carry no
+ * meal-time tag and adding one would mean re-tagging 413 recipes before any of
+ * this could ship. Deliberately NARROW: these are things nobody eats for
+ * dinner, so a false positive is costly and a miss merely leaves today's
+ * behaviour.
+ */
+const BREAKFAST_TERMS = [
+  'tea', 'coffee', 'milo', 'bournvita', 'pap', 'ogi', 'akamu', 'custard',
+  'oats', 'cornflakes', 'cereal',
+];
+
+export function isBreakfast(meal: MealDocument): boolean {
+  const name = meal.name.toLowerCase();
+  // Name only, not the description: "serve with tea" in a method would
+  // otherwise turn a stew into breakfast.
+  return BREAKFAST_TERMS.some((term) => new RegExp(`\\b${term}\\b`).test(name));
+}
+
+/**
+ * The hours a Nigerian breakfast is actually eaten.
+ *
+ * Generous at both ends. Somebody eating pap at ten in the morning is having
+ * breakfast; somebody drinking Milo at three in the afternoon is doing
+ * something else, and the suggestion should reflect that without forbidding it.
+ */
+const BREAKFAST_UNTIL_HOUR = 11;
+
+/**
+ * A soft push DOWN for breakfast food outside the morning.
+ *
+ * Never a filter. A night worker eating pap at seven in the evening is a real
+ * person, and so is somebody who just wants tea — both should still be able to
+ * reach it, two swipes down rather than first.
+ *
+ * `hour` is passed in rather than read from the clock here, so this stays a
+ * pure function and the caller decides whose timezone matters.
+ */
+export function timeOfDayMultiplier(
+  meal: MealDocument,
+  hour: number | null,
+  config: RankingConfig = DEFAULT_RANKING_CONFIG,
+): number {
+  if (hour === null) return 1;
+  if (hour < BREAKFAST_UNTIL_HOUR) return 1;
+  return isBreakfast(meal) ? config.offHoursBreakfastPenalty : 1;
+}
+
 export function weatherMultiplier(
   meal: MealDocument,
   hint: WeatherHint | null,
@@ -231,6 +288,14 @@ function moodMultiplier(
 
 export interface RankOptions {
   weather?: WeatherHint | null | undefined;
+  /**
+   * Local hour, 0–23, for pushing breakfast food down in the afternoon.
+   *
+   * Passed in rather than read from the clock so this stays deterministic and
+   * testable, and so the caller decides whose timezone counts. Null disables
+   * the nudge entirely.
+   */
+  hour?: number | null | undefined;
   limit?: number | undefined;
   /** Tunable weights. Defaults to the shipped config when absent. */
   config?: RankingConfig | undefined;
@@ -292,6 +357,7 @@ export function rankCandidates(
 ): DecideCandidate[] {
   const limit = options.limit ?? POOL_SIZE;
   const weather = options.weather ?? null;
+  const hour = options.hour ?? null;
   const config = options.config ?? DEFAULT_RANKING_CONFIG;
   const ordering = input.mode === 'order';
   // Nobody is cooking, so the clock the person picked says nothing about the dish.
@@ -329,10 +395,25 @@ export function rankCandidates(
 
     // An empty kitchen makes every score 0, which would leave the sort with
     // nothing to work with — so mood and time decide it instead.
+    /**
+     * The staple bonus.
+     *
+     * A plain `satisfied / required` treats the rice in a rice dish exactly
+     * like the salt in an egg dish, so somebody holding rice and salt was shown
+     * "Nigerian Breakfast Eggs" (0.20, matched on salt alone) above "Coconut
+     * Rice" (0.50, matched on the rice). Weighting the backbone fixes the
+     * ordering without overriding a genuinely better overall match.
+     *
+     * Null staple score means the meal has no staple at all — a soup, a drink —
+     * and those are left exactly as they were rather than penalised for it.
+     */
+    const stapleBonus =
+      matched.stapleScore === null ? 1 : 1 + matched.stapleScore * config.stapleWeight;
+
     const base =
       input.kitchenItems.length === 0
         ? config.emptyKitchenBase
-        : 1 - config.scoreWeight + matched.score * config.scoreWeight;
+        : (1 - config.scoreWeight + matched.score * config.scoreWeight) * stapleBonus;
 
     /**
      * Order mode drops the mood weighting: every mood rule is about the COOK
@@ -354,7 +435,12 @@ export function rankCandidates(
      * reachable, and lets the bare one surface only when nothing else is.
      */
     const rank =
-      base * config.quality[qualityOf(meal)] * mood * weatherMultiplier(meal, weather, config) * nearby;
+      base *
+      config.quality[qualityOf(meal)] *
+      mood *
+      weatherMultiplier(meal, weather, config) *
+      timeOfDayMultiplier(meal, hour, config) *
+      nearby;
 
     return {
       meal,

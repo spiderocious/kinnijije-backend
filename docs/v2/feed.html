@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Kitchen Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only. Tokens lifted verbatim from docs/v2/design.html.
+   THE BLADE: one sharp corner, three round. Pills and circles are the only
+   two exceptions in the whole system.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7;
+  --scrim:rgba(19,36,48,.46);
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7;
+  --sky-400:#6bc8f4; --sky-500:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-press:var(--sky-700);
+  --sky-soft:var(--sky-100); --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --neutral:#6e8798; --neutral-soft:#eef4f8; --neutral-onsoft:#3a5567; --neutral-border:#cfdde7;
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px; --blade-xl:28px 8px 28px 8px;
+  --r-pill:999px;
+  --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --drop-sky:3px 4px 0 var(--sky-press);
+  --shadow-pop:0 8px 24px rgba(19,36,48,.14);
+  --shadow-modal:0 18px 50px rgba(19,36,48,.22);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+  --ease-out:cubic-bezier(.22,.8,.3,1);
+  --t-press:130ms; --t-fast:180ms; --t-base:260ms; --t-slow:380ms;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper-2);color:var(--ink-2);font-family:var(--sans);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+p{margin:.6em 0}
+svg{display:inline-block;vertical-align:middle}
+code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);border:1.5px solid var(--line);padding:1px 5px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--sky)}
+
+.wrap{max-width:1320px;margin:0 auto;padding:30px 20px 90px}
+.docmast{border-bottom:var(--bw) solid var(--ink);padding-bottom:26px;margin-bottom:34px}
+.mastrow{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.logomark{width:44px;height:44px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.docmast h1{font-size:clamp(30px,4.4vw,46px);letter-spacing:-.03em}
+.docmast .deck{font-size:clamp(15.5px,1.9vw,19px);max-width:70ch;margin-top:15px;color:var(--ink-2)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.chip.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+
+section{margin:0 0 76px}
+.sechead{display:flex;align-items:center;gap:11px;margin-bottom:9px;flex-wrap:wrap}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px}
+section h2{font-size:clamp(23px,2.9vw,33px);letter-spacing:-.025em}
+.lede{font-size:16px;max-width:76ch;margin:12px 0 30px;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);max-width:72ch;margin-top:12px}
+.sublede{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink);margin:36px 0 12px;letter-spacing:-.015em}
+
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:22px}
+.card.soft{background:var(--paper);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+ul.clean{list-style:none;padding:0;margin:.5em 0}
+ul.clean li{position:relative;padding-left:21px;margin:.45em 0;font-size:13.5px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.62em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--paper-2);text-align:left;padding:10px 13px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+.appnote{background:var(--sky-soft);border:var(--bw-hair) solid var(--sky-edge);border-left:5px solid var(--sky);border-radius:var(--blade-xs);padding:11px 13px;font-size:12.5px;color:var(--sky-on)}
+.appnote.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.appnote.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.appnote.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.appnote.crit{border-left-color:var(--critical);background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+
+.framecap{display:flex;gap:10px;margin:0 auto 13px;max-width:372px;align-items:flex-start}
+.framecap .n{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-4);flex:none;padding-top:2px}
+.framecap .t{font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)}
+.framecap .d{font-size:12.5px;color:var(--ink-3)}
+
+.rack{display:grid;grid-template-columns:repeat(auto-fit,minmax(324px,1fr));gap:36px;align-items:start}
+.phone{width:100%;max-width:372px;margin:0 auto;background:var(--paper);border:var(--bw-bold) solid var(--ink);border-radius:34px 10px 34px 10px;box-shadow:var(--drop-lg);overflow:hidden;position:relative}
+.phone .notch{height:26px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;justify-content:center;gap:5px}
+.phone .notch i{display:block;width:34px;height:4px;border-radius:999px;background:var(--line-2)}
+.screen{padding:0;min-height:620px;display:flex;flex-direction:column;background:var(--paper)}
+
+.btn{appearance:none;border:var(--bw) solid var(--ink);cursor:pointer;font-family:var(--sans);font-weight:800;font-size:14.5px;min-height:46px;padding:0 20px;border-radius:var(--blade-xs);background:var(--sky);color:#fff;box-shadow:var(--drop-sm);display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;transition:transform var(--t-press) var(--ease)}
+.btn:hover{background:var(--sky-deep)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.btn.quiet{background:transparent;color:var(--ink-3);border-color:transparent;box-shadow:none;font-weight:700;min-height:38px}
+.btn.sm{min-height:36px;font-size:12.5px;padding:0 13px}
+.btn.auto{width:auto}
+.label{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.pill{appearance:none;display:inline-flex;align-items:center;gap:6px;background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--r-pill);padding:8px 14px;font-weight:800;font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:all var(--t-fast) var(--ease-out);font-family:var(--sans)}
+.pill:hover{border-color:var(--ink)}
+.pill.on{background:var(--sky);border-color:var(--ink);color:#fff;box-shadow:var(--drop-sm)}
+.pill.sm{padding:5px 11px;font-size:11.5px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FEED SURFACE
+   ═══════════════════════════════════════════════════════════════════════ */
+.appbar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);flex:none}
+.appbar .ttl{font-family:var(--display);font-weight:800;font-size:17px;color:var(--ink)}
+.appbar .act{margin-left:auto;display:flex;gap:6px}
+.iconbtn{appearance:none;width:32px;height:32px;flex:none;display:grid;place-items:center;cursor:pointer;background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);color:var(--ink-2);transition:all var(--t-fast) var(--ease-out);position:relative}
+.iconbtn:hover{border-color:var(--ink);background:var(--paper-2)}
+.iconbtn .badge{position:absolute;top:-4px;right:-4px;min-width:15px;height:15px;padding:0 3px;background:var(--critical);border:var(--bw-hair) solid var(--ink);border-radius:999px;color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;font-family:var(--mono)}
+
+.tabs{display:flex;gap:6px;padding:9px 14px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);flex:none;overflow:hidden}
+.stream{flex:1;overflow:hidden;padding:13px 14px;display:flex;flex-direction:column;gap:13px}
+
+.post{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);overflow:hidden}
+.phead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:var(--bw-hair) solid var(--line)}
+.av{width:30px;height:30px;flex:none;border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px;color:#fff;background:var(--sky)}
+.av.g{background:var(--grape)}.av.c{background:var(--caution)}.av.s{background:var(--success)}
+.phead .who{font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.2}
+.phead .when{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600}
+.phead .kind{margin-left:auto}
+.pbody{padding:12px}
+
+/* the before/after pair — the hero unit */
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.bacell{border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);overflow:hidden;background:var(--paper)}
+.bacell .cap{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-4);padding:5px 7px 0}
+.bacell .art{height:74px;display:grid;place-items:center}
+.bacell.before .art{background:var(--paper-2)}
+.bacell.after .art{background:var(--sky-soft)}
+.baarrow{color:var(--ink-3);flex:none}
+
+.ingr{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+/* An ingredient chip you can react TO. The count is the compliment. */
+.ic{display:inline-flex;align-items:center;gap:5px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:var(--r-pill);padding:4px 9px;font-size:11.5px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:all var(--t-fast) var(--ease-out)}
+.ic:hover{border-color:var(--ink);background:var(--white)}
+.ic.on{background:var(--caution-soft);border-color:var(--caution);color:var(--caution-onsoft)}
+.ic .n{font-family:var(--mono);font-size:10px;font-weight:600;opacity:.8}
+
+.dish{font-family:var(--display);font-weight:800;font-size:17px;color:var(--ink);letter-spacing:-.02em;margin-top:10px}
+.ptext{font-size:13px;color:var(--ink-2);margin:5px 0 0}
+
+.pfoot{display:flex;align-items:center;gap:7px;padding:9px 12px;border-top:var(--bw-hair) solid var(--line);background:var(--paper)}
+.afford{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--ink-3);cursor:pointer;background:none;border:0;font-family:var(--sans);padding:3px 0}
+.afford:hover{color:var(--ink)}
+.afford.hot{color:var(--caution-onsoft)}
+
+/* a reply, inline */
+.reply{display:flex;gap:7px;padding:9px 12px;border-top:var(--bw-hair) solid var(--line);background:var(--sky-50)}
+.reply .av{width:24px;height:24px;font-size:11px}
+.reply .rb{font-size:12.5px;color:var(--ink-2)}
+.reply .rb b{color:var(--ink);font-family:var(--display);font-size:12.5px}
+.reply.pot{background:var(--grape-soft)}
+
+.tabbar{display:flex;flex:none;background:var(--white);border-top:var(--bw) solid var(--ink)}
+.tabbar button{flex:1;appearance:none;background:none;border:0;cursor:pointer;padding:9px 0 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--sans);font-size:9.5px;font-weight:800;color:var(--ink-4);letter-spacing:.03em;position:relative}
+.tabbar button.on{color:var(--sky-deep)}
+.tabbar button.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--sky);border-radius:0 0 3px 3px}
+
+.anno{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.anno .row{display:flex;gap:9px;align-items:flex-start;font-size:12.5px}
+.anno .k{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--ink);border-radius:50%;width:17px;height:17px;flex:none;display:grid;place-items:center;margin-top:2px}
+.anno .v{color:var(--ink-2)}
+.anno .v b{color:var(--ink)}
+
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;border:var(--bw) solid var(--ink);border-radius:var(--blade);overflow:hidden;background:var(--white);box-shadow:var(--drop)}
+.loopstep{padding:15px 13px;border-right:var(--bw-hair) solid var(--line);position:relative}
+.loopstep:last-child{border-right:0}
+.loopstep .sn{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--sky-deep)}
+.loopstep .st{font-family:var(--display);font-weight:800;font-size:14px;color:var(--ink);margin-top:5px;line-height:1.2}
+.loopstep .sd{font-size:11.5px;color:var(--ink-3);margin-top:5px}
+.loopstep.key{background:var(--sky-soft)}
+@media(max-width:900px){.loop{grid-template-columns:1fr}.loopstep{border-right:0;border-bottom:var(--bw-hair) solid var(--line)}}
+
+footer{margin-top:88px;padding-top:24px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="docmast">
+  <div class="mastrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/><path d="M20 12h2v3h-2"/><path d="M4 12H2v3h2"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brandname">KinniJije</div>
+      <div class="eyebrow">Product · Social · Proposal</div>
+    </div>
+  </div>
+  <h1>The Kitchen Feed</h1>
+  <p class="deck">
+    A social layer built on the one thing KinniJije knows that no other food app does:
+    <strong>what is in your kitchen before you cook.</strong> Not a plate feed — those lose to
+    Instagram. A feed where the constraint is the content, and where the reply is more fun
+    than the scroll.
+  </p>
+  <div class="chiprow">
+    <span class="chip warn">Proposal — not approved</span>
+    <span class="chip ok">Reuses rundown + decide history + uploads</span>
+    <span class="chip crit">Blocked on public identity</span>
+    <span class="chip grape">Needs variant bucketing first</span>
+    <span class="chip">Email-only delivery · no push exists</span>
+  </div>
+</header>
+
+<!-- ═══════════════════ 01 THE ARGUMENT ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">01</span><h2>Why most feeds fail, and why this one might not</h2></div>
+  <p class="lede">
+    Before the design, the honest risk. A social feed is the most-attempted and
+    least-successful bolt-on in consumer apps, and the reason is always the same:
+    <strong>a feed is only as good as its supply.</strong> The core loop here produces about
+    one decision per user per day. At 10,000 users posting 0.3 times a day that is 3,000 items
+    spread across 10,000 people with no follow graph — so most people open the feed, see
+    nothing from anyone they care about, and never come back. No audience, no supply. No
+    supply, no audience.
+  </p>
+  <p class="lede">
+    So the question is not "how do we add a feed". It is <strong>what does KinniJije already
+    produce that is worth seeing?</strong> And there is a genuinely good answer, which is the
+    throwaway line in the brief: <em>people complimenting each other's ingredients.</em>
+  </p>
+
+  <h3 class="sublede">The content unit: the constraint, not the plate</h3>
+  <p class="lede" style="margin-bottom:18px">
+    Every other food app's social layer is the finished dish, which makes it a beauty contest
+    against Instagram — a contest we lose. Ours is the only app that knows the
+    <strong>before</strong>. Nobody wants to post three tomatoes and half an onion to
+    Instagram. But <em>"look what I got out of this"</em> is a real social moment: relatable,
+    low-stakes, funny, and — critically — <strong>a question other people can answer</strong>.
+  </p>
+  <div class="tablewrap scroll">
+    <table>
+      <thead><tr><th style="width:22%"></th><th style="width:39%">Plate feed (what everyone builds)</th><th style="width:39%">Kitchen feed (what we can build)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cost to post</strong></td><td>Photo shoot. Good light, good food, effort.</td><td><strong>One tap.</strong> The kitchen is already in the database.</td></tr>
+        <tr><td><strong>Who can post</strong></td><td>People who cooked something photogenic.</td><td>Everyone — including people who cooked nothing yet.</td></tr>
+        <tr><td><strong>Competes with</strong></td><td>Instagram and TikTok. We lose.</td><td>Nothing. The space is unoccupied.</td></tr>
+        <tr><td><strong>Invites what reply</strong></td><td>"nice"</td><td>"add pepper and that's stew"</td></tr>
+        <tr><td><strong>Supply at 10k users</strong></td><td>Low hundreds per day.</td><td>Thousands per day — it is a by-product of deciding.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="appnote" style="margin-top:20px;max-width:none">
+    <strong>The thesis in one line:</strong> a perfect jollof is boring. A decent jollof from
+    four sad ingredients is a flex — and it is <em>useful</em> to the reader, because they have
+    those same four ingredients tonight.
+  </div>
+</section>
+
+<!-- ═══════════════════ 02 WHAT ALREADY EXISTS ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">02</span><h2>What the codebase already gives us</h2></div>
+  <p class="lede">
+    This matters more than the design, because it is the difference between a quarter and a
+    fortnight. Four of the five hard parts are already built — and the fifth is a blocker, not
+    a task.
+  </p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="chip ok" style="margin-bottom:11px">Already built</span>
+      <h3 style="font-size:18px">A daily content stream</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        <code>notifications/rundown.service.ts</code> already generates a personalised morning
+        message per user: weather, what is expiring, and three meal slots each with a written
+        reason. <code>insights.jobs.ts</code> does a weekly summary on top.
+      </p>
+      <p style="font-size:13.5px">
+        <strong>This is the single most important finding.</strong> We do not have a cold-start
+        problem the way most feeds do — we have a daily per-user stream with no social layer and
+        nowhere to live. The cheap move is to give the rundown a home and let other people into
+        it, not to build a second empty surface beside it.
+      </p>
+    </div>
+    <div class="card">
+      <span class="chip ok" style="margin-bottom:11px">Already built</span>
+      <h3 style="font-size:18px">Uploads, spines, delivery</h3>
+      <ul class="clean" style="margin-top:9px">
+        <li><strong>Uploads:</strong> presign → confirm → derive, direct to S3/R2; bytes never touch the API. Reusable almost as-is for a cook photo (needs a new <code>cook_photo</code> purpose and a public-read policy — reads today are owner-scoped signed URLs).</li>
+        <li><strong><code>AVATAR</code> is a declared but unused</strong> <code>FILE_PURPOSES</code> value. Avatars today are generated <code>blobatar</code> blobs, not uploads.</li>
+        <li><strong>The best spine is <code>decide_history</code></strong>, not the cook log: it stores the <em>inputs</em> (kitchen, mood, weight, minutes) alongside the verdict, which is exactly the "before" a post needs.</li>
+        <li><strong>Delivery:</strong> a DB-backed job queue with self-requeueing sweeps, plus a mature email policy with per-kind frequency caps and unsubscribe handling.</li>
+        <li><strong>Analytics:</strong> ~90 named events mirrored client and server, Mixpanel with super-properties and <code>identify</code>.</li>
+      </ul>
+      <div class="appnote crit" style="margin-top:11px">
+        <strong>Do not log feed analytics to <code>decide_logs</code>.</strong> That collection is
+        deliberately anonymous — salted truncated IP hashes, no owner column — and its header says
+        adding one would retract a privacy promise. Use <code>decide_history</code> or a new table.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sublede">The four things that are genuinely missing</h3>
+  <div class="grid g2">
+    <div class="card" style="border-color:var(--critical)">
+      <span class="chip crit" style="margin-bottom:11px">Blocker · privacy</span>
+      <h3 style="font-size:18px">There is no public identity</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        <code>UserView</code> exposes <code>email</code>, <code>name</code>, <code>prefs</code>,
+        <code>city</code>. There is no handle, no avatar, no bio, and no public/private flag.
+        <code>name</code> is whatever somebody typed at signup — <strong>with zero expectation
+        it would ever be shown to a stranger.</strong>
+      </p>
+      <p style="font-size:13.5px">
+        Publishing it next to their kitchen contents would publish data they never consented to
+        publish. This needs an explicit opt-in and a separate <code>handle</code> — never a
+        reuse of <code>name</code>.
+      </p>
+      <div class="appnote crit" style="margin-top:11px">
+        <strong>The sharper problem:</strong> kitchen contents are <em>economic</em> data. "Half
+        an onion and some garri" reads as <em>this person cannot afford food</em>. The sad-fridge
+        framing is funny when <strong>you</strong> choose it and cruel when the system does it to
+        you. See §05 — this shapes the whole design, it is not a footnote.
+      </div>
+    </div>
+    <div class="card" style="border-color:var(--caution)">
+      <span class="chip warn" style="margin-bottom:11px">Blocker · measurement</span>
+      <h3 style="font-size:18px">Flags cannot run a real A/B test</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        <code>lib/flags</code> holds <strong>global booleans</strong>. There is no percentage
+        rollout, no per-user bucketing, no variant assignment. <code>DECIDE_INVITE</code> is
+        described in the code as "an experiment", but it can only be measured as
+        everyone-or-nobody, before versus after.
+      </p>
+      <p style="font-size:13.5px">
+        That is a weak test: confounded by seasonality, by launch novelty, and by whatever else
+        shipped that week. Every experiment in §06 needs variant assignment hashed on
+        <code>userId</code>, with the variant stamped onto every Mixpanel event.
+      </p>
+      <div class="appnote warn" style="margin-top:11px">
+        <strong>Build this first.</strong> Roughly 2–3 days in <code>lib/flags</code> plus the
+        analytics boundary, and it pays for itself across every future experiment rather than
+        just this one. Guests also need variant persistence, or the pre-signup funnel is unmeasurable.
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--caution)">
+      <span class="chip warn" style="margin-bottom:11px">Constraint · delivery</span>
+      <h3 style="font-size:18px">There is no push. At all.</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        There is a PWA manifest but <strong>no service worker, no FCM, no APNs, and no mobile
+        app</strong> — web only. There is also no in-app inbox table, no unread count, no bell.
+        The entire notification surface today is <strong>email</strong>, via Resend.
+      </p>
+      <p style="font-size:13.5px">
+        This directly weakens the highest-leverage part of the loop (§03 step 03). Email can
+        carry a once-daily digest perfectly well, and the existing per-kind frequency caps make
+        that safe — but it cannot do "ada.k just answered you" in the minutes that make a
+        rescue feel alive.
+      </p>
+      <div class="appnote warn" style="margin-top:11px">
+        <strong>Consequence for the design:</strong> rescues must work <em>without</em> real-time
+        delivery. That is why KinniJije answers every rescue immediately (§04) — the asker gets
+        something useful on the spot rather than waiting on a human and an email. Web push is a
+        separate project; do not make the feed depend on it.
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--caution)">
+      <span class="chip warn" style="margin-bottom:11px">Constraint · nav and data</span>
+      <h3 style="font-size:18px">The tab bar is full, and the cook log is a stub</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        <strong>Five mobile tabs already:</strong> Decide · Kitchen · Saved · Market · You. A
+        sixth is not an option, so a Kitchens tab means <em>displacing</em> one — which is a
+        product argument, not a layout tweak, and a real cost I would not hide in an estimate.
+        This is the strongest reason to run test 4's cheap arm first.
+      </p>
+      <p style="font-size:13.5px">
+        And <code>CookedMealModel</code> holds only <code>ownerId</code>,
+        <code>mealId</code>, <code>mealName</code>, <code>cookedAt</code>. <strong>No photo, no
+        note, no rating, no visibility.</strong> It does not record what was in the kitchen at
+        the time, so the "before" has to be snapshotted at <em>Cook this</em> or it is lost.
+      </p>
+      <div class="appnote warn" style="margin-top:11px">
+        A <code>rating</code> component already exists in the design system, unwired. Cheap to
+        adopt, and it gives a post something to say when there is no photo.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sublede">One house rule this design must not break</h3>
+  <div class="card soft">
+    <p style="font-size:13.5px;margin:0">
+      <code>image-pipeline.html</code> states it plainly: <strong>never mix illustration and
+      photography on one surface.</strong> Meal images are AI-generated and operator-reviewed;
+      until a dish has photography the product uses hand-drawn illustrations. A timeline that
+      interleaves real user photos with illustrated placeholders violates that rule as written.
+    </p>
+    <p style="font-size:13.5px;margin:10px 0 0">
+      <strong>How this design complies:</strong> the before/after cells are
+      <em>illustration-only</em> until a cook attaches a photo, and when they do, the photo fills
+      <strong>both</strong> cells' visual register — a post is either an illustrated pair or a
+      photographed pair, never one of each. The ingredient chips carry the information either
+      way, which is what lets a photo-less post still work.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════ 03 THE LOOP ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">03</span><h2>The loop — where stickiness actually comes from</h2></div>
+  <p class="lede">
+    Feeds do not stick because of the feed. They stick because of the thing that pulls you
+    back. The notification leg is not a polish item bolted on at the end — without it this is a
+    bulletin board people check once and forget.
+  </p>
+  <div class="loop">
+    <div class="loopstep"><div class="sn">01</div><div class="st">You post your kitchen</div><div class="sd">One tap from the decide flow. No photo needed — the data is already there.</div></div>
+    <div class="loopstep"><div class="sn">02</div><div class="st">Someone answers</div><div class="sd">A dish, or a reaction on one ingredient. KinniJije answers too, so it is never empty.</div></div>
+    <div class="loopstep key"><div class="sn">03</div><div class="st">You get told</div><div class="sd"><strong>The load-bearing step — and the weakest.</strong> Email only, batched daily. No push exists, so the pot answering instantly is what covers the gap.</div></div>
+    <div class="loopstep"><div class="sn">04</div><div class="st">You come back and cook it</div><div class="sd">Straight into the existing decide verdict and recipe. No new surface.</div></div>
+    <div class="loopstep"><div class="sn">05</div><div class="st">You post the save</div><div class="sd">The before is still on file, so the after completes a pair. <em>They</em> get told.</div></div>
+  </div>
+  <p class="note" style="margin-top:16px">
+    Two-sided, with a real payoff at each step: the asker gets an answer, the answerer gets
+    credit. Step 05 closes it by making the answerer the next notified person — which is what
+    turns a loop into a habit rather than a one-off exchange.
+  </p>
+</section>
+
+<!-- ═══════════════════ 04 POST TYPES + SCREENS ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">04</span><h2>Three post types, and the screens</h2></div>
+  <p class="lede">
+    In build order. Each one is shippable alone, and the first two need no new user behaviour
+    at all — they are by-products of deciding and cooking.
+  </p>
+
+  <div class="grid g3" style="margin-bottom:34px">
+    <div class="card soft">
+      <span class="chip sky" style="margin-bottom:9px">Hero unit</span>
+      <h3 style="font-size:17px">The Save</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Before and after. The kitchen you started with, the meal you made. Auto-drafted at
+        <em>Cook this</em>, then asks for one photo when you are done.
+      </p>
+      <p class="note" style="margin-top:8px">The kitchen half needs no photo, so the post exists even if you never take one.</p>
+    </div>
+    <div class="card soft">
+      <span class="chip sky" style="margin-bottom:9px">Interaction engine</span>
+      <h3 style="font-size:17px">The Rescue</h3>
+      <p style="font-size:13px;margin-top:8px">
+        "Five things, 30 minutes. Go." Others reply with a dish. <strong>The only post type
+        where replying is more fun than scrolling</strong> — which is what generates comments
+        instead of hoping for them.
+      </p>
+      <p class="note" style="margin-top:8px">KinniJije always answers, so a rescue is never left hanging.</p>
+    </div>
+    <div class="card soft">
+      <span class="chip sky" style="margin-bottom:9px">Zero-effort supply</span>
+      <h3 style="font-size:17px">The Rundown</h3>
+      <p style="font-size:13px;margin-top:8px">
+        The existing daily rundown, posted to your own thread. Shareable outward. Makes the feed
+        non-empty on day one with <strong>no behaviour change from anyone.</strong>
+      </p>
+      <p class="note" style="margin-top:8px">Private by default. Sharing is per-post and opt-in.</p>
+    </div>
+  </div>
+
+  <div class="rack">
+
+    <!-- FRAME 01 — the feed -->
+    <div>
+      <div class="framecap"><span class="n">01</span><div><span class="t">The feed</span><div class="d">Saves and rescues. The before is always visible.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <div class="ttl">Kitchens</div>
+            <div class="act">
+              <button class="iconbtn" aria-label="Notifications"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="badge">3</span></button>
+            </div>
+          </div>
+          <div class="tabs">
+            <button class="pill sm on">Everyone</button>
+            <button class="pill sm">Rescues</button>
+            <button class="pill sm">Near me</button>
+          </div>
+          <div class="stream">
+
+            <!-- a save -->
+            <div class="post">
+              <div class="phead">
+                <div class="av">T</div>
+                <div><div class="who">tunde.eats</div><div class="when">22 min ago · Surulere</div></div>
+                <span class="chip ok kind" style="font-size:10px;padding:3px 9px">Saved it</span>
+              </div>
+              <div class="pbody">
+                <div class="ba">
+                  <div class="bacell before">
+                    <div class="cap">Had</div>
+                    <div class="art">
+                      <svg width="62" height="50" viewBox="0 0 80 64" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round">
+                        <circle cx="22" cy="40" r="10" fill="var(--berry-fill)"/>
+                        <path d="M22 30c0-3 2-4 4-4"/>
+                        <ellipse cx="50" cy="42" rx="13" ry="8" fill="var(--dish-fill)"/>
+                        <path d="M64 24c4 2 6 5 6 5s-2 3-6 5"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <svg class="baarrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+                  <div class="bacell after">
+                    <div class="cap">Made</div>
+                    <div class="art">
+                      <svg width="62" height="50" viewBox="0 0 80 64" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round">
+                        <path class="steam" d="M34 16c0-4 4-4 4-9" stroke="var(--sky-600)"/>
+                        <ellipse cx="40" cy="40" rx="26" ry="15" fill="var(--dish-fill)"/>
+                        <path d="M14 40c0 8 12 15 26 15s26-7 26-15"/>
+                        <circle cx="34" cy="38" r="2" fill="var(--berry-line)" stroke="none"/>
+                        <circle cx="48" cy="42" r="2" fill="var(--greens-line)" stroke="none"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="dish">Panla Stew</div>
+                <p class="ptext">Three things and a prayer. Came out better than it had any right to.</p>
+                <div class="ingr">
+                  <button class="ic on">Panla <span class="n">7</span></button>
+                  <button class="ic">Tomato <span class="n">2</span></button>
+                  <button class="ic">Onion</button>
+                </div>
+              </div>
+              <div class="pfoot">
+                <button class="afford hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 3s5 4 5 9a5 5 0 0 1-10 0c0-5 5-9 5-9Z"/></svg>9 respect</button>
+                <button class="afford"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-5A8 8 0 1 1 21 12Z"/></svg>4</button>
+                <button class="afford" style="margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 16V3M7 8l5-5 5 5"/></svg>Cook this</button>
+              </div>
+              <div class="reply">
+                <div class="av s">A</div>
+                <div class="rb"><b>ada.k</b> the panla alone is doing all the work there. respect</div>
+              </div>
+            </div>
+
+            <!-- a rescue -->
+            <div class="post" style="border-color:var(--caution);box-shadow:2px 3px 0 var(--caution-onsoft)">
+              <div class="phead" style="background:var(--caution-soft)">
+                <div class="av c">N</div>
+                <div><div class="who">nkem</div><div class="when">4 min ago · needs help</div></div>
+                <span class="chip warn kind" style="font-size:10px;padding:3px 9px">Rescue</span>
+              </div>
+              <div class="pbody">
+                <p class="ptext" style="margin-top:0;font-size:13.5px"><strong style="color:var(--ink)">This is all I have and I have 25 minutes.</strong> What do I do.</p>
+                <div class="ingr">
+                  <button class="ic">Garri <span class="n">1</span></button>
+                  <button class="ic">Egg</button>
+                  <button class="ic">Pepper</button>
+                  <button class="ic">Half onion <span class="n">3</span></button>
+                </div>
+              </div>
+              <div class="pfoot">
+                <button class="afford"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-5A8 8 0 1 1 21 12Z"/></svg>6 answers</button>
+                <button class="btn sm auto" style="margin-left:auto">Tell her what to cook</button>
+              </div>
+              <div class="reply pot">
+                <div class="av g"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+                <div class="rb"><b>KinniJije</b> Garri and egg, 10 minutes. I would fry the pepper first.</div>
+              </div>
+            </div>
+
+          </div>
+          <div class="tabbar">
+            <button><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg>Decide</button>
+            <button class="on"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg>Kitchens</button>
+            <button><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Kitchen</button>
+            <button><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>You</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Before and after, side by side.</b> The before is the story. A plate on its own is an Instagram post we lose; a pair is a result.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Ingredient chips are the reaction target</b> — not the post. "7 people rated your panla" is specific, funny and screenshot-able. A heart on a post means nothing.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>The rescue card is visually louder</b> and carries a verb, not a heart: <em>Tell her what to cook.</em> Answering is the behaviour we are buying.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>"Cook this" is on every post.</b> The feed must route back into the core loop or it is a distraction from it — see the guardrail in §06.</span></div>
+      </div>
+    </div>
+
+    <!-- FRAME 02 — composing from the verdict -->
+    <div>
+      <div class="framecap"><span class="n">02</span><div><span class="t">Posting is a by-product</span><div class="d">Drafted from the cook log. Nothing to write.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <button class="iconbtn" aria-label="Back"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="ttl">Share your save</div>
+          </div>
+          <div class="stream">
+            <div class="appnote ok">
+              <strong>You cooked Panla Stew.</strong> Your before is already on file — one photo and this is done.
+            </div>
+            <div class="post">
+              <div class="pbody">
+                <div class="ba">
+                  <div class="bacell before">
+                    <div class="cap">Had · from your kitchen</div>
+                    <div class="art">
+                      <svg width="62" height="50" viewBox="0 0 80 64" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round">
+                        <circle cx="22" cy="40" r="10" fill="var(--berry-fill)"/>
+                        <ellipse cx="52" cy="42" rx="13" ry="8" fill="var(--dish-fill)"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <svg class="baarrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+                  <div class="bacell after" style="border-style:dashed;border-color:var(--sky)">
+                    <div class="cap" style="color:var(--sky-deep)">Add a photo</div>
+                    <div class="art" style="background:var(--sky-50)">
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--sky-deep)" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.5-2h5L16 6"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="dish">Panla Stew</div>
+                <div class="ingr">
+                  <button class="ic on">Panla</button>
+                  <button class="ic on">Tomato</button>
+                  <button class="ic on">Onion</button>
+                  <button class="ic" style="border-style:dashed;color:var(--ink-3)">edit</button>
+                </div>
+                <div style="margin-top:11px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);padding:9px 11px;font-size:12.5px;color:var(--ink-3)">
+                  Say something about it (optional)
+                </div>
+              </div>
+            </div>
+
+            <div class="card soft" style="padding:13px">
+              <div class="label" style="margin-bottom:9px">Who sees this</div>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <label style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--ink)">
+                  <span style="width:17px;height:17px;border:var(--bw) solid var(--ink);border-radius:50%;background:var(--sky);flex:none;display:grid;place-items:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg></span>
+                  Everyone, as <code style="font-size:11px">tunde.eats</code>
+                </label>
+                <label style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--ink-3)">
+                  <span style="width:17px;height:17px;border:var(--bw) solid var(--line-2);border-radius:50%;flex:none"></span>
+                  Just me — keep it in my own log
+                </label>
+              </div>
+              <p class="note" style="margin-top:10px">Your real name and email are never shown. Only the handle you picked.</p>
+            </div>
+            <button class="btn">Post it</button>
+            <button class="btn quiet">Not this one</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Nothing to compose.</b> The before comes from the kitchen, the dish from <code>CookedMealModel</code>, the ingredients from the match. The only ask is one optional photo.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Handle, never name.</b> <code>UserView.name</code> is private data entered for a receipt, not a byline — see §05.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>"Just me" is a real option</b>, and it is how the feed doubles as a private cooking log for people who will never post.</span></div>
+      </div>
+    </div>
+
+    <!-- FRAME 03 — the notification -->
+    <div>
+      <div class="framecap"><span class="n">03</span><div><span class="t">The step that makes it a habit</span><div class="d">Without this it is a bulletin board.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <div class="ttl">Activity</div>
+          </div>
+          <div class="stream">
+            <div class="post" style="box-shadow:var(--drop);border-color:var(--sky)">
+              <div class="phead" style="background:var(--sky-soft)">
+                <div class="av s">A</div>
+                <div><div class="who">ada.k answered your rescue</div><div class="when">just now</div></div>
+              </div>
+              <div class="pbody">
+                <p class="ptext" style="margin-top:0">"Garri and egg, fry the pepper first. 10 minutes, I promise."</p>
+                <div style="display:flex;gap:7px;margin-top:11px">
+                  <button class="btn sm auto">Cook that</button>
+                  <button class="pill sm">Say thanks</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="post">
+              <div class="phead">
+                <div class="av c">3</div>
+                <div><div class="who">Three people rated your panla</div><div class="when">1h ago</div></div>
+              </div>
+            </div>
+
+            <div class="post">
+              <div class="phead">
+                <div class="av g"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg></div>
+                <div><div class="who">Your rundown is ready</div><div class="when">this morning · 2 things going off</div></div>
+              </div>
+            </div>
+
+            <div class="appnote grape" style="margin-top:6px">
+              <strong>Guardrail:</strong> one digest a day, batched. Never one notification per
+              reaction. A thread that nags is a thread people mute — and muting costs us the
+              <code>have_you_eaten</code> permission we already hold.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Every notification carries a verb</b> — <em>Cook that</em>. A notification that only reports a number trains people to ignore the next one.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Reactions are batched into one line.</b> "Three people rated your panla", not three pushes.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>This is where the experiment in §06 bites hardest.</b> My prediction: the notification leg moves D7 more than any visual decision in this document.</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ 05 PRIVACY ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">05</span><h2>The privacy design, because this one can hurt people</h2></div>
+  <p class="lede">
+    I want to be direct about this rather than leave it as a launch checklist item. A feed of
+    kitchen contents publishes <strong>how much food people have</strong>. In this market that
+    is sensitive information, and a careless build would turn scarcity into a public fact about
+    somebody who never agreed to share it.
+  </p>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="font-size:18px">Rules I would hold to</h3>
+      <ul class="clean" style="margin-top:10px">
+        <li><strong>Opt in, per post.</strong> No account becomes public by existing. Default for every post is "just me".</li>
+        <li><strong>A handle, never <code>name</code>.</strong> People typed their name for a receipt. A separate <code>handle</code> field, chosen deliberately, with <code>name</code> and <code>email</code> never leaving the server.</li>
+        <li><strong>Never publish a whole kitchen.</strong> Only the ingredients a cook attached to a post. The full inventory stays private — it is the most revealing object we hold.</li>
+        <li><strong>No scarcity leaderboards.</strong> No "emptiest kitchen", no streaks for cooking cheap. The joke must always be the cook's own to make.</li>
+        <li><strong>Coarse location only.</strong> Area, never anything finer, and off by default.</li>
+        <li><strong>Deletion is real.</strong> Removing a post removes the photo from the bucket, not just the row.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="font-size:18px">The framing does the work</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        The difference between cruel and fun is <strong>who is holding the pen</strong>. A
+        rescue post is somebody asking for help on their own terms — that is dignified and it
+        is the reason the format works. A system that surfaced the same kitchen unprompted,
+        ranked against other people's, would be humiliating with identical data.
+      </p>
+      <p style="font-size:13.5px">
+        So: the cook writes the caption, the cook picks the ingredients shown, the cook chooses
+        the audience. We never generate a line about somebody's kitchen being empty — the
+        existing voice rule about never joking about the food covers this, and here it has
+        teeth.
+      </p>
+      <div class="appnote crit" style="margin-top:11px">
+        <strong>Also needed before launch, and genuinely unglamorous:</strong> report, block, and
+        mute on every post and reply, plus a moderation queue. User-generated photos and free
+        text mean this is not optional, and retrofitting it after the first incident is worse for
+        everyone. Budget for it in stage two, not stage four.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 06 A/B ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">06</span><h2>What to A/B test</h2></div>
+  <p class="lede">
+    In priority order. Everything here assumes variant bucketing exists (§02) — without it
+    these are before/after comparisons, not experiments. Note that test 0 is a
+    <strong>guardrail, not a test</strong>: it is the one that can kill the feature.
+  </p>
+
+  <div class="card" style="border-color:var(--critical);margin-bottom:22px">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+      <span class="chip crit">Test 0 · guardrail</span><span class="chip">Pre-commit to this</span>
+    </div>
+    <h3 style="font-size:19px">Does the feed cannibalise cooking?</h3>
+    <p style="font-size:13.5px;margin-top:8px">
+      A feed can easily make people browse <em>instead of</em> cook. <strong>Primary metric:
+      meals cooked per user per week</strong> (we already have <code>CookedMealModel</code>, so
+      this needs no new instrumentation). If it drops, the feed has failed at the only job that
+      matters, no matter how good engagement looks.
+    </p>
+    <div class="appnote crit" style="margin-top:11px">
+      I would agree the kill threshold <strong>before launch</strong>, in writing. "Engagement
+      up, cooking down" is the exact scenario where a team talks itself into shipping something
+      that makes the product worse, because the engagement chart is the one on the slide.
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px">Test 1 · the core hypothesis</span>
+      <h3 style="font-size:18px">Ingredients or plates?</h3>
+      <p style="font-size:13.5px;margin-top:8px">Three arms, and this is the one worth spending traffic on:</p>
+      <ul class="clean" style="margin:6px 0">
+        <li><strong>A</strong> — plates only (the conventional build)</li>
+        <li><strong>B</strong> — kitchens and befores only</li>
+        <li><strong>C</strong> — both, paired before and after</li>
+      </ul>
+      <p style="font-size:13.5px">
+        Measure <strong>posts per user</strong> (supply) and <strong>replies per post</strong>
+        (interaction). My prediction: B or C beats A on both, and A looks respectable on
+        per-post quality while starving on volume.
+      </p>
+      <div class="appnote ok" style="margin-top:10px">
+        If <strong>A</strong> wins, the thesis in §01 is wrong and we should drop this and build
+        something else. That is a genuinely useful outcome for one experiment to produce.
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px">Test 2 · the sticky mechanic</span>
+      <h3 style="font-size:18px">Generic hearts vs ingredient reactions</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        A heart on a post versus a reaction on a specific ingredient. Measure reactions per
+        post — but the metric that actually matters is the second one:
+      </p>
+      <p style="font-size:13.5px">
+        <strong>does receiving a reaction predict the recipient posting again within 7
+        days?</strong> That is the real question behind "I want the idea to stick": does being
+        complimented bring you back. If ingredient reactions win there, they are the mechanic
+        to build everything else around.
+      </p>
+    </div>
+
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px">Test 3 · highest leverage</span>
+      <h3 style="font-size:18px">The notification leg, on or off</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        "Someone suggested a dish for your kitchen" — on versus off. I would bet this single
+        variable moves retention more than every visual decision in this document combined.
+      </p>
+      <p style="font-size:13.5px">
+        Measure <strong>D7 return rate and unsubscribe rate together.</strong> A notification
+        that lifts returns while burning notification permission is not a win — it is borrowing
+        from a channel we cannot get back.
+      </p>
+    </div>
+
+    <div class="card">
+      <span class="chip sky" style="margin-bottom:10px">Test 4 · run this first</span>
+      <h3 style="font-size:18px">Tab vs under the verdict</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        A dedicated Kitchens tab, versus a strip of recent saves appended under the decide
+        verdict. The second is far cheaper, needs no new nav, and tests whether anybody wants
+        this <em>at all</em>.
+      </p>
+      <p style="font-size:13.5px">
+        Despite being listed fourth, <strong>I would run this one first</strong> as a demand
+        smoke test. If nobody taps a strip of saves under their own verdict, the tab will not
+        save it, and we will have learned that for a few days of work instead of a quarter.
+      </p>
+    </div>
+  </div>
+
+  <h3 class="sublede">What I would not test</h3>
+  <div class="card soft">
+    <p style="font-size:13.5px;margin:0">
+      Copy, colours, button placement, card layout, icon choice. Those are <strong>decisions,
+      not experiments</strong> — we have a design system that already answers them. Testing
+      them early burns the traffic needed for the four questions above, and a win on button
+      colour teaches us nothing about whether this feature should exist.
+    </p>
+  </div>
+
+  <h3 class="sublede">Instrumentation</h3>
+  <p class="note" style="margin-bottom:12px">
+    Following the convention documented in <code>lib/analytics/analytics.events.ts</code> —
+    snake_case, past tense, object first. Every event carries the variant.
+  </p>
+  <div class="tablewrap scroll">
+    <table>
+      <thead><tr><th style="width:30%">Event</th><th style="width:34%">Properties</th><th style="width:36%">Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>feed_viewed</code></td><td>variant, items_seen, entry_point</td><td>Is anyone looking</td></tr>
+        <tr><td><code>post_created</code></td><td>variant, kind, has_photo, ingredient_count, audience</td><td>Supply, and whether photos gate posting</td></tr>
+        <tr><td><code>post_abandoned</code></td><td>variant, kind, last_field</td><td>Where composing loses people</td></tr>
+        <tr><td><code>reaction_sent</code></td><td>variant, target (post &#124; ingredient), ingredient_id</td><td>Test 2</td></tr>
+        <tr><td><code>reply_sent</code></td><td>variant, post_kind, is_rescue, responder_is_pot</td><td>Interaction, and how much the pot carries</td></tr>
+        <tr><td><code>rescue_answered</code></td><td>variant, minutes_to_first_answer</td><td>Whether rescues get answered fast enough to matter</td></tr>
+        <tr><td><code>feed_cook_started</code></td><td>variant, post_id, meal_id</td><td>Feed routing back into the core loop</td></tr>
+        <tr><td><code>meal_cooked</code> <em>(exists)</em></td><td>+ variant, + from_feed</td><td><strong>Test 0.</strong> The guardrail</td></tr>
+        <tr><td><code>feed_notification_opened</code></td><td>variant, kind, hours_since_sent</td><td>Test 3</td></tr>
+        <tr><td><code>post_reported</code></td><td>reason, post_kind</td><td>Moderation load — watch from day one</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════ 07 SEQUENCING ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">07</span><h2>How I would sequence it</h2></div>
+  <p class="lede">
+    Deliberately back-loaded on cost. Stage 0 and 1 are small and answer the only question that
+    matters — whether there is demand — before anything expensive gets built.
+  </p>
+  <div class="grid g4">
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 0 · ~1 week</div>
+      <h3 style="font-size:16px">Plumbing</h3>
+      <p style="font-size:12.5px;margin-top:8px">Variant bucketing in <code>lib/flags</code>, variant stamped on every event, <code>handle</code> + <code>avatar</code> on the user behind an opt-in.</p>
+      <p class="note" style="margin-top:8px">No user-visible feed yet. Reusable for every future experiment.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 1 · ~1 week</div>
+      <h3 style="font-size:16px">Demand smoke test</h3>
+      <p style="font-size:12.5px;margin-top:8px">Test 4's cheap arm only: a read-only strip of recent saves under the decide verdict. No posting, no replies.</p>
+      <p class="note" style="margin-top:8px"><strong>Gate: does anyone tap it.</strong> If not, stop here — and that is a cheap, good outcome.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 2 · ~3 weeks</div>
+      <h3 style="font-size:16px">Saves and rescues</h3>
+      <p style="font-size:12.5px;margin-top:8px">Posting from the cook log, ingredient reactions, replies, the rundown in your own thread. Report/block/mute and the moderation queue ship <em>here</em>.</p>
+      <p class="note" style="margin-top:8px">Runs tests 0, 1 and 2. Gate: cooked-per-week flat or up.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 3 · 2–4 weeks</div>
+      <h3 style="font-size:16px">The loop closes</h3>
+      <p style="font-size:12.5px;margin-top:8px">Batched activity digest by <strong>email</strong> under the existing frequency caps. Outward sharing needs an OG render path that does not exist — hence the range.</p>
+      <p class="note" style="margin-top:8px">Runs test 3. Gate: D7 up without unsubscribes up.</p>
+    </div>
+  </div>
+
+  <h3 class="sublede">Open questions for engineering</h3>
+  <div class="card soft">
+    <ul class="clean" style="margin:0">
+      <li><strong>Which tab gets displaced?</strong> The bar is full at five. Saved and Market look weakest to me, but that is a product call I should not make alone — and it is the main reason to prove demand with the cheap arm first.</li>
+      <li><strong>Outward sharing needs SSR or an OG render service.</strong> The SPA has one static <code>index.html</code>, so per-post OG tags cannot work today. Is the <code>/hero</code> route's capture approach extendable, or is this a new edge function? This decides whether stage 3 is two weeks or four.</li>
+      <li><strong>A global timeline needs a new index.</strong> Every existing index is <code>{ownerId, …}</code>. Is a <code>{visibility, createdAt}</code> read model enough at our scale, or do we need fan-out from the start?</li>
+      <li>Can the job queue fan out a <strong>batched per-user digest</strong>, or is each sweep one-shot per user per day?</li>
+      <li>Do we extend <code>cooked_meals</code> with photo/note/rating/visibility, or add a separate <code>cook_posts</code> collection? I lean separate — the cook log is a private event spine and should stay one.</li>
+    </ul>
+  </div>
+
+  <div class="appnote" style="margin-top:22px;max-width:none">
+    <strong>My recommendation:</strong> do stages 0 and 1 and nothing more until the strip earns
+    it. The idea in §01 is genuinely good and genuinely differentiated — ingredients are an
+    unoccupied space and the rescue format has real social energy — but "good idea" and "our
+    users want this now" are different claims, and the second one costs two weeks to test
+    instead of two months to assume. If the strip gets tapped, build the rest with confidence.
+    If it does not, we have kept the roadmap.
+  </div>
+</section>
+
+<footer>
+  <span>KinniJije · Kitchen Feed · Proposal</span>
+  <span class="tnum">2026-10-01 · tokens from docs/v2/design.html</span>
+</footer>
+</div>
+</body>
+</html>

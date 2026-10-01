@@ -12,6 +12,7 @@ import { stockController } from './stock.controller.js';
 import {
   AddStockSchema,
   CreateCustomUnitSchema,
+  SeedStockSchema,
   StockIdParamSchema,
   SuggestQuerySchema,
   UpdateStockSchema,
@@ -33,6 +34,10 @@ router.get('/stock/history', authenticate, requireStatus(...ALLOWED), rateLimit(
 router.get('/stock/units', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_READ), asyncHandler(stockController.listUnits));
 router.post('/stock/units', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE), validate(CreateCustomUnitSchema), asyncHandler(stockController.createUnit));
 router.delete('/stock/units/:unitId', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE), asyncHandler(stockController.deleteUnit));
+
+// Names only, and idempotent: a guest's kitchen carried onto a new account.
+// A literal, so it sits above '/stock/:stockId' with the others.
+router.post('/stock/seed', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE), validate(SeedStockSchema), asyncHandler(stockController.seed));
 
 router.get('/stock', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_READ), asyncHandler(stockController.list));
 router.post('/stock', authenticate, requireStatus(...ALLOWED), rateLimit(RATE_LIMITS.AUTHENTICATED_WRITE), validate(AddStockSchema), asyncHandler(stockController.add));

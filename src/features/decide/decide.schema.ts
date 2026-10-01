@@ -1,15 +1,18 @@
 import { z } from 'zod';
 
+import { MAX_KITCHEN_NAMES } from '@shared/constants/kitchen.js';
+
 import { ALL_MOODS, ALL_WEIGHTS, DECIDE_MODES, DEFAULT_TIME_BUDGET, TIME_BUDGETS } from './decide.types.js';
 
 /**
- * Bounds mirror the existing contracts: 80 characters per item and 40 items,
- * exactly as `ExtractedItemSchema` already caps a photo read. A draft must not
- * become an upload channel, and `express.json({ limit: '1mb' })` is the outer
+ * 80 characters per item. The NUMBER of items is not a product limit — it was
+ * 40, which rejected any well-stocked kitchen — only an abuse ceiling far
+ * above the whole catalogue (see `MAX_KITCHEN_NAMES`). A draft must not become
+ * an upload channel, and `express.json({ limit: '1mb' })` is the outer
  * backstop behind this.
  */
 export const DecideSchema = z.object({
-  kitchen_items: z.array(z.string().min(1).max(80)).max(40).default([]),
+  kitchen_items: z.array(z.string().min(1).max(80)).max(MAX_KITCHEN_NAMES).default([]),
   kitchen_skipped: z.boolean().default(false),
 
   // The only two required answers. Without either, nothing distinguishes this

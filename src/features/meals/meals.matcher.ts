@@ -52,6 +52,14 @@ export interface MealMatch {
    * what makes the number mean "how close am I", which is what it is read as.
    */
   score: number;
+  /**
+   * 0–1 over the meal's STAPLE ingredients, or null when it has none.
+   *
+   * Separate from `score` so the ranker can weight "has the rice" above "has
+   * the salt" without the matcher deciding how much that is worth — which is
+   * a tuning question, and tuning lives in the ranking config.
+   */
+  stapleScore: number | null;
   ingredients: MatchedIngredient[];
   missing: string[];
   low: string[];
@@ -126,6 +134,21 @@ function hasEnough(need: MealIngredient, have: StockItemDocument): boolean {
  * a staple. An ingredient with no catalogue id falls back to its name, because
  * a recipe may spell something we never catalogued.
  */
+/**
+ * The groups a meal is built around, rather than seasoned with.
+ *
+ * Read off the catalogue rather than hardcoded per ingredient, so adding a new
+ * grain or legume is automatically a staple without touching this file.
+ */
+const STAPLE_GROUPS = new Set(['grain', 'legume', 'flour_swallow', 'tuber', 'pasta_noodle']);
+
+function isStaple(ingredient: MealIngredient): boolean {
+  const id = ingredient.catalogueId ?? resolve(ingredient.name)?.id ?? null;
+  if (id === null) return false;
+  const item = byId(id);
+  return item !== undefined && STAPLE_GROUPS.has(item.group);
+}
+
 function isPantry(ingredient: MealIngredient): boolean {
   if (ingredient.catalogueId !== null) return byId(ingredient.catalogueId)?.pantry === true;
   return resolve(ingredient.name)?.pantry === true;
@@ -200,9 +223,27 @@ export function matchMeal(meal: MealDocument, index: ReturnType<typeof indexStoc
   // divide-by-zero.
   const score = required === 0 ? 1 : satisfied / required;
 
+  /**
+   * How much of the meal's BACKBONE the cook actually has.
+   *
+   * `score` alone treats every ingredient as equal, so a dish needing eggs,
+   * sausage, onion, tomato and salt scores 0.20 on salt — the same weight as
+   * the rice in a rice dish. In practice that let a meal matching nothing but
+   * a seasoning outrank one matching the cook's main ingredient, which is how
+   * somebody holding rice was shown an egg recipe.
+   *
+   * Staples are what a Nigerian meal is built around and named after: the
+   * grain, the legume, the swallow flour, the yam. Having one is qualitatively
+   * different from having a condiment, and this is the number that says so.
+   */
+  const staples = meal.ingredients.filter((i) => !i.optional && isStaple(i));
+  const staplesHad = staples.filter((i) => findInStock(i, index) !== undefined);
+  const stapleScore = staples.length === 0 ? null : staplesHad.length / staples.length;
+
   return {
     meal,
     score,
+    stapleScore,
     ingredients,
     missing,
     low,

@@ -58,6 +58,22 @@ export const RankingConfigSchema = z.object({
   emptyKitchenBase: z.number().min(0).max(1),
   /** How much of the final rank the match score accounts for. */
   scoreWeight: z.number().min(0).max(1),
+  /**
+   * How much having the meal's STAPLE counts, over and above the plain match.
+   *
+   * 0 reproduces the old behaviour exactly. Above that, holding the rice in a
+   * rice dish outranks holding the salt in an egg dish — which is the whole
+   * point: people decide around their staple, not their seasoning.
+   */
+  stapleWeight: z.number().min(0).max(2),
+  /**
+   * How hard to push a breakfast dish down outside the morning.
+   *
+   * A MULTIPLIER, never a filter: somebody who genuinely wants tea at 3pm
+   * should still be able to reach it, and a hard cutoff would also hide
+   * pap-and-akara from a night worker eating breakfast at 7pm. 1 disables it.
+   */
+  offHoursBreakfastPenalty: z.number().min(0).max(1),
 
   /** Weather nudges. A garnish: small, and skipped entirely when unavailable. */
   weather: z.object({
@@ -116,6 +132,11 @@ export const DEFAULT_RANKING_CONFIG: RankingConfig = {
   },
   emptyKitchenBase: 0.5,
   scoreWeight: 0.75,
+  // Meaningful but not absolute: a staple match is worth roughly half again,
+  // so it reorders near-ties without overriding a far better overall match.
+  stapleWeight: 0.5,
+  // Firm enough to clear the top of a list, soft enough to stay reachable.
+  offHoursBreakfastPenalty: 0.55,
   weather: {
     hotThresholdC: 30,
     coolThresholdC: 22,

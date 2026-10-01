@@ -101,6 +101,16 @@ export class AuthService {
         // New accounts start unverified. Status gating is what makes that
         // mean something: PENDING can read, but not act.
         status: USER_STATUSES.PENDING,
+        /**
+         * Onboarded from the first second.
+         *
+         * There is no onboarding step any more: a new account goes straight
+         * into the app. The stamp is still set — rather than the field being
+         * retired — because the email rules (`requireOnboarded`), the admin
+         * counts and the route guards all read it, and a null here would
+         * quietly exclude every new member from the emails that require it.
+         */
+        onboardingCompletedAt: new Date(),
         // Only when they gave one — an empty string would look like an answer
         // and break the weather lookup.
         ...(input.city !== undefined && input.city.length > 0 && { city: input.city }),

@@ -46,6 +46,7 @@ export class AuthRepository {
     role: UserRole;
     status: UserStatus;
     city?: string;
+    onboardingCompletedAt?: Date;
   }): Promise<UserDocument> {
     return UserModel.create(input);
   }

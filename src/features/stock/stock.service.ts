@@ -53,6 +53,71 @@ export class StockService {
   }
 
   /**
+   * Turns bare names into stock rows — "I have rice", with no amount.
+   *
+   * This is how a guest's kitchen from the decide flow becomes their
+   * account's. It used to be written only to `users.kitchenItems`, a list no
+   * screen reads: the Kitchen page, the decide pre-fill and the server's own
+   * fallback all read STOCK, so a new member's kitchen looked empty and they
+   * were asked for it again.
+   *
+   * IDEMPOTENT, unlike `add`: a name already in stock is left exactly as it
+   * is. The carry-over that calls this is best-effort and may run twice, and
+   * `add` would turn one kilo of rice into two.
+   *
+   * Each row is ONE of the ingredient's default unit. That is a placeholder,
+   * not a measurement — the person said they have it, not how much — and it is
+   * the smallest honest claim that still makes "have it" true for the matcher.
+   */
+  async seedFromNames(
+    ownerId: string,
+    names: readonly string[],
+    source: StockSource = STOCK_SOURCES.ONBOARDING,
+  ): Promise<ServiceResult<{ added: number; skipped: number }>> {
+    const seen = new Set<string>();
+    let added = 0;
+    let skipped = 0;
+
+    for (const raw of names) {
+      const name = raw.trim();
+      const key = name.toLowerCase();
+      if (name.length === 0 || seen.has(key)) continue;
+      seen.add(key);
+
+      const existing = await StockItemModel.exists({ ownerId, name })
+        .collation({ locale: 'en', strength: 2 })
+        .exec();
+      if (existing !== null) {
+        skipped += 1;
+        continue;
+      }
+
+      const item = resolve(name);
+      const unit = item?.defaultUnit ?? 'piece';
+
+      try {
+        const created = await StockItemModel.create({
+          ownerId,
+          catalogueId: item?.id ?? null,
+          name,
+          quantity: 1,
+          unit,
+          storage: item?.storage ?? GROUPS.other.defaultStorage,
+        });
+        await this.recordMovement(ownerId, created._id, name, 1, unit, 1, source, 'decide flow');
+        added += 1;
+      } catch (error) {
+        // Two carry-overs racing: the unique (owner, name) index let one win.
+        // The row exists either way, which is all this promised.
+        if (!isDuplicate(error)) throw error;
+        skipped += 1;
+      }
+    }
+
+    return ok({ added, skipped });
+  }
+
+  /**
    * Adds a batch, merging with what is already there.
    *
    * Merging is the important part: buying rice twice must not produce two rice

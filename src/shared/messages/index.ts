@@ -58,6 +58,15 @@ const CATALOG: Record<MessageKey, string> = {
   [MESSAGE_KEYS.market.NOT_FOUND]: 'That is not on your list.',
   [MESSAGE_KEYS.market.ALREADY_BOUGHT]: 'You already ticked that one off.',
 
+  [MESSAGE_KEYS.ask.SESSION_STARTED]: 'Ready when you are.',
+  [MESSAGE_KEYS.ask.SESSION_NOT_FOUND]: 'That conversation has expired. Start a new one.',
+  [MESSAGE_KEYS.ask.TURN_NOT_FOUND]: 'We could not find that message.',
+  [MESSAGE_KEYS.ask.BAD_AUDIO]: 'That audio format is not supported.',
+  [MESSAGE_KEYS.ask.AUDIO_TOO_BIG]: 'That recording is too long. Keep it under 30 seconds.',
+  [MESSAGE_KEYS.ask.DISABLED]: 'Chat is switched off at the moment.',
+  [MESSAGE_KEYS.ask.FOLLOW_UP_LIMIT]:
+    'That is all the questions for this one. Start a new decision to keep going.',
+  [MESSAGE_KEYS.ask.FOLLOW_UP_FAILED]: 'Could not work that one out. Try asking differently.',
   [MESSAGE_KEYS.decideHistory.FETCHED]: 'Your past decisions.',
   [MESSAGE_KEYS.decideHistory.NOT_FOUND]: 'That decision is not in your history.',
   [MESSAGE_KEYS.decideHistory.DELETED]: 'Removed from your history.',

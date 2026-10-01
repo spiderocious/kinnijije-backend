@@ -59,6 +59,16 @@ export const MESSAGE_KEYS = {
     NOT_FOUND: 'market.not_found',
     ALREADY_BOUGHT: 'market.already_bought',
   },
+  ask: {
+    SESSION_STARTED: 'ask.session_started',
+    SESSION_NOT_FOUND: 'ask.session_not_found',
+    TURN_NOT_FOUND: 'ask.turn_not_found',
+    BAD_AUDIO: 'ask.bad_audio',
+    AUDIO_TOO_BIG: 'ask.audio_too_big',
+    DISABLED: 'ask.disabled',
+    FOLLOW_UP_LIMIT: 'ask.follow_up_limit',
+    FOLLOW_UP_FAILED: 'ask.follow_up_failed',
+  },
   decideHistory: {
     FETCHED: 'decide_history.fetched',
     NOT_FOUND: 'decide_history.not_found',

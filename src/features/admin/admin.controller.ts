@@ -25,6 +25,7 @@ import { adminAiService } from './ai/admin-ai.service.js';
 import { adminAuthService } from './auth/admin-auth.service.js';
 import { adminDashboardService } from './dashboard/admin-dashboard.service.js';
 import { adminAiStatsService } from './ai/admin-ai-stats.service.js';
+import { adminAskService } from './ask/admin-ask.service.js';
 import { adminDecideService } from './decide/admin-decide.service.js';
 import type { MailProvider } from '@lib/mail/index.js';
 
@@ -78,6 +79,19 @@ export const adminController = {
   recipeDetail: async (req: Request, res: Response): Promise<void> => {
     const { mealId } = req.params as { mealId: string };
     const result = await adminRecipesService.detail(mealId);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  recipeFormOptions: async (_req: Request, res: Response): Promise<void> => {
+    const result = await adminRecipesService.formOptions();
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
+  updateRecipe: async (req: Request, res: Response): Promise<void> => {
+    const { mealId } = req.params as { mealId: string };
+    const result = await adminRecipesService.update(mealId, req.body as RecipeInput);
     if (!result.success) return bail(result);
     ResponseUtil.ok(res, result.data);
   },
@@ -425,6 +439,13 @@ export const adminController = {
 
 
   /** Everything the console knows about the decide flow, aggregated. */
+  /** Ask KinniJije, at a glance. Server truth, not browser events. */
+  askOverview: async (_req: Request, res: Response): Promise<void> => {
+    const result = await adminAskService.overview();
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
   decideOverview: async (req: Request, res: Response): Promise<void> => {
     const { days } = req.query as { days?: string };
     const result = await adminDecideService.overview(

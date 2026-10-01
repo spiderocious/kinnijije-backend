@@ -44,6 +44,16 @@ export const recipeBody = z.object({
 
 export const CreateRecipeSchema = recipeBody;
 
+/**
+ * Editing sends the WHOLE recipe, exactly like creating one.
+ *
+ * A full replace rather than a patch: ingredients and steps are ordered lists
+ * that the form edits as a whole (reorder, insert, remove), and a partial
+ * update would have to describe those moves. Sending the lists entire is the
+ * only version of this with no merge rules to get wrong.
+ */
+export const UpdateRecipeSchema = recipeBody;
+
 export const BulkRecipesSchema = z.object({
   // Capped: a paste of five hundred would hold the request open for minutes
   // and is better done as several batches.

@@ -38,6 +38,17 @@ import type { DecideCandidate, DecideInput, DecideVerdictView } from './decide.t
  */
 export const AI_TIMEOUT_MS = 9_000;
 
+/**
+ * The hour in Lagos, 0–23.
+ *
+ * West Africa Time is UTC+1 with no daylight saving, so this is a fixed offset
+ * rather than a timezone database. Every city in the catalogue is Nigerian; if
+ * that ever stops being true this becomes a per-city lookup.
+ */
+function lagosHour(): number {
+  return new Date(Date.now() + 60 * 60 * 1000).getUTCHours();
+}
+
 /** How many candidates the model is asked to choose between. */
 const CANDIDATES_FOR_MODEL = 3;
 
@@ -81,6 +92,15 @@ export class DecideService {
 
     const candidates = rankCandidates(meals, resolved, {
       weather,
+      /**
+       * Lagos time, not the server's.
+       *
+       * Every city we serve is WAT, so a fixed offset is honest and needs no
+       * library. Reading the server clock would mean a box in another region
+       * recommends breakfast at the wrong hour — and getting this wrong is
+       * exactly the "why is it offering me tea at 3pm" complaint.
+       */
+      hour: lagosHour(),
       limit: POOL_SIZE,
       config,
       orderable: placed.orderable,

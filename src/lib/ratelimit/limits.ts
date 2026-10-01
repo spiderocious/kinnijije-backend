@@ -122,6 +122,21 @@ export const RATE_LIMITS = {
    */
   DECIDE_USER: perWindow('decide_user', 40, HOUR),
 
+  /**
+   * Ask KinniJije. Three policies, because the costs are not alike.
+   *
+   * Starting a conversation is a single insert. A turn can spend money at
+   * OpenAI. An upload ticket leads to Whisper, which is the most expensive
+   * thing a stranger can trigger here — so it is the tightest of the three.
+   */
+  ASK_SESSION: perWindow('ask_session', 20, HOUR),
+  /** A tap costs nothing, but a typed turn is a model call. Bounded accordingly. */
+  ASK_TURN: perWindow('ask_turn', 60, HOUR),
+  /** Each one becomes a transcription. Twenty voice notes an hour is plenty. */
+  ASK_UPLOAD: perWindow('ask_upload', 20, HOUR),
+  /** Each follow-up is a model call. The per-session cap is the real limit. */
+  ASK_FOLLOW_UP: perWindow('ask_follow_up', 40, HOUR),
+
   /** Admin tooling is trusted but still bounded against a broken script. */
   ADMIN: perWindow('admin', 600, MINUTE),
 

@@ -66,6 +66,12 @@ const EnvSchema = z.object({
   OPENAI_PARSE_MODEL: z.string().default('gpt-4o-mini'),
   OPENAI_VISION_MODEL: z.string().default('gpt-4o'),
   OPENAI_WHISPER_MODEL: z.string().default('whisper-1'),
+  /**
+   * Which transcription provider answers. Named apart from AI_PROVIDER on
+   * purpose: the best model for speech is not the best model for text, and
+   * swapping one should never mean swapping the other. See lib/ai/transcription.ts.
+   */
+  TRANSCRIPTION_PROVIDER: z.string().default('openai-whisper'),
   /** Recipe photography. Only ever called from a background job. */
   OPENAI_IMAGE_MODEL: z.string().default('gpt-image-1'),
   /**

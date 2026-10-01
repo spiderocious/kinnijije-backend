@@ -7,10 +7,24 @@ import { ResponseUtil } from '@lib/response.js';
 import { bail } from '@lib/service-result.js';
 import { requireActor } from '@shared/middleware/authenticate.middleware.js';
 
-import type { AddStockInput, CreateCustomUnitInput, UpdateStockInput } from './stock.schema.js';
+import type {
+  AddStockInput,
+  CreateCustomUnitInput,
+  SeedStockInput,
+  UpdateStockInput,
+} from './stock.schema.js';
 import { stockService } from './stock.service.js';
 
 export const stockController = {
+  /** Names in, stock rows out — a new account's kitchen from the decide flow. */
+  seed: async (req: Request, res: Response): Promise<void> => {
+    const actor = requireActor(req);
+    const { names } = req.body as SeedStockInput;
+    const result = await stockService.seedFromNames(actor.userId, names);
+    if (!result.success) return bail(result);
+    ResponseUtil.ok(res, result.data);
+  },
+
   list: async (req: Request, res: Response): Promise<void> => {
     const actor = requireActor(req);
     const result = await stockService.list(actor.userId);

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MAX_KITCHEN_NAMES } from '@shared/constants/kitchen.js';
+
 /**
  * The shapes every model answer must fit.
  *
@@ -253,6 +255,62 @@ export const DecideVerdictSchema = withEnvelope({
 });
 
 export type DecideVerdict = z.infer<typeof DecideVerdictSchema>;
+
+// ── One sentence from the Ask flow ──
+
+/**
+ * A sentence turned into answers, plus everything else the person said.
+ *
+ * Every answer field is NULLABLE on purpose. A model that must produce a value
+ * invents one, and an invented mood is worse than an unasked question — so the
+ * contract itself makes "I could not tell" expressible, and the service asks
+ * that question normally when it sees null.
+ *
+ * `notes` is the reason this flow exists. Somebody speaking for twenty seconds
+ * says more than four answers' worth, and the leftovers — "no pepper", "cooking
+ * for two" — are constraints no tile can express.
+ */
+export const AskParseSchema = withEnvelope({
+  // No product cap on how many things somebody says they have — see
+  // `MAX_KITCHEN_NAMES`. At 40, a long spoken list had its whole answer rejected.
+  kitchenItems: z.array(z.string().min(1).max(60)).max(MAX_KITCHEN_NAMES),
+  mood: z.enum(['tired', 'fast', 'proper', 'comfort', 'surprise']).nullable(),
+  weight: z.enum(['solid', 'light', 'soupy', 'swallow', 'rice', 'street']).nullable(),
+  minutes: z.union([z.literal(15), z.literal(40), z.literal(90)]).nullable(),
+  /**
+   * Constraints that are not answers. Short phrases, in their words.
+   *
+   * `constraints`, NOT `notes`: the envelope already owns `notes` for the
+   * user-facing summary and warnings every structured reply carries, and two
+   * different meanings on one key is how a schema silently stops matching.
+   */
+  constraints: z.array(z.string().min(1).max(120)).max(10),
+  /** Said, food-like, but unplaceable. Shown so it can be corrected. */
+  unmatched: z.array(z.string().min(1).max(60)).max(20),
+  /** The model's own honest score. Below 0.5 the whole parse is discarded. */
+  confidence: z.number().min(0).max(1),
+});
+
+export type AskParse = z.infer<typeof AskParseSchema>;
+
+/**
+ * A follow-up about a verdict already given.
+ *
+ * `mealId` is validated against the shortlist by the SERVICE, not here — a
+ * schema can say "a string", only the caller knows which ids were offered. That
+ * check is what makes a hallucinated meal impossible rather than unlikely, and
+ * it is the same split the decide verdict already uses.
+ */
+export const AskFollowUpSchema = withEnvelope({
+  action: z.enum(['reply', 'swap', 'redecide']),
+  /** Two sentences at most. This lands in a chat bubble, not a page. */
+  text: z.string().min(1).max(320),
+  mealId: z.string().max(60).nullable(),
+  /** Set for anything outside food, their kitchen, or this meal. */
+  refused: z.boolean(),
+});
+
+export type AskFollowUp = z.infer<typeof AskFollowUpSchema>;
 
 // ── Checking a generated recipe photograph ──
 

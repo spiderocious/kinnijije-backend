@@ -9,6 +9,7 @@ import { register as registerExtraction } from '@features/extraction/index.js';
 import { register as registerFiles } from '@features/files/index.js';
 import { register as registerHealth } from '@features/health/index.js';
 import { register as registerChat } from '@features/chat/index.js';
+import { register as registerAsk } from '@features/ask/index.js';
 import { register as registerChowdeck } from '@features/chowdeck/index.js';
 import { register as registerConfig } from '@features/config/index.js';
 import { register as registerDecide } from '@features/decide/index.js';
@@ -88,6 +89,9 @@ export function buildApp(): Express {
   // Public like decide (places, offers, the redirect), plus its own console
   // routes under /admin/chowdeck — none of which overlap anything below.
   registerChowdeck(app);
+  // Ask KinniJije. Public like decide, and feeds the same endpoint — a second
+  // way to fill the payload, never a second way to rank.
+  registerAsk(app);
 
   registerAuth(app);
   registerUsers(app);

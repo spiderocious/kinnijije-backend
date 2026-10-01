@@ -67,7 +67,8 @@ export const authController = {
       email: body.email,
       created_at: new Date().toISOString(),
       status: result.data.user.status,
-      has_onboarded: false,
+      // Read off the account rather than assumed: registration now stamps it.
+      has_onboarded: result.data.user.has_onboarded,
     });
 
     ResponseUtil.created(res, result.data);

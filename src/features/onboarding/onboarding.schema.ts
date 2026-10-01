@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MAX_KITCHEN_NAMES } from '@shared/constants/kitchen.js';
 import { ALL_DIFFICULTIES, CUISINE_OPTIONS } from '@shared/constants/roles.js';
 
 /**
@@ -16,7 +17,10 @@ export const SaveOnboardingSchema = z
     measurement: z.enum(['metric', 'imperial']).optional(),
     kitchen_items: z
       .array(z.string().min(1).max(80).trim())
-      .max(100, 'That is more than we can take at once')
+      // Same ceiling as the decide request: this is where a guest's kitchen
+      // is replayed onto a new account, and a tighter bound here failed the
+      // whole carry-over for anybody the decide flow had already accepted.
+      .max(MAX_KITCHEN_NAMES, 'That is more than we can take at once')
       .optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {

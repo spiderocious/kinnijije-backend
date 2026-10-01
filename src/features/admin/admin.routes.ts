@@ -46,6 +46,7 @@ import {
   BulkRecipesSchema,
   DeleteRecipesSchema,
   SetRecipesStatusSchema,
+  UpdateRecipeSchema,
   ComposeEmailSchema,
   CreateRecipeSchema,
   ListAiLogsSchema,
@@ -160,6 +161,10 @@ router.get('/admin/overview', ...guard, asyncHandler(adminController.overview));
 // as a log id.
 router.get('/admin/ai/stats', ...guard, requireScope('ai:read'), asyncHandler(adminController.aiStats));
 
+// Ask KinniJije. Shares the decide scope: it is the same flow by another door,
+// and an operator who may read one has no reason to be refused the other.
+router.get('/admin/ask/overview', ...guard, requireScope('decide:read'), asyncHandler(adminController.askOverview));
+
 router.get('/admin/decide/overview', ...guard, requireScope('decide:read'), asyncHandler(adminController.decideOverview));
 router.get('/admin/decide/logs', ...guard, requireScope('decide:read'), asyncHandler(adminController.decideLogs));
 // Parameterised LAST: '/decide/logs' and '/decide/overview' are literals and
@@ -178,6 +183,11 @@ router.post('/admin/recipes/delete', ...guard, requireScope('recipes:delete'), v
 // Publish or unpublish the selection. Same scope as changing one.
 router.post('/admin/recipes/status', ...guard, requireScope('recipes:write'), validate(SetRecipesStatusSchema), asyncHandler(adminController.setRecipesStatus));
 router.post('/admin/recipes', ...guard, requireScope('recipes:write'), validate(CreateRecipeSchema), asyncHandler(adminController.createRecipe));
+// What the recipe form offers: catalogue ingredients, units, cuisines in use.
+// A literal, so it must stay above '/:mealId'.
+router.get('/admin/recipes/form-options', ...guard, requireScope('recipes:read'), asyncHandler(adminController.recipeFormOptions));
+// A full replace of one recipe's content. The slug never changes.
+router.put('/admin/recipes/:mealId', ...guard, requireScope('recipes:write'), validate(UpdateRecipeSchema), asyncHandler(adminController.updateRecipe));
 router.get('/admin/recipes/:mealId', ...guard, requireScope('recipes:read'), asyncHandler(adminController.recipeDetail));
 router.patch(
   '/admin/recipes/:mealId/status', ...guard, requireScope('recipes:write'),

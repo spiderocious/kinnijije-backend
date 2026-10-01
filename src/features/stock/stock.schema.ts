@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ALL_UNIT_IDS } from '@shared/catalogue/index.js';
+import { MAX_KITCHEN_NAMES } from '@shared/constants/kitchen.js';
 import { STOCK_SOURCES } from './stock.model.js';
 
 /**
@@ -25,6 +26,19 @@ export const AddStockSchema = z.object({
   reference: z.string().max(200).optional(),
 });
 export type AddStockInput = z.infer<typeof AddStockSchema>;
+
+/**
+ * Names only — "I have rice", with no amount.
+ *
+ * What a guest gives in the decide flow: a tap asserts presence, never a
+ * quantity. The service turns each into a real stock row so the kitchen they
+ * described is the kitchen their new account opens with.
+ */
+export const SeedStockSchema = z.object({
+  // The decide flow's own ceiling: whatever it accepted must fit here too.
+  names: z.array(z.string().min(1).max(80).trim()).min(1, 'Nothing to add').max(MAX_KITCHEN_NAMES),
+});
+export type SeedStockInput = z.infer<typeof SeedStockSchema>;
 
 export const UpdateStockSchema = z.object({
   quantity: z.number().min(0, 'Quantity cannot be negative').max(100_000).optional(),

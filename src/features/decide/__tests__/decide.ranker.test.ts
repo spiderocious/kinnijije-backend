@@ -9,6 +9,7 @@ import {
   matchesWeight,
   rankCandidates,
   weatherMultiplier,
+  timeOfDayMultiplier,
 } from '../decide.ranker.js';
 import { MOODS, WEIGHTS, type DecideInput } from '../decide.types.js';
 
@@ -345,5 +346,99 @@ describe('the Milo regression', () => {
     });
 
     assert.ok(out.length > 0);
+  });
+});
+
+/**
+ * Two complaints from the same session, both about ordering.
+ *
+ * "Why am I shown an egg recipe when I said I have rice" and "why is it
+ * offering me tea at 3pm". Neither was a data problem — both were the ranker
+ * treating every ingredient and every hour as equivalent.
+ */
+describe('staple weighting', () => {
+  const eggs = meal({
+    _id: 'm_eggs',
+    name: 'Breakfast Eggs',
+    cookTimeMinutes: 15,
+    ingredients: [
+      ingredient('Eggs'),
+      ingredient('Sausage'),
+      ingredient('Red onions'),
+      ingredient('Tomatoes'),
+      ingredient('Salt'),
+    ],
+  });
+
+  const riceDish = meal({
+    _id: 'm_rice',
+    name: 'Coconut Rice',
+    cookTimeMinutes: 33,
+    ingredients: [
+      ingredient('Long-grain rice'),
+      ingredient('Coconut milk'),
+      ingredient('Tomatoes'),
+      ingredient('Salt'),
+    ],
+  });
+
+  it('puts the meal using their staple above one matching only a seasoning', () => {
+    // The reported bug: holding rice and salt, "Breakfast Eggs" (matched on
+    // salt alone) came back above "Coconut Rice" (matched on the rice),
+    // because a 15-minute cook time beat a better match.
+    const out = rankCandidates([eggs, riceDish], {
+      ...baseInput,
+      kitchenItems: ['Long-grain rice', 'Salt'],
+      mood: MOODS.FAST,
+      weight: WEIGHTS.SOLID,
+    });
+
+    assert.equal(out[0]?.meal.name, 'Coconut Rice');
+  });
+
+  it('leaves a meal with no staple alone rather than penalising it', () => {
+    // A soup or a drink has no backbone ingredient, and must not be pushed
+    // down for lacking one.
+    const soup = meal({
+      _id: 'm_soup',
+      name: 'Pepper Soup',
+      ingredients: [ingredient('Goat meat'), ingredient('Pepper soup spice')],
+    });
+    const out = rankCandidates([soup], { ...baseInput, kitchenItems: ['Goat meat'] });
+    assert.equal(out.length, 1);
+  });
+});
+
+describe('timeOfDayMultiplier', () => {
+  const tea = meal({ _id: 'm_tea', name: 'Nigerian Tea' });
+  const stew = meal({ _id: 'm_stew', name: 'Beef Stew' });
+
+  it('leaves breakfast alone in the morning', () => {
+    assert.equal(timeOfDayMultiplier(tea, 8), 1);
+  });
+
+  it('pushes breakfast down in the afternoon', () => {
+    // The complaint, exactly: tea at 3pm.
+    assert.ok(timeOfDayMultiplier(tea, 15) < 1);
+  });
+
+  it('never touches a meal that is not breakfast', () => {
+    assert.equal(timeOfDayMultiplier(stew, 15), 1);
+  });
+
+  it('does nothing when the hour is unknown', () => {
+    assert.equal(timeOfDayMultiplier(tea, null), 1);
+  });
+
+  it('demotes rather than removes', () => {
+    // A night worker eating pap at seven is a real person. The nudge must stay
+    // a multiplier, never a filter.
+    assert.ok(timeOfDayMultiplier(tea, 19) > 0);
+  });
+
+  it('does not read the description', () => {
+    // "serve with tea" in a method would otherwise make a stew breakfast.
+    const served = meal({ _id: 'm_x', name: 'Beef Stew', description: 'Lovely with tea.' });
+    assert.equal(timeOfDayMultiplier(served, 15), 1);
   });
 });

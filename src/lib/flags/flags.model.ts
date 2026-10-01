@@ -37,6 +37,25 @@ export const FEATURE_FLAGS = {
    */
   CHOWDECK_OFFERS: 'chowdeck_offers',
   CHOWDECK_FETCH: 'chowdeck_fetch',
+  /**
+   * Ask KinniJije — the conversational way into the decide flow.
+   *
+   * Four switches rather than one, because each layer fails differently and
+   * you will want to stop one without losing the rest. Turning the whole thing
+   * off never affects the tap flow: Ask is a separate surface over the same
+   * endpoint, not a change to it.
+   *
+   * Unlike the invite and the tour, these DEFAULT ON and fail open. They are
+   * ordinary product features — a failed flag read should leave them working,
+   * not silently remove the feature.
+   */
+  ASK_CHAT: 'ask_chat',
+  /** The microphone. Off, typing and tapping still work. */
+  ASK_VOICE: 'ask_voice',
+  /** The composer. Off, the flow is tap-only — still a complete flow. */
+  ASK_FREE_TEXT: 'ask_free_text',
+  /** SSE. Off, the same answers arrive by polling. A performance switch. */
+  ASK_STREAMING: 'ask_streaming',
 } as const;
 
 export type FeatureFlag = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
@@ -133,6 +152,32 @@ export const FLAG_DEFINITIONS: readonly FlagDefinition[] = [
       'We call Chowdeck for live prices and availability, refreshing what cooks are shown.',
     whenOff:
       'We stop calling Chowdeck entirely, including from the console. Cooks still see whatever is cached.',
+  },
+  {
+    key: FEATURE_FLAGS.ASK_CHAT,
+    label: 'Ask KinniJije — the chat flow',
+    whenOn:
+      'People see the "Ask KinniJije AI" button and can reach a verdict by talking instead of tapping.',
+    whenOff:
+      'The button disappears and /ask sends people to the tap flow. The tap flow itself is unaffected either way.',
+  },
+  {
+    key: FEATURE_FLAGS.ASK_VOICE,
+    label: 'Ask KinniJije — voice notes',
+    whenOn: 'People can record a voice note at any question and have it transcribed.',
+    whenOff: 'The microphone disappears from the chat. Typing and tapping still work.',
+  },
+  {
+    key: FEATURE_FLAGS.ASK_FREE_TEXT,
+    label: 'Ask KinniJije — typing',
+    whenOn: 'People can type a sentence at any question and we fill in the answers we can read.',
+    whenOff: 'The text box disappears from the chat. The flow becomes tap-only.',
+  },
+  {
+    key: FEATURE_FLAGS.ASK_STREAMING,
+    label: 'Ask KinniJije — live streaming',
+    whenOn: 'Answers appear word by word as they are worked out, over a live connection.',
+    whenOff: 'The same answers arrive all at once when ready. Nothing is lost but immediacy.',
   },
   {
     key: FEATURE_FLAGS.ANALYTICS_CLIENT,

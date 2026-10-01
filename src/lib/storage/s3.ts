@@ -214,3 +214,39 @@ export async function deletePublicObject(key: string): Promise<void> {
   if (!key.startsWith(PUBLIC_PREFIX)) return;
   await requireClient().send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
 }
+
+/**
+ * The bytes behind a private key.
+ *
+ * For work that happens on OUR side rather than the browser's — transcribing a
+ * voice note, for instance, where the audio was uploaded direct to storage and
+ * the job now has to read it back. Streaming it to the caller would need a
+ * presigned GET; this is for a server that needs the buffer itself.
+ */
+export async function readObject(key: string): Promise<Buffer> {
+  const result = await requireClient().send(
+    new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key }),
+  );
+  const body = result.Body;
+  if (body === undefined) throw new Error(`object has no body: ${key}`);
+  return Buffer.from(await body.transformToByteArray());
+}
+
+/**
+ * Removes any object by key.
+ *
+ * Unlike `deletePublicObject` this has no prefix guard, because it deletes
+ * things nobody should keep — a voice note, once it has been transcribed.
+ * Never throws: a failed cleanup must not fail the work that succeeded, and
+ * the bucket lifecycle rule is the backstop.
+ */
+export async function deleteObject(key: string): Promise<void> {
+  try {
+    await requireClient().send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
+  } catch (error) {
+    logger.warn('could not delete object', {
+      key,
+      error: error instanceof Error ? error.message : 'unknown',
+    });
+  }
+}

@@ -1,0 +1,2025 @@
+[
+  {
+    "_id": "meal_jxb2h01b6xqfahegj03tyvk9n6",
+    "slug": "white-rice-plain",
+    "name": "White Rice",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 25,
+    "serves": 3,
+    "whatMakesItGood": "The base of half the plates in the country. Getting it fluffy rather than sticky is the only skill involved.",
+    "description": "Plain boiled rice, washed and steamed soft.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "tbsp",
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Wash it",
+        "description": "Rinse until the water runs clear. The starch you leave behind is the stickiness you get.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Boil",
+        "description": "Twice the water to rice, salted, hard boil until just tender.",
+        "estMinutes": 14
+      },
+      {
+        "index": 3,
+        "heading": "Steam",
+        "description": "Drain, lid on, lowest heat for five minutes. This is what makes it fluffy.",
+        "estMinutes": 7
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "salt",
+      "groundnut_oil"
+    ],
+    "heroIcon": "basketRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_1e2rxz54e0et1z43hwxj28pwde",
+    "slug": "rice-and-stew",
+    "name": "Rice and Stew",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 45,
+    "serves": 4,
+    "whatMakesItGood": "The default Nigerian plate. The stew is fried long enough that the oil separates and floats, which is how you know it is done.",
+    "description": "White rice with a proper fried tomato stew.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "tomato_paste",
+        "name": "Tomato paste",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Washed, salted, boiled and steamed.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Blend",
+        "description": "Tomatoes, onion and pepper to a rough paste.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Fry the base",
+        "description": "Heat the oil, fry the paste on medium. Keep going until it darkens and the oil rises.",
+        "estMinutes": 14
+      },
+      {
+        "index": 4,
+        "heading": "Finish",
+        "description": "Stock cubes and salt, then simmer uncovered until thick.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "tomato_paste",
+      "groundnut_oil",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_nqzqh2hf0ets2y3rw9wv6b039v",
+    "slug": "rice-and-pepper-sauce",
+    "name": "Rice and Pepper Sauce",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "Ata din din, blistered in hot oil rather than stewed. Sharper than stew and twice as fast.",
+    "description": "Rice with fried pepper sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "ata_din_din",
+        "name": "Fried pepper sauce",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry the pepper",
+        "description": "Hot oil, sliced onion, then the pepper. Keep it moving so it blisters and does not burn.",
+        "estMinutes": 8
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "ata_din_din",
+      "onion_red",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_g6van2w0fqvt2yepa1gmeesbrp",
+    "slug": "rice-and-egg-sauce",
+    "name": "Rice and Egg Sauce",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "Egg sauce is what rice gets when there is no meat in the house, and it is not a downgrade.",
+    "description": "White rice with a soft tomato and egg sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "egg_chicken",
+        "name": "Eggs",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Build the sauce",
+        "description": "Fry onion and tomato until thick and the oil clears.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Fold in the eggs",
+        "description": "Beaten, poured in, off the heat while still glossy.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "egg_chicken",
+      "tomato",
+      "onion_red",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_h6zeyq5seg2123hfewdr0gwxcn",
+    "slug": "rice-and-beans-plain",
+    "name": "Rice and Beans",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 60,
+    "serves": 4,
+    "whatMakesItGood": "Cooked together rather than separately, so the beans colour the rice and nothing tastes like an afterthought.",
+    "description": "Rice and beans in one pot.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 1,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "beans_brown",
+        "name": "Brown beans",
+        "quantity": 1,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Start the beans",
+        "description": "They take far longer than rice. Boil until nearly soft before anything else goes in.",
+        "estMinutes": 35
+      },
+      {
+        "index": 2,
+        "heading": "Add the rice",
+        "description": "Straight into the same pot with enough water to cover.",
+        "estMinutes": 18
+      },
+      {
+        "index": 3,
+        "heading": "Season",
+        "description": "Palm oil, onion, pepper and salt. Lid on until the water is gone.",
+        "estMinutes": 7
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "beans_brown",
+      "palm_oil",
+      "onion_red",
+      "dry_pepper",
+      "salt"
+    ],
+    "heroIcon": "bagBeans",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_apn8mphszbn8vegkvs9k5k136s",
+    "slug": "rice-and-sardine",
+    "name": "Rice and Sardine",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 28,
+    "serves": 2,
+    "whatMakesItGood": "A tin, an onion and twenty minutes. The oil in the tin is half the flavour, so it goes in too.",
+    "description": "Rice with a quick sardine sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "sardine_tin",
+        "name": "Tinned sardine",
+        "quantity": 1,
+        "unit": "tin",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry the base",
+        "description": "Onion and tomato until soft.",
+        "estMinutes": 4
+      },
+      {
+        "index": 3,
+        "heading": "Add the sardine",
+        "description": "Drained and flaked, oil and all. Warm through, do not mash it.",
+        "estMinutes": 2
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "sardine_tin",
+      "onion_red",
+      "tomato",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_bfmxmevmjgxh0zgykj0p0psrxv",
+    "slug": "rice-and-corned-beef",
+    "name": "Rice and Corned Beef",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 28,
+    "serves": 3,
+    "whatMakesItGood": "Store cupboard to plate without a market trip. Corned beef wants heat and onion, nothing else.",
+    "description": "Rice with a corned beef sauce.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "corned_beef",
+        "name": "Corned beef",
+        "quantity": 1,
+        "unit": "tin",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry",
+        "description": "Onion in hot oil, then the corned beef broken up, then the pepper.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "corned_beef",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_zpqa10qz4nft0rpq626sw0ghzn",
+    "slug": "rice-and-fried-plantain",
+    "name": "Rice and Dodo",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 35,
+    "serves": 3,
+    "whatMakesItGood": "Sweet plantain against plain rice. The cheapest way to make a plate feel like a meal.",
+    "description": "White rice with fried ripe plantain.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "plantain_ripe",
+        "name": "Ripe plantain",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry the dodo",
+        "description": "Thick rounds, lightly salted, until the edges go dark gold.",
+        "estMinutes": 11
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "plantain_ripe",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateFull",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_4qbny1nqya99x3k3d0v4x1vmgw",
+    "slug": "rice-and-stew-chicken",
+    "name": "Rice, Stew and Chicken",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "involved",
+    "cookTimeMinutes": 75,
+    "serves": 4,
+    "whatMakesItGood": "Sunday rice. The chicken is boiled first and its stock goes into the stew, so nothing is wasted.",
+    "description": "Rice with chicken stew.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "chicken_lap",
+        "name": "Chicken lap",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "tomato_paste",
+        "name": "Tomato paste",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "thyme_dry",
+        "name": "Dried thyme",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the chicken",
+        "description": "With onion, thyme, stock cube and salt. Keep every drop of the stock.",
+        "estMinutes": 28
+      },
+      {
+        "index": 2,
+        "heading": "Fry it",
+        "description": "Brown the boiled pieces in hot oil and set aside.",
+        "estMinutes": 10
+      },
+      {
+        "index": 3,
+        "heading": "Blend and fry",
+        "description": "Tomato, pepper and onion, fried until the oil separates.",
+        "estMinutes": 18
+      },
+      {
+        "index": 4,
+        "heading": "Bring together",
+        "description": "The chicken stock in, simmer to thicken, then the chicken back in.",
+        "estMinutes": 10
+      },
+      {
+        "index": 5,
+        "heading": "Cook the rice",
+        "description": "While the stew reduces.",
+        "estMinutes": 9
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "chicken_lap",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "tomato_paste",
+      "groundnut_oil",
+      "stock_cube",
+      "thyme_dry",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_qn1cxps1jfzc73yzr0vpw49sg0",
+    "slug": "rice-and-fish-stew",
+    "name": "Rice and Fish Stew",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 50,
+    "serves": 4,
+    "whatMakesItGood": "Fish goes in last and barely stirred. Anything more and it breaks into the sauce.",
+    "description": "Rice with a tomato stew and fried fish.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "titus_fish",
+        "name": "Titus fish",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 5,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Fry the fish",
+        "description": "Seasoned, floured lightly if you have it, fried until firm. Set aside.",
+        "estMinutes": 14
+      },
+      {
+        "index": 2,
+        "heading": "Fry the stew",
+        "description": "Blended tomato, pepper and onion until the oil rises.",
+        "estMinutes": 16
+      },
+      {
+        "index": 3,
+        "heading": "Add the fish",
+        "description": "Lower it in whole and spoon the sauce over. Do not stir.",
+        "estMinutes": 6
+      },
+      {
+        "index": 4,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 14
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "titus_fish",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_ryqcwy254hn15v1sd2xey18kdv",
+    "slug": "ofada-rice-ayamase",
+    "name": "Ofada Rice and Ayamase",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "involved",
+    "cookTimeMinutes": 80,
+    "serves": 4,
+    "whatMakesItGood": "Green pepper stew bleached in palm oil. The smell alone tells you it is a special occasion.",
+    "description": "Local ofada rice with designer stew.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_ofada",
+        "name": "Ofada rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "ayamase_sauce",
+        "name": "Ayamase sauce",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "green_bell",
+        "name": "Green bell pepper",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "locust_bean_dry",
+        "name": "Dried locust beans",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Wash the ofada",
+        "description": "Several changes of water. It is unpolished and carries chaff.",
+        "estMinutes": 8
+      },
+      {
+        "index": 2,
+        "heading": "Boil",
+        "description": "Longer than white rice, until just tender.",
+        "estMinutes": 30
+      },
+      {
+        "index": 3,
+        "heading": "Bleach the oil",
+        "description": "Heat palm oil until it clears. Open a window.",
+        "estMinutes": 10
+      },
+      {
+        "index": 4,
+        "heading": "Fry the peppers",
+        "description": "Blended green pepper and onion into the bleached oil, with locust beans.",
+        "estMinutes": 25
+      },
+      {
+        "index": 5,
+        "heading": "Serve",
+        "description": "Rice wrapped in leaf if you have it, sauce beside.",
+        "estMinutes": 7
+      }
+    ],
+    "ingredientKeys": [
+      "rice_ofada",
+      "ayamase_sauce",
+      "green_bell",
+      "palm_oil",
+      "onion_red",
+      "locust_bean_dry",
+      "salt"
+    ],
+    "heroIcon": "basketRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_qpg6y3k4rhstb06e4zapajf625",
+    "slug": "coconut-rice-simple",
+    "name": "Coconut Rice",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 45,
+    "serves": 4,
+    "whatMakesItGood": "The rice cooks in coconut milk instead of water. Nothing else is needed for it to taste like something.",
+    "description": "Rice simmered in coconut milk.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "coconut_milk",
+        "name": "Coconut milk",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "bell_pepper",
+        "name": "Bell pepper",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Wash the rice",
+        "description": "Until the water runs clear.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Build the pot",
+        "description": "Coconut milk, water, onion, pepper, stock cube and salt.",
+        "estMinutes": 5
+      },
+      {
+        "index": 3,
+        "heading": "Simmer",
+        "description": "Lid on, lowest heat, until the liquid is gone and the grains are soft.",
+        "estMinutes": 30
+      },
+      {
+        "index": 4,
+        "heading": "Rest",
+        "description": "Five minutes off the heat before fluffing.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "coconut_milk",
+      "onion_red",
+      "bell_pepper",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "basketRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_7gwm3wgy8k3z9kapc5qys2vpfd",
+    "slug": "rice-and-ewa-stew",
+    "name": "Rice with Beans and Stew",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian",
+      "Yoruba"
+    ],
+    "difficulty": "involved",
+    "cookTimeMinutes": 85,
+    "serves": 5,
+    "whatMakesItGood": "Rice, beans and stew on one plate. The full version of the plate students live on.",
+    "description": "White rice, stewed beans, pepper stew.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "beans_brown",
+        "name": "Brown beans",
+        "quantity": 1,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "palm_oil",
+        "name": "Palm oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Boil the beans",
+        "description": "Until completely soft. An hour, sometimes more.",
+        "estMinutes": 45
+      },
+      {
+        "index": 2,
+        "heading": "Cook the rice",
+        "description": "Separately, so neither goes to mush.",
+        "estMinutes": 22
+      },
+      {
+        "index": 3,
+        "heading": "Fry the stew",
+        "description": "Blended tomato and pepper in palm oil until it darkens.",
+        "estMinutes": 15
+      },
+      {
+        "index": 4,
+        "heading": "Plate",
+        "description": "All three, side by side.",
+        "estMinutes": 3
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "beans_brown",
+      "tomato",
+      "onion_red",
+      "dry_pepper",
+      "palm_oil",
+      "salt"
+    ],
+    "heroIcon": "bagBeans",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_3bqacma4xwfnks79dscqpxj8sj",
+    "slug": "fried-rice-simple",
+    "name": "Fried Rice",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 50,
+    "serves": 4,
+    "whatMakesItGood": "Parboiled rice fried in stock rather than boiled in water. Curry does the colouring, not tomato.",
+    "description": "Nigerian fried rice with vegetables.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "carrot",
+        "name": "Carrots",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "green_beans",
+        "name": "Green beans",
+        "quantity": 1,
+        "unit": "handful",
+        "optional": true
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "curry_powder",
+        "name": "Curry powder",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Parboil",
+        "description": "Rice to half done, drained hard. Wet rice fries into porridge.",
+        "estMinutes": 18
+      },
+      {
+        "index": 2,
+        "heading": "Fry the vegetables",
+        "description": "Diced carrot and beans in hot oil, two minutes, no more. They should still bite.",
+        "estMinutes": 6
+      },
+      {
+        "index": 3,
+        "heading": "Fry the rice",
+        "description": "In with curry and stock cube, tossed constantly over high heat.",
+        "estMinutes": 20
+      },
+      {
+        "index": 4,
+        "heading": "Rest",
+        "description": "Lid off, heat off, five minutes.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "carrot",
+      "green_beans",
+      "onion_red",
+      "curry_powder",
+      "groundnut_oil",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_5x2x4tqyjg74vrpjsbey7che85",
+    "slug": "jollof-rice-proper",
+    "name": "Jollof Rice",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "involved",
+    "cookTimeMinutes": 70,
+    "serves": 5,
+    "whatMakesItGood": "The base is fried until it stops smelling raw, and the rice steams in it rather than boiling. That is the whole difference.",
+    "description": "Party jollof, done properly.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato",
+        "name": "Tomatoes",
+        "quantity": 6,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato_paste",
+        "name": "Tomato paste",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": false
+      },
+      {
+        "catalogueId": "cayenne_pepper_fresh",
+        "name": "Fresh cayenne",
+        "quantity": 4,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "bell_pepper",
+        "name": "Bell pepper",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 1,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 3,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "thyme_dry",
+        "name": "Dried thyme",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "curry_powder",
+        "name": "Curry powder",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Blend",
+        "description": "Tomato, pepper and onion to a smooth paste. Reduce it in a dry pot first if it is watery.",
+        "estMinutes": 10
+      },
+      {
+        "index": 2,
+        "heading": "Fry the base",
+        "description": "Into hot oil with the paste. Fry hard until it darkens and the oil floats. Do not rush this.",
+        "estMinutes": 22
+      },
+      {
+        "index": 3,
+        "heading": "Season",
+        "description": "Stock cubes, thyme, curry, salt.",
+        "estMinutes": 3
+      },
+      {
+        "index": 4,
+        "heading": "Add the rice",
+        "description": "Washed rice in, stirred through, water to just below the level of the rice.",
+        "estMinutes": 5
+      },
+      {
+        "index": 5,
+        "heading": "Steam",
+        "description": "Lid on, lowest heat, foil under the lid if you have it. No stirring.",
+        "estMinutes": 26
+      },
+      {
+        "index": 6,
+        "heading": "Rest",
+        "description": "Off the heat, lid on, ten minutes before serving.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "tomato",
+      "tomato_paste",
+      "onion_red",
+      "cayenne_pepper_fresh",
+      "bell_pepper",
+      "groundnut_oil",
+      "stock_cube",
+      "thyme_dry",
+      "curry_powder",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "_id": "meal_2fmm2gkj5nbgtmf4r8f1evwvm2",
+    "slug": "rice-and-stew-quick",
+    "name": "Rice and Stew (quick version)",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 30,
+    "serves": 3,
+    "whatMakesItGood": "Tinned tomato instead of fresh, no blending, no long fry. Not the Sunday version and not pretending to be.",
+    "description": "Weeknight rice and stew.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato_tin_whole",
+        "name": "Tinned tomatoes",
+        "quantity": 1,
+        "unit": "tin",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 4,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry the sauce",
+        "description": "Onion in oil, tin in, pepper and salt, reduce until thick.",
+        "estMinutes": 8
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "tomato_tin_whole",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "quality": "simple"
+  },
+  {
+    "_id": "meal_b20exa262317gny48m5agv8psx",
+    "slug": "rice-and-stew-bare",
+    "name": "Rice and Stew (from paste)",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 28,
+    "serves": 2,
+    "whatMakesItGood": "Tomato paste fried hard in oil is a real stew, not a compromise. It is what most weeknight rice actually comes with.",
+    "description": "Rice and stew from a tin of paste.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato_paste",
+        "name": "Tomato paste",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 1,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Cook the rice",
+        "description": "Wash, boil, steam.",
+        "estMinutes": 22
+      },
+      {
+        "index": 2,
+        "heading": "Fry the paste",
+        "description": "In hot oil until it darkens, then loosen with a little water.",
+        "estMinutes": 6
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "tomato_paste",
+      "groundnut_oil",
+      "dry_pepper",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "quality": "simple"
+  },
+  {
+    "_id": "meal_3f9an9krxz11xfgks6btvygyfq",
+    "slug": "jollof-rice-quick",
+    "name": "Jollof Rice (quick version)",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "medium",
+    "cookTimeMinutes": 40,
+    "serves": 4,
+    "whatMakesItGood": "Tinned base, shorter fry. You lose some depth and you keep the colour and the steam-cooked grain.",
+    "description": "Jollof on a weeknight.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato_tin_whole",
+        "name": "Tinned tomatoes",
+        "quantity": 1,
+        "unit": "tin",
+        "optional": false
+      },
+      {
+        "catalogueId": "tomato_paste",
+        "name": "Tomato paste",
+        "quantity": 2,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "dry_pepper",
+        "name": "Dry pepper",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 0.5,
+        "unit": "cup",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 2,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Fry the base",
+        "description": "Onion, tin, paste and pepper in hot oil until it thickens.",
+        "estMinutes": 12
+      },
+      {
+        "index": 2,
+        "heading": "Add the rice",
+        "description": "Washed, stirred through, water to just below the rice.",
+        "estMinutes": 4
+      },
+      {
+        "index": 3,
+        "heading": "Steam",
+        "description": "Lid on, low, no stirring.",
+        "estMinutes": 20
+      },
+      {
+        "index": 4,
+        "heading": "Rest",
+        "description": "Four minutes off the heat.",
+        "estMinutes": 4
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "tomato_tin_whole",
+      "tomato_paste",
+      "onion_red",
+      "dry_pepper",
+      "groundnut_oil",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "quality": "simple"
+  },
+  {
+    "_id": "meal_vp21d70tg4s2vjm17z6d6xe7mp",
+    "slug": "coconut-rice-quick",
+    "name": "Coconut Rice (quick version)",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 33,
+    "serves": 3,
+    "whatMakesItGood": "Coconut milk and rice, nothing else required. The shortest route to rice that tastes seasoned.",
+    "description": "Coconut rice, two ingredients.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "coconut_milk",
+        "name": "Coconut milk",
+        "quantity": 2,
+        "unit": "cup",
+        "optional": false
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Wash",
+        "description": "Until clear.",
+        "estMinutes": 4
+      },
+      {
+        "index": 2,
+        "heading": "Simmer",
+        "description": "Coconut milk, water to cover, salt. Lid on, lowest heat.",
+        "estMinutes": 24
+      },
+      {
+        "index": 3,
+        "heading": "Rest",
+        "description": "Five minutes before fluffing.",
+        "estMinutes": 5
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "coconut_milk",
+      "salt"
+    ],
+    "heroIcon": "basketRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "quality": "simple"
+  },
+  {
+    "_id": "meal_n1dfc72tpheghhxhpamge318hp",
+    "slug": "fried-rice-quick",
+    "name": "Fried Rice (quick version)",
+    "source": "seed",
+    "status": "published",
+    "cuisines": [
+      "Nigerian"
+    ],
+    "difficulty": "easy",
+    "cookTimeMinutes": 32,
+    "serves": 3,
+    "whatMakesItGood": "Curry, onion, oil and rice. The vegetables are what you have, not a list.",
+    "description": "Fried rice without the shopping.",
+    "ingredients": [
+      {
+        "catalogueId": "rice_long_grain",
+        "name": "Long-grain rice",
+        "quantity": 2,
+        "unit": "congo",
+        "optional": false
+      },
+      {
+        "catalogueId": "onion_red",
+        "name": "Red onions",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "curry_powder",
+        "name": "Curry powder",
+        "quantity": 2,
+        "unit": "tsp",
+        "optional": false
+      },
+      {
+        "catalogueId": "groundnut_oil",
+        "name": "Groundnut oil",
+        "quantity": 3,
+        "unit": "tbsp",
+        "optional": true
+      },
+      {
+        "catalogueId": "stock_cube",
+        "name": "Stock cubes",
+        "quantity": 1,
+        "unit": "piece",
+        "optional": true
+      },
+      {
+        "catalogueId": "salt",
+        "name": "Salt",
+        "quantity": null,
+        "unit": null,
+        "optional": true
+      }
+    ],
+    "steps": [
+      {
+        "index": 1,
+        "heading": "Parboil",
+        "description": "To half done, drained hard.",
+        "estMinutes": 16
+      },
+      {
+        "index": 2,
+        "heading": "Fry",
+        "description": "Onion in oil, curry and stock cube, then the rice tossed over high heat.",
+        "estMinutes": 16
+      }
+    ],
+    "ingredientKeys": [
+      "rice_long_grain",
+      "onion_red",
+      "curry_powder",
+      "groundnut_oil",
+      "stock_cube",
+      "salt"
+    ],
+    "heroIcon": "plateJollofRice",
+    "createdBy": null,
+    "createdAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "quality": "simple"
+  }
+]

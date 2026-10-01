@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask KinniJije</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --line:#e3ecf2; --line-2:#cfdde7;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-400:#6bc8f4;
+  --sky:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-border:#cfc6fb; --grape-onsoft:#3f2e9e;
+  --success:#3fbf7f; --success-soft:#e6f7ef; --success-border:#b5e6cd; --success-onsoft:#12613b;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-border:#f6d9a6; --caution-onsoft:#7a4e08;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-border:#f8c2c1; --critical-onsoft:#8c1f1d;
+  --blade:20px 6px 20px 6px;
+  --blade-sm:12px 4px 12px 4px;
+  --blade-xs:8px 3px 8px 3px;
+  --edge:3px 4px 0 var(--ink);
+  --edge-sm:2px 3px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Baloo 2',Nunito,sans-serif;letter-spacing:-.02em;margin:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 80px}
+
+.masthead{border:2px solid var(--ink);border-radius:var(--blade);box-shadow:var(--edge);background:#fff;padding:26px;margin-bottom:28px;background:linear-gradient(150deg,var(--sky-50),#fff 55%)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.masthead h1{font-size:38px;font-weight:800;margin:6px 0 8px}
+.masthead p{margin:0;max-width:72ch;color:var(--ink-2);font-size:15.5px}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.pill{font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px;background:var(--paper-2);color:var(--ink-2);border:1.5px solid var(--line-2)}
+.pill.ok{background:var(--success-soft);color:var(--success-onsoft);border-color:var(--success-border)}
+.pill.ai{background:var(--grape-soft);color:var(--grape-onsoft);border-color:var(--grape-border)}
+.pill.warn{background:var(--caution-soft);color:var(--caution-onsoft);border-color:var(--caution-border)}
+
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+nav.toc a{font-size:12.5px;font-weight:800;text-decoration:none;color:var(--ink-2);border:1.5px solid var(--line-2);border-radius:var(--blade-xs);padding:6px 11px;background:#fff}
+nav.toc a:hover{border-color:var(--ink);color:var(--ink)}
+
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-head{display:flex;align-items:baseline;gap:11px;margin-bottom:14px}
+.num{font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:#fff;background:var(--ink);border-radius:var(--blade-xs);padding:3px 8px}
+.sec-head h2{font-size:23px;font-weight:800}
+.sec-head .rule{flex:1;height:2px;background:var(--line);border-radius:2px}
+.lede{color:var(--ink-2);max-width:76ch;margin:0 0 16px}
+
+.card{border:2px solid var(--ink);border-radius:var(--blade);box-shadow:var(--edge);background:#fff;padding:18px;margin-bottom:14px}
+.card.quiet{border:1.5px solid var(--line-2);box-shadow:none}
+.card h3{font-size:16.5px;font-weight:800;margin-bottom:9px}
+.card h4{font-size:14px;font-weight:800;margin:14px 0 6px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+
+table{width:100%;border-collapse:collapse;font-size:13.2px}
+th{text-align:left;padding:8px 10px 8px 0;font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);border-bottom:2px solid var(--line-2);vertical-align:bottom}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+code{font-family:'JetBrains Mono';font-size:12px;background:var(--paper-2);padding:1.5px 5px;border-radius:4px;color:var(--ink)}
+.tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:2.5px 7px;border-radius:999px}
+.t-new{background:var(--sky-100);color:var(--sky-700)}
+.t-reuse{background:var(--success-soft);color:var(--success-onsoft)}
+.t-ai{background:var(--grape-soft);color:var(--grape-onsoft)}
+.t-none{background:var(--paper-2);color:var(--ink-3)}
+
+.note{border-radius:var(--blade-xs);padding:11px 13px;font-size:13px;margin:12px 0}
+.note.good{background:var(--success-soft);color:var(--success-onsoft)}
+.note.warn{background:var(--caution-soft);color:var(--caution-onsoft)}
+.note.bad{background:var(--critical-soft);color:var(--critical-onsoft)}
+.note.ai{background:var(--grape-soft);color:var(--grape-onsoft)}
+.note b{font-weight:800}
+
+ul.clean{margin:8px 0;padding-left:18px}
+ul.clean li{margin-bottom:5px;color:var(--ink-2)}
+ul.clean li b{color:var(--ink)}
+
+/* phone frames */
+.frames{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 14px}
+.phone{flex:none;width:252px}
+.screen{width:252px;height:488px;border:2px solid var(--ink);border-radius:var(--blade);box-shadow:var(--edge);background:var(--paper);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.cap{font-size:11.5px;color:var(--ink-3);margin-top:8px;text-align:center}
+.cap b{display:block;color:var(--ink);font-size:12.5px;font-weight:800;margin-bottom:1px}
+.bar{display:flex;align-items:center;gap:7px;padding:9px 11px;border-bottom:1.5px solid var(--line);background:#fff;flex:none}
+.bar .dot{width:18px;height:18px;border-radius:var(--blade-xs);background:var(--sky);flex:none}
+.bar .ttl{font-family:'Baloo 2';font-weight:800;font-size:12.5px}
+.meter{margin-left:auto;display:flex;gap:2.5px}
+.meter i{width:12px;height:3px;border-radius:2px;background:var(--line-2)}
+.meter i.on{background:var(--sky)}
+.thread{flex:1;padding:11px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.bub{max-width:82%;font-size:11.5px;padding:8px 10px;border:1.5px solid var(--ink);line-height:1.4}
+.bub.pot{align-self:flex-start;background:#fff;border-radius:var(--blade-sm)}
+.bub.me{align-self:flex-end;background:var(--sky);color:#fff;border-radius:12px 4px 12px 4px}
+.bub.sys{align-self:center;background:transparent;border:0;color:var(--ink-4);font-size:10px;font-weight:700}
+.dock{flex:none;border-top:1.5px solid var(--ink);background:#fff;padding:9px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tile{border:1.5px solid var(--line-2);border-radius:var(--blade-xs);padding:7px;font-size:10.5px;font-weight:700;text-align:center;background:#fff}
+.tile.sel{border-color:var(--ink);background:var(--sky-100);box-shadow:var(--edge-sm)}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line-2);border-radius:var(--blade-xs);padding:7px 9px;font-size:10.5px;color:var(--ink-4);margin-top:6px}
+.mic{margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--sky);flex:none}
+.ovl{position:absolute;inset:0;background:rgba(19,36,48,.55);display:flex;align-items:center;justify-content:center;padding:18px}
+.ovl-card{background:#fff;border:2px solid var(--ink);border-radius:var(--blade);box-shadow:var(--edge);padding:18px;text-align:center;width:100%}
+.wave{display:flex;align-items:center;justify-content:center;gap:3px;height:34px;margin:12px 0}
+.wave i{width:3.5px;border-radius:2px;background:var(--sky)}
+.btn{border:2px solid var(--ink);border-radius:var(--blade-xs);background:var(--sky);color:#fff;font-weight:800;font-size:11.5px;padding:7px 14px;box-shadow:var(--edge-sm);display:inline-block}
+.btn.ghost{background:#fff;color:var(--ink)}
+.sheet{position:absolute;left:0;right:0;bottom:0;height:86%;background:#fff;border:2px solid var(--ink);border-radius:var(--blade) var(--blade) 0 0;box-shadow:0 -4px 0 var(--ink);padding:11px;display:flex;flex-direction:column}
+.grab{width:34px;height:4px;border-radius:999px;background:var(--line-2);margin:0 auto 9px}
+
+/* flow diagram */
+.flow{display:flex;align-items:stretch;gap:10px;overflow-x:auto;padding:6px 2px}
+.node{flex:none;width:150px;border:2px solid var(--ink);border-radius:var(--blade-sm);background:#fff;box-shadow:var(--edge-sm);padding:10px;font-size:11.5px}
+.node b{display:block;font-size:12px;font-weight:800;margin-bottom:3px}
+.node.ai{background:var(--grape-soft);border-color:var(--grape-onsoft)}
+.node.cache{background:var(--success-soft)}
+.node.reuse{background:var(--sky-50)}
+.arrow{flex:none;align-self:center;color:var(--ink-3);font-weight:800}
+
+.foot{margin-top:46px;padding-top:16px;border-top:2px solid var(--line);font-size:12px;color:var(--ink-4);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+@media (max-width:980px){.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+@media (max-width:620px){.wrap{padding:16px 16px 60px}.masthead h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="masthead">
+  <div class="eyebrow">KinniJije · Decide v2 · Implementation plan</div>
+  <h1>Ask KinniJije</h1>
+  <p>
+    A conversational second front door to the decide flow: the same four questions, the same
+    single <code>POST /decide</code>, the same verdict UI — reached by talking, typing or
+    tapping. It runs <b>beside</b> the tap flow, never through it, and every part of it
+    switches off from the console.
+  </p>
+  <div class="pills">
+    <span class="pill ok">Zero changes to the v1 flow</span>
+    <span class="pill">Light mode only</span>
+    <span class="pill">Tokens from design.html</span>
+    <span class="pill ai">Voice · Whisper via provider</span>
+    <span class="pill ok">Nothing blocks on a model</span>
+    <span class="pill">Own step components</span>
+    <span class="pill warn">4 new flags, all default ON</span>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#s1">01 What already exists</a>
+  <a href="#s2">02 Isolation rule</a>
+  <a href="#s3">03 The flow</a>
+  <a href="#s4">04 Screens</a>
+  <a href="#s5">05 Bottom panel</a>
+  <a href="#s6">06 Voice</a>
+  <a href="#s7">07 Free text → JSON</a>
+  <a href="#s8">08 Verdict handoff</a>
+  <a href="#s9">09 Async &amp; latency</a>
+  <a href="#s10">10 Flags</a>
+  <a href="#s11">11 Events</a>
+  <a href="#s12">12 Dashboard</a>
+  <a href="#s12b">12b Motion</a>
+  <a href="#s13">13 Build order</a>
+  <a href="#s14">14 Risks</a>
+</nav>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s1">
+  <div class="sec-head"><span class="num">01</span><h2>What already exists</h2><span class="rule"></span></div>
+  <p class="lede">
+    I read the codebase before planning. More than half of this is already built — the plan
+    is mostly assembly, and the honest estimate depends on knowing which half.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:30%">Capability</th><th style="width:13%">State</th><th>Where, and what it means for us</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Whisper transcription</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>AiProvider.transcribe()</code> is already on the interface, implemented by the OpenAI provider and the mock, and wrapped by <code>aiService.transcribe()</code> with full <code>ai_logs</code> recording. <b>Nothing has ever called it.</b> The provider pattern you asked for is already the shape of this code.</td>
+        </tr>
+        <tr>
+          <td><b>Text → ingredients</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>PROMPT_IDS.INGREDIENTS_FROM_TEXT</code> with a prompt and an envelope contract. The parse step for free text is largely written.</td>
+        </tr>
+        <tr>
+          <td><b>SSE</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>features/jobs/jobs.sse.ts</code> — heartbeat every 25s, 15min cap, and a documented rule that every event is also readable from a plain GET so a client that cannot hold a connection loses only immediacy. Copy this file's stance exactly.</td>
+        </tr>
+        <tr>
+          <td><b>Envelope discipline</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>withEnvelope()</code> in <code>ai.contracts.ts</code>. A reply that does not parse is <b>rejected, never patched</b>. Both AI steps here inherit that.</td>
+        </tr>
+        <tr>
+          <td><b>The verdict UI</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>verdict-stories.tsx</code> — the swipe deck, Cook this, Not feeling it, Chowdeck offers, the end slide. Reused <b>as is</b>, mounted from chat.</td>
+        </tr>
+        <tr>
+          <td><b>Thinking screen</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>decide-thinking.tsx</code> — progress estimate, four phase labels, quote typer. You asked for identical; it is literally the same component.</td>
+        </tr>
+        <tr>
+          <td><b>Bookmarking</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>POST /meals/:id/favourite</code>, authenticated. Needs only the signed-out prompt in front of it.</td>
+        </tr>
+        <tr>
+          <td><b>Ingredient catalogue</b></td>
+          <td><span class="tag t-reuse">exists</span></td>
+          <td><code>GET /decide/options</code> — all 417 items, 27 groups, Popular first, ETag-versioned and cached both sides. The panel is a new <i>surface</i> over data we already ship.</td>
+        </tr>
+        <tr>
+          <td><b>Step components</b></td>
+          <td><span class="tag t-none">rebuilt</span></td>
+          <td>v1's steps hard-wrap themselves in <code>DecideShell</code> (<code>h-dvh</code>, own header and footer) and are <b>deliberately not reused</b>. Ask gets four new dock-native components. See §02.</td>
+        </tr>
+        <tr>
+          <td><b>Presigned upload</b></td>
+          <td><span class="tag t-reuse">exists*</span></td>
+          <td><code>presignUpload()</code>, <code>buildObjectKey()</code> and a confirm step are all written in <code>lib/storage/s3.ts</code> and <code>files.service.ts</code>. <b>*But owner-scoped</b> — <code>requestUpload()</code> demands an <code>ownerId</code> a guest does not have. Needs a session-keyed sibling, not a rewrite.</td>
+        </tr>
+        <tr>
+          <td><b>Job queue</b></td>
+          <td><span class="tag t-reuse">exists*</span></td>
+          <td><code>jobQueue.enqueue()</code> plus the retry, progress and SSE machinery. <b>*But <code>JobModel.ownerId</code> is required</b> and every <code>/jobs</code> route sits behind <code>authenticate</code>. Ask streams through its own route scoped to a session id.</td>
+        </tr>
+        <tr>
+          <td><b>Recorder and waveform</b></td>
+          <td><span class="tag t-none">missing</span></td>
+          <td>No MediaRecorder wrapper, no amplitude analyser, no recording modal. Genuinely new.</td>
+        </tr>
+        <tr>
+          <td><b>Chat transcript</b></td>
+          <td><span class="tag t-none">missing</span></td>
+          <td>The existing <code>features/chat</code> is the <i>cooking assistant</i>, a different product surface. Do not extend it — the decide conversation is stateless and draft-backed.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note good">
+      <b>What this means:</b> transcription, the parse prompt, SSE, the verdict deck, the thinking
+      screen and favourites are all built. The genuinely new work is the transcript renderer, the
+      recorder, the bottom panel, four flags, and the dashboard.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s2">
+  <div class="sec-head"><span class="num">02</span><h2>The isolation rule</h2><span class="rule"></span></div>
+  <p class="lede">
+    You were explicit: this must not touch or break the current decide flow. That is a
+    structural requirement, not a promise to be careful, so it is written as rules a reviewer
+    can check.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Hard boundaries</h3>
+      <ul class="clean">
+        <li><b>New feature folder.</b> <code>features/ask/</code> on both sides. No file under <code>features/decide/screen/</code> is edited except the four step splits in stage 0, which are pure refactors with the v1 flow's own tests holding them.</li>
+        <li><b>Same endpoint, unchanged.</b> <code>POST /decide</code> keeps its exact payload and response. Chat is a different way to <i>fill</i> that payload, not a different payload.</li>
+        <li><b>Same draft store.</b> <code>decideDraft</code> v1 shape untouched. The transcript is <b>rendered from</b> the draft, never stored beside it.</li>
+        <li><b>New routes only.</b> <code>/ask</code> and the two new API paths. <code>/</code> and <code>/decide</code> behave exactly as today.</li>
+        <li><b>Its own rate-limit policies.</b> A chat session must never spend the tap flow's <code>DECIDE_ANON</code> budget.</li>
+      </ul>
+      <div class="note bad">
+        <b>Review gate:</b> a diff that modifies <code>decide.service.ts</code>, <code>decide.ranker.ts</code>
+        or <code>decide-screen.tsx</code> has broken the isolation rule and should be rejected.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Zero shared components</h3>
+      <p style="margin:0 0 10px;color:var(--ink-2);font-size:13.5px">
+        The v1 step components are <b>not</b> reused, adapted or split. Ask gets its own, written
+        for a dock. Nothing under <code>features/decide/screen/</code> is edited at all.
+      </p>
+      <div class="flow" style="margin-top:4px">
+        <div class="node reuse"><b>v1 steps</b>Untouched. Not imported, not refactored.</div>
+        <div class="arrow">∥</div>
+        <div class="node ai"><b>ask/dock/*</b>New components, built for this surface.</div>
+      </div>
+      <div class="note good">
+        <b>This is the stronger choice and it was the right correction.</b> Forcing a
+        <code>h-dvh</code> component with its own header and footer into a dock would have produced
+        a compromise that served neither: v1 constrained by chat's needs, chat constrained by v1's
+        layout. Separate components mean <b>the isolation rule has no exception</b> — the review
+        gate becomes "does this diff touch <code>features/decide/</code>", full stop.
+      </div>
+      <div class="note">
+        <b>What IS shared, safely:</b> the catalogue payload from <code>/decide/options</code>, the
+        <code>DecideDraft</code> type, <code>decide-rerank</code>, and the verdict deck mounted
+        whole. Data and leaf modules, never layout.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s3">
+  <div class="sec-head"><span class="num">03</span><h2>The flow</h2><span class="rule"></span></div>
+  <p class="lede">
+    Landing page gains one button. Everything after it is new surface over the existing
+    state machine — the same four questions in the same order, the same single model call.
+  </p>
+
+  <div class="card">
+    <h3>Entry</h3>
+    <div class="flow">
+      <div class="node reuse"><b>Landing</b>Show me what to eat → v1 tap flow, untouched</div>
+      <div class="arrow">+</div>
+      <div class="node ai"><b>Ask KinniJije AI</b>New secondary button → <code>/ask</code></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Q1 · kitchen</b>Pot asks. Dock: search + tiles + Nothing</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Q2 · mood</b>Four tiles, auto-advance</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Q3 · weight</b>Six tiles</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Q4 · time</b>Three pills + city</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>Working it out</b>Identical v1 component</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>Summary + button</b>Opens the v1 swipe deck</div>
+    </div>
+    <div class="note">
+      <b>Every</b> step accepts three inputs: tap a tile, type a sentence, or record a voice note.
+      Taps stay primary and are always the fastest path; the composer sits under the tiles, visually
+      secondary. If we ever ship a step where typing is the <i>only</i> way to answer, we have made
+      the product slower.
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card quiet">
+      <h3>Scroll back to change an answer</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;margin:0 0 8px">
+        Every answer stays on screen as a tappable bubble. Tapping one re-opens that question in
+        the dock; answering appends a correction rather than rewriting history, so the thread
+        stays a true record.
+      </p>
+      <ul class="clean">
+        <li><b>Later answers are kept</b>, not cleared — changing mood should not make somebody re-enter their kitchen.</li>
+        <li><b>The verdict IS cleared</b> (<code>verdict: null</code>). A stale verdict behind the stage guard bounces straight back to it — the exact bug hit while building remix.</li>
+        <li><code>patch()</code> already takes a <code>Partial&lt;DecideDraft&gt;</code> and merges, so no reducer change is needed.</li>
+      </ul>
+    </div>
+
+    <div class="card quiet">
+      <h3>Optimistic send</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;margin:0 0 8px">
+        A tap or a send paints the cook bubble <b>immediately</b> at full opacity, with a
+        <code>pending</code> flag driving only a small clock glyph in the corner.
+      </p>
+      <ul class="clean">
+        <li>Bubble enters with a 180ms rise-and-fade (<code>translateY(6px) → 0</code>), never a scale-in.</li>
+        <li>Pot's typing indicator appears only when a request is <b>genuinely in flight</b>. Faking thought to seem clever is the one thing here that would damage trust.</li>
+        <li>On failure the bubble gets a critical left edge and an inline <b>Retry</b> — it is never removed, because a message that vanishes reads as data loss.</li>
+        <li><code>prefers-reduced-motion</code> drops every transition to an opacity swap.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s4">
+  <div class="sec-head"><span class="num">04</span><h2>The screens</h2><span class="rule"></span></div>
+  <p class="lede">Phone width, real tokens. The blade holds on every bubble — that is what keeps it looking like us rather than a stock chatbot.</p>
+
+  <div class="frames">
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">KinniJije</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px;text-align:center">
+          <div style="width:88px;height:88px;border-radius:50%;background:var(--sky-100);border:2px solid var(--ink)"></div>
+          <div style="font-family:'Baloo 2';font-size:21px;font-weight:800;line-height:1.1">What do you want<br>to eat today?</div>
+          <div style="font-size:11.5px;color:var(--ink-3)">Tell us what you have at home.</div>
+          <div class="btn" style="width:100%;padding:10px">Show me what to eat</div>
+          <div class="btn ghost" style="width:100%;padding:10px;border-color:var(--grape-onsoft);color:var(--grape-onsoft)">✦ Ask KinniJije AI</div>
+        </div>
+      </div>
+      <div class="cap"><b>01 · Landing</b>One new button. The tap flow keeps top billing.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span>
+          <span class="meter"><i class="on"></i><i></i><i></i><i></i></span></div>
+        <div class="thread">
+          <div class="bub sys">Just now</div>
+          <div class="bub pot">What do you have at home?<br><span style="color:var(--ink-3)">Tap what you have, tell me, or say it.</span></div>
+        </div>
+        <div class="dock">
+          <div class="tiles">
+            <div class="tile">Rice</div><div class="tile">Beans</div>
+            <div class="tile">Yam</div><div class="tile">Eggs</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <div class="tile" style="flex:1">Nothing, decide for me</div>
+          </div>
+          <div class="inp">Or just tell me<span class="mic"></span></div>
+        </div>
+      </div>
+      <div class="cap"><b>02 · First question</b>Tiles, "Nothing", text and mic all on one surface.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span>
+          <span class="meter"><i class="on"></i><i></i><i></i><i></i></span></div>
+        <div class="thread" style="opacity:.35">
+          <div class="bub pot">What do you have at home?</div>
+        </div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="inp" style="margin:0 0 9px;color:var(--ink)">Search 417 ingredients</div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px">Popular</div>
+          <div class="tiles" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="tile sel">Rice</div><div class="tile">Beans</div><div class="tile">Garri</div>
+            <div class="tile sel">Egg</div><div class="tile">Yam</div><div class="tile">Bread</div>
+            <div class="tile">Milo</div><div class="tile">Pap</div><div class="tile">Oil</div>
+          </div>
+          <div style="margin-top:auto;display:flex;gap:7px;padding-top:9px">
+            <div class="btn ghost" style="flex:none">Close</div>
+            <div class="btn" style="flex:1;text-align:center">Use 2 items</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>03 · Panel expanded</b>Tapping search grows it to 86%. Popular first, as today.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span>
+          <span class="meter"><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
+        <div class="thread">
+          <div class="bub pot">What do you have at home?</div>
+          <div class="bub me">Rice, egg, 2 more</div>
+          <div class="bub pot">Rice and egg. That already opens a few doors.<br>How's your day going?</div>
+        </div>
+        <div class="dock">
+          <div class="tiles">
+            <div class="tile">Drained</div><div class="tile">In a hurry</div>
+            <div class="tile">Up for it</div><div class="tile">I don't even know</div>
+          </div>
+          <div class="inp">Or just tell me<span class="mic"></span></div>
+        </div>
+      </div>
+      <div class="cap"><b>04 · Reaction</b>Deterministic written line, zero model calls.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span></div>
+        <div class="thread" style="opacity:.3"><div class="bub pot">How's your day going?</div></div>
+        <div class="dock" style="opacity:.3"><div class="tiles"><div class="tile">Drained</div><div class="tile">In a hurry</div></div></div>
+        <div class="ovl">
+          <div class="ovl-card">
+            <div style="font-family:'Baloo 2';font-size:16px;font-weight:800">Listening to you</div>
+            <div class="wave">
+              <i style="height:8px"></i><i style="height:17px"></i><i style="height:28px"></i><i style="height:14px"></i>
+              <i style="height:32px"></i><i style="height:20px"></i><i style="height:9px"></i><i style="height:24px"></i>
+              <i style="height:13px"></i><i style="height:30px"></i><i style="height:11px"></i><i style="height:19px"></i>
+            </div>
+            <div class="mono" style="font-size:11px;color:var(--ink-3);margin-bottom:11px">0:07 / 0:30</div>
+            <div class="btn" style="width:100%">Done</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>05 · Recording</b>Blocks everything. Wave tracks real amplitude.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span>
+          <span class="meter"><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
+        <div class="thread">
+          <div class="bub pot">How's your day going?</div>
+        </div>
+        <div class="dock">
+          <div style="border:1.5px solid var(--ink);border-radius:var(--blade-xs);padding:8px;display:flex;align-items:center;gap:8px;box-shadow:var(--edge-sm)">
+            <span style="width:24px;height:24px;border-radius:50%;background:var(--sky);flex:none"></span>
+            <span style="display:flex;gap:2px;align-items:center;flex:1">
+              <i style="width:2.5px;height:9px;background:var(--sky-400);border-radius:2px"></i>
+              <i style="width:2.5px;height:15px;background:var(--sky-400);border-radius:2px"></i>
+              <i style="width:2.5px;height:21px;background:var(--sky-400);border-radius:2px"></i>
+              <i style="width:2.5px;height:12px;background:var(--sky-400);border-radius:2px"></i>
+              <i style="width:2.5px;height:18px;background:var(--sky-400);border-radius:2px"></i>
+              <i style="width:2.5px;height:8px;background:var(--sky-400);border-radius:2px"></i>
+            </span>
+            <span class="mono" style="font-size:10.5px;color:var(--ink-3)">0:07</span>
+            <span style="color:var(--critical);font-weight:800;font-size:13px">✕</span>
+          </div>
+          <div class="btn" style="width:100%;margin-top:7px;text-align:center">Send</div>
+        </div>
+      </div>
+      <div class="cap"><b>06 · Review</b>Play, delete, or send. Nothing is uploaded until Send.</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="bar"><span class="dot"></span><span class="ttl">Ask KinniJije</span>
+          <span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+        <div class="thread">
+          <div class="bub me">20 minutes</div>
+          <div class="bub pot" style="border-color:var(--grape-onsoft);background:var(--grape-soft)">
+            <b>Found 4 things you can cook.</b><br>
+            <span style="font-size:11px">Jollof Rice leads, 15 min, everything in your kitchen.</span>
+            <div class="btn" style="width:100%;margin-top:8px;text-align:center;background:var(--grape);border-color:var(--grape-onsoft)">View suggestions</div>
+          </div>
+          <div class="bub sys">✦ Framed for you</div>
+        </div>
+        <div class="dock">
+          <div style="display:flex;gap:6px">
+            <div class="tile" style="flex:1">Not feeling it</div>
+            <div class="tile" style="flex:1">Make it faster</div>
+          </div>
+          <div class="inp">Or just tell me<span class="mic"></span></div>
+        </div>
+      </div>
+      <div class="cap"><b>07 · Summary</b>Chat gives the gist. The deck gives the detail.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s5">
+  <div class="sec-head"><span class="num">05</span><h2>The bottom panel</h2><span class="rule"></span></div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Two heights, one component</h3>
+      <table>
+        <thead><tr><th>State</th><th>Height</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td><b>Docked</b></td><td>Fixed per stage</td><td>Default. Tiles + composer.</td></tr>
+          <tr><td><b>Expanded</b></td><td>86 dvh mobile · modal desktop</td><td>Tap the search input.</td></tr>
+        </tbody>
+      </table>
+      <h4>Animation</h4>
+      <ul class="clean">
+        <li><b>240ms</b>, <code>cubic-bezier(.32,.72,0,1)</code> — the iOS sheet curve; it decelerates hard so the panel feels caught rather than stopped.</li>
+        <li>Animate <code>transform</code> and <code>height</code> only. Never animate a <code>top</code> offset; it thrashes layout on every frame.</li>
+        <li>Scrim fades 0 → 0.55 over the same curve.</li>
+        <li>Drag-to-dismiss past 40% of travel, with velocity carry.</li>
+        <li><code>inert</code> on the thread while expanded, focus trapped in the panel, Escape closes.</li>
+      </ul>
+      <div class="note warn">
+        <b>The classic mobile chat bug:</b> a dock that changes height as the keyboard opens makes
+        the thread jump. Dock height is <b>fixed per stage and never animates</b> except on the
+        deliberate expand. Use <code>visualViewport</code> for keyboard inset, not <code>resize</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Contents when expanded</h3>
+      <ul class="clean">
+        <li><b>Popular group first</b>, then the other 26 — exactly the order <code>/decide/options</code> already returns.</li>
+        <li>Selected items stay pinned at the top as chips, so a long scroll never hides what you picked.</li>
+        <li>Search filters across <b>aliases</b>, so "atarodo" finds scotch bonnet — the catalogue already carries them.</li>
+        <li>Footer: <b>Use n items</b>, which collapses the panel and posts one cook bubble.</li>
+      </ul>
+      <h4>Why one bubble, not one per tap</h4>
+      <p style="color:var(--ink-2);font-size:13.5px;margin:0">
+        Twelve taps must not produce twelve bubbles. The kitchen answer is a <b>single</b> cook
+        bubble that updates in place while the panel is open, and commits on close.
+      </p>
+      <div class="note good">
+        <b>No new endpoint.</b> The panel reads the cached <code>/decide/options</code> payload the
+        app already fetches on landing. Opening it costs zero requests.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s6">
+  <div class="sec-head"><span class="num">06</span><h2>Voice</h2><span class="rule"></span></div>
+  <p class="lede">
+    The decide moment happens with hands occupied, which is the real argument for voice. The
+    transcription half is already built — this is mostly the recorder and the permission path.
+  </p>
+
+  <div class="card">
+    <h3>The path</h3>
+    <div class="flow">
+      <div class="node"><b>Tap mic</b><code>getUserMedia</code>. Permission prompt is the browser's.</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Record</b>MediaRecorder → opus. Full-screen modal, live wave.</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Review</b>Play · delete · send. Nothing uploaded yet.</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>Storage</b>Presigned PUT, browser direct. Never through our server.</div>
+      <div class="arrow">→</div>
+      <div class="node ai"><b>Job</b>Transcribe then parse, off the request path</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>Stream</b>Raw text first, chips after</div>
+    </div>
+
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card quiet">
+        <h4 style="margin-top:0">Recorder rules</h4>
+        <ul class="clean" style="font-size:13px">
+          <li><b>30s hard cap</b>, with the counter turning caution at 25s.</li>
+          <li><b>Auto-stop after 2.5s of silence</b>, measured on an <code>AnalyserNode</code> RMS — not a fixed timer.</li>
+          <li>The wave is <b>real amplitude</b> from that same analyser. A fake animation that moves while the room is silent is a lie the user can hear.</li>
+          <li>Denied permission is a <b>one-time inline note</b>, never a repeated prompt, and the composer stays usable.</li>
+        </ul>
+      </div>
+      <div class="card quiet">
+        <h4 style="margin-top:0">Upload</h4>
+        <ul class="clean" style="font-size:13px">
+          <li><b>Direct to storage</b> on a presigned PUT. Audio never passes through the API, so a 30s clip on a bad connection cannot occupy a node process.</li>
+          <li>Key <code>ask/&lt;session&gt;/&lt;ulid&gt;.webm</code>, <b>1MB cap</b> enforced in the signature (30s opus ≈ 60KB, so this is generous).</li>
+          <li><b>Deleted right after transcription</b>, success or failure. A 24h lifecycle rule sweeps anything the job never reached.</li>
+          <li>Own rate limit: <code>ASK_UPLOAD</code>, 20/hour anonymous.</li>
+          <li>Content type pinned in the presign, so the ticket cannot be reused for something else.</li>
+        </ul>
+      </div>
+      <div class="card quiet">
+        <h4 style="margin-top:0">Provider pattern</h4>
+        <p style="font-size:13px;color:var(--ink-2);margin:0 0 8px">
+          <code>AiProvider.transcribe()</code> already exists. Add a thin <code>TranscriptionProvider</code>
+          registry so the model is selectable independently of the text model.
+        </p>
+        <ul class="clean" style="font-size:13px">
+          <li><code>openai-whisper</code> — today's implementation.</li>
+          <li><code>mock</code> — exists, returns fixed text for tests.</li>
+          <li>Future (Deepgram, Groq) drop in behind the same interface.</li>
+          <li>Selected by env, overridable per call for A/B.</li>
+          <li>Every call already lands in <code>ai_logs</code> with duration and provider.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s7">
+  <div class="sec-head"><span class="num">07</span><h2>Free text and voice → answer JSON</h2><span class="rule"></span></div>
+
+  <div class="card">
+    <h3>One prompt, one envelope, one shape</h3>
+    <p style="color:var(--ink-2);margin:0 0 12px">
+      Both typing and voice converge on the same step: a sentence in, a partial
+      <code>DecideDraft</code> out. The model <b>never</b> picks a meal — it only fills answers the
+      deterministic ranker then consumes, which is the same division of labour the v1 flow uses.
+    </p>
+
+    <div class="grid g2">
+      <div>
+        <h4>Input</h4>
+        <pre class="mono" style="font-size:11.5px;background:var(--paper-2);padding:11px;border-radius:var(--blade-xs);overflow-x:auto;margin:0">"rice, one tomato, I'm
+exhausted, 20 minutes"</pre>
+        <h4>Output, enveloped</h4>
+        <pre class="mono" style="font-size:11.5px;background:var(--grape-soft);padding:11px;border-radius:var(--blade-xs);overflow-x:auto;margin:0;color:var(--grape-onsoft)">{
+  "kitchen_items": ["Rice","Tomatoes"],
+  "mood": "tired",
+  "minutes": 20,
+  "weight": null,
+  "confidence": 0.86,
+  "unmatched": ["one"],
+  "notes": "no pepper, cooking for
+            two, wants something
+            light on the stomach"
+}</pre>
+        <div class="note ai" style="margin-bottom:0">
+          <b><code>notes</code> is the point of speaking.</b> See below.
+        </div>
+      </div>
+      <div>
+        <h4>Rules</h4>
+        <ul class="clean">
+          <li><b>Catalogue-constrained.</b> Items are resolved against the 417-item catalogue with aliases; anything unresolved goes to <code>unmatched</code> and is shown, never silently dropped.</li>
+          <li><b>Nulls are honest.</b> A field the sentence did not cover stays null and that question is still asked. Guessing weight from "I'm tired" is exactly the invention that makes a recommender feel wrong.</li>
+          <li><b>Always confirmable.</b> The fill renders as editable chips with a "Not quite? Fix it" affordance. A parse is a proposal, not a decision.</li>
+          <li><b>Confidence is recorded, not displayed.</b> It drives the dashboard and the kill decision, not the UI.</li>
+          <li>Below <b>0.5</b>, we do not fill — we ask the question normally and log the miss.</li>
+        </ul>
+        <div class="note ai">
+          <b>Grape, not sky.</b> Anything the model filled carries the grape provenance mark, the
+          same rule the verdict already follows. A machine-made guess must never be dressed as a
+          tap the user made.
+        </div>
+      </div>
+    </div>
+    <div class="note warn">
+      <b>Kill criterion, agreed in advance:</b> if parse accuracy on the chip set sits below
+      <b>85%</b>, the correction tax exceeds the taps saved and free-text entry should be switched
+      off at the flag. The dashboard in §12 exists to answer exactly this.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Nothing a person said is thrown away</h3>
+    <p style="color:var(--ink-2);margin:0 0 12px">
+      Somebody speaking for twenty seconds says far more than four answers' worth. "I have rice,
+      no pepper at all, cooking for my sister who hates fish, maybe twenty minutes" contains two
+      <b>constraints</b> that no tile can express. Dropping them because they do not map to a field
+      is the fastest way to make the feature feel like a worse version of tapping.
+    </p>
+
+    <div class="grid g3">
+      <div class="card quiet">
+        <h4 style="margin-top:0">What is carried</h4>
+        <ul class="clean" style="font-size:13px">
+          <li><b>The raw transcript</b>, verbatim, for every voice turn.</li>
+          <li><b>The raw typed text</b>, verbatim, for every text turn.</li>
+          <li>Both accumulate on the session across turns, so a constraint stated at step one still applies at step four.</li>
+          <li><code>notes</code> is the model's distillation of the leftovers — the part that is not an answer.</li>
+        </ul>
+      </div>
+      <div class="card quiet">
+        <h4 style="margin-top:0">Where it goes</h4>
+        <ul class="clean" style="font-size:13px">
+          <li>Appended to the <code>decide.verdict</code> prompt as <b>"what they also said"</b>.</li>
+          <li>It steers the <i>framing sentence</i> and the choice between near-equal candidates.</li>
+          <li><b>It never overrides the ranker.</b> Deterministic matching still decides what is cookable; notes only inform the sentence and the tie-break.</li>
+          <li>Carried into <code>ask_sessions</code> so a session detail view shows exactly what was said.</li>
+        </ul>
+      </div>
+      <div class="card quiet">
+        <h4 style="margin-top:0">Seen on the UI</h4>
+        <ul class="clean" style="font-size:13px">
+          <li>The cook bubble shows the <b>full</b> transcript, not a four-field summary. People need to see that we heard them.</li>
+          <li>Under it, a grape <b>"Also noted"</b> chip row: <code>no pepper</code>, <code>for two</code>.</li>
+          <li>Each chip is dismissible — a misheard constraint must be removable without re-recording.</li>
+          <li>The verdict card shows which note it honoured, when one applied.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note bad">
+      <b>This changes the privacy stance, and it must be stated.</b> §11 says transcripts are never
+      recorded. Carrying notes into <code>ask_sessions</code> means a <b>guest's spoken words are
+      stored</b> against an anonymous session row. The limits: no identity is attached, rows expire
+      on a <b>30-day TTL</b>, the raw audio is still deleted immediately after transcription, and
+      the console detail view is admin-only. Analytics <b>events</b> still carry lengths and counts
+      only — never the text.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s8">
+  <div class="sec-head"><span class="num">08</span><h2>Verdict handoff and bookmarking</h2><span class="rule"></span></div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Chat summarises. The deck decides.</h3>
+      <p style="color:var(--ink-2);font-size:13.5px">
+        You were clear that the last step must be the v1 interface. So the chat does not try to
+        render a verdict — it posts a <b>summary bubble</b> and a button that mounts
+        <code>verdict-stories.tsx</code> unchanged.
+      </p>
+      <ul class="clean">
+        <li>Summary: count, the leader, its time, and whether everything is in the kitchen.</li>
+        <li><b>View suggestions</b> opens the existing swipe deck as a full-screen layer.</li>
+        <li>Swipe, Cook this, Not feeling it, Chowdeck offers and the end slide all work <b>because it is the same component</b>.</li>
+        <li>Closing the deck returns to the thread with the summary still in place.</li>
+        <li>"Not feeling it" re-ranks locally over the held <code>pool</code> — zero model calls, exactly as today.</li>
+      </ul>
+      <div class="note good">
+        This is the cheapest part of the plan and the highest-fidelity: no new verdict UI exists to
+        drift from the one that already works.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Bookmark for everyone</h3>
+      <p style="color:var(--ink-2);font-size:13.5px">
+        The save affordance is visible to <b>every</b> user, signed in or not. Hiding it from guests
+        hides the reason to make an account.
+      </p>
+      <table>
+        <thead><tr><th>Who</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td><b>Signed in</b></td><td><code>POST /meals/:id/favourite</code>, optimistic fill, done.</td></tr>
+          <tr><td><b>Guest</b></td><td>Sheet: "Save this for later — make a free account and it is here tomorrow." Registers in place, then the save completes automatically.</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        The intended meal is held through signup and saved on success, so the tap is never lost.
+        This reuses the existing <code>carryOverDraft</code> stance: the account is created, then the
+        pending intent is replayed.
+      </div>
+      <div class="note warn">
+        <b>Distinct from the step-3 invite.</b> That one still fires at most once per session and is
+        unaffected. This is a <i>consequence of an action</i>, not an interruption, so it is exempt
+        from the "never twice" rule — but it must never appear unprompted.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s9">
+  <div class="sec-head"><span class="num">09</span><h2>Latency and caching</h2><span class="rule"></span></div>
+  <p class="lede">You asked for fast, low-latency, few round trips. The honest headline: most steps should make <b>no network call at all</b>.</p>
+
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:26%">Moment</th><th style="width:13%">Calls</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td><b>Open /ask</b></td><td><span class="tag t-reuse">0</span></td><td>Options are already cached from the landing page, versioned by ETag. The thread is rendered from the local draft.</td></tr>
+        <tr><td><b>Tap a tile</b></td><td><span class="tag t-reuse">0</span></td><td>Pure local state. Reactions are deterministic written lines keyed to the answer — a copy file, not a model call.</td></tr>
+        <tr><td><b>Expand the panel</b></td><td><span class="tag t-reuse">0</span></td><td>Same cached payload.</td></tr>
+        <tr><td><b>Send text</b></td><td><span class="tag t-ai">1 + SSE</span></td><td><code>POST /ask/turn</code> returns a <code>turn_id</code> in ~20ms. The answer arrives on the stream. <b>No request ever waits on a model.</b></td></tr>
+        <tr><td><b>Send voice</b></td><td><span class="tag t-ai">3 + SSE</span></td><td>Ticket → direct-to-storage PUT → <code>POST /ask/turn</code> with the key. Transcription and parsing run as a job; the stream reports both.</td></tr>
+        <tr><td><b>Decide</b></td><td><span class="tag t-ai">1</span></td><td>The existing <code>POST /decide</code>, unchanged.</td></tr>
+        <tr><td><b>Not feeling it</b></td><td><span class="tag t-reuse">0</span></td><td>Local re-rank over the held pool.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px">Nothing blocks on a model</h3>
+    <p style="color:var(--ink-2);margin:0 0 12px">
+      Every AI step is a <b>job</b>, and every client follows it on a <b>stream</b>. A request that
+      waits on Whisper is a request that holds a connection for four seconds and dies to any proxy
+      timeout — so no endpoint here does that. The pattern is the one
+      <code>extraction.jobs.ts</code> already uses for photo and receipt reading.
+    </p>
+
+    <div class="flow">
+      <div class="node"><b>1 · Ticket</b><code>POST /ask/upload-url</code> → presigned PUT. ~20ms, no body.</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>2 · Direct PUT</b>Browser → storage. <b>Audio never touches our server.</b></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>3 · Turn</b><code>POST /ask/turn</code> with the key. Returns <code>turn_id</code> immediately.</div>
+      <div class="arrow">→</div>
+      <div class="node ai"><b>4 · Job</b>Transcribe → parse. Off the request path entirely.</div>
+      <div class="arrow">→</div>
+      <div class="node cache"><b>5 · Stream</b><code>GET /ask/turn/:id/stream</code> reports each phase.</div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card quiet">
+        <h4 style="margin-top:0">Stream events</h4>
+        <table>
+          <thead><tr><th style="width:38%">Event</th><th>Payload</th></tr></thead>
+          <tbody>
+            <tr><td><code>uploaded</code></td><td>Storage confirmed the object.</td></tr>
+            <tr><td><code>transcribing</code></td><td><code>provider</code> — drives the dock's status line.</td></tr>
+            <tr><td><code>transcript</code></td><td><b>The raw text</b>, as soon as it exists. Rendered in the bubble before parsing finishes.</td></tr>
+            <tr><td><code>parsing</code></td><td>Model call started.</td></tr>
+            <tr><td><code>parsed</code></td><td>The answer JSON plus <code>confidence</code> and <code>notes</code>.</td></tr>
+            <tr><td><code>failed</code></td><td><code>stage</code> and <code>error_code</code>. The bubble offers Retry.</td></tr>
+          </tbody>
+        </table>
+        <div class="note good" style="margin-bottom:0">
+          Every one of these is also readable from <code>GET /ask/turn/:id</code>. A client that
+          cannot hold a stream <b>polls</b> and loses only immediacy — the rule
+          <code>jobs.sse.ts</code> already states and enforces.
+        </div>
+      </div>
+
+      <div class="card quiet">
+        <h4 style="margin-top:0">Guests have no owner id</h4>
+        <p style="font-size:13px;color:var(--ink-2);margin:0 0 8px">
+          <b>The sharpest problem these changes create.</b> <code>filesService.requestUpload()</code>
+          takes an <code>ownerId</code>, <code>JobModel.ownerId</code> is <code>required</code>, and
+          every <code>/jobs</code> route is behind <code>authenticate</code>. Ask must work signed
+          out, so none of that fits as-is.
+        </p>
+        <ul class="clean" style="font-size:13px">
+          <li><b>An <code>ask_sessions</code> row is the identity.</b> Created on first turn, id is an unguessable ULID held in <code>sessionStorage</code>. It plays the part <code>ownerId</code> plays elsewhere.</li>
+          <li><b>Own routes, not <code>/jobs</code>.</b> <code>/ask/turn/:id/stream</code> authorises on the session id, so the authenticated jobs API keeps its guarantees untouched.</li>
+          <li><b>Own key prefix.</b> <code>ask/&lt;session&gt;/&lt;ulid&gt;.webm</code>, written with a storage helper that takes a session rather than an owner.</li>
+          <li><b>Audio is deleted after transcription</b>, success or failure. A 24h lifecycle rule on the prefix is the backstop for anything the job never reached.</li>
+          <li>Signed in, the session carries <code>ownerId</code> too, so history still attaches.</li>
+        </ul>
+        <div class="note warn" style="margin-bottom:0">
+          A session id in <code>sessionStorage</code> is a bearer token for that conversation.
+          It is unguessable and short-lived, but it is the reason the stream route must scope
+          <b>every</b> read to the session, never to a bare turn id.
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card quiet">
+        <h4 style="margin-top:0">SSE, reusing the jobs pattern</h4>
+        <ul class="clean" style="font-size:13px">
+          <li><b>25s heartbeat, 15min cap</b> — copied from <code>jobs.sse.ts</code>, which already solved proxies closing idle connections.</li>
+          <li><b>Every stream is optional.</b> The same answer is readable from a plain POST, so a client that cannot hold a connection loses immediacy and nothing else. This is the existing rule and it is a good one.</li>
+          <li>Streamed: the parse fill and the verdict's <code>why</code> sentence.</li>
+          <li><b>Not</b> streamed: anything structural. Ranking is deterministic and instant; streaming it would be theatre.</li>
+        </ul>
+      </div>
+      <div class="card quiet">
+        <h4 style="margin-top:0">Database round trips</h4>
+        <ul class="clean" style="font-size:13px">
+          <li><b>Zero</b> for anonymous chat. The transcript lives in <code>sessionStorage</code>; nothing is written per message.</li>
+          <li>Published meals are already loaded once per decide call — no change.</li>
+          <li>Analytics writes are <b>fire-and-forget</b>, never awaited on a request path.</li>
+          <li>Signed-in: one <code>decide_history</code> insert at verdict, as today.</li>
+        </ul>
+        <div class="note good" style="margin-bottom:0">
+          A whole anonymous conversation up to the verdict costs <b>one</b> database read and
+          <b>one</b> model call — the same as the tap flow.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s10">
+  <div class="sec-head"><span class="num">10</span><h2>Flags</h2><span class="rule"></span></div>
+  <p class="lede">Four new flags, each switching off one layer independently. All default <b>on</b>, as you asked — which is a deliberate departure from how <code>decide_invite</code> and the tour behave, and worth stating plainly.</p>
+
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:22%">Flag</th><th style="width:30%">On</th><th>Off</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>ask_chat</code></td>
+          <td>The Ask KinniJije button appears and <code>/ask</code> works.</td>
+          <td>Button hidden, route redirects to <code>/decide</code>. <b>The tap flow is untouched either way.</b></td>
+        </tr>
+        <tr>
+          <td><code>ask_voice</code></td>
+          <td>The mic appears and voice notes can be sent.</td>
+          <td>Mic hidden. Typing and tapping still work.</td>
+        </tr>
+        <tr>
+          <td><code>ask_free_text</code></td>
+          <td>The composer accepts a sentence and parses it.</td>
+          <td>Composer hidden. The flow becomes tap-only, which is still a complete flow.</td>
+        </tr>
+        <tr>
+          <td><code>ask_streaming</code></td>
+          <td>Parse and framing stream over SSE.</td>
+          <td>Same answers arrive as one response. A performance switch, not a feature one — the escape hatch if SSE misbehaves behind a proxy.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note warn">
+      <b>Default-on means fail-open.</b> These are deliberately <i>not</i> in
+      <code>FAIL_CLOSED_FLAGS</code>: a failed flag read leaves the feature on. That is right for a
+      product feature and wrong for anything that acts on a person without asking — which is why
+      analytics and the tour fail closed and these do not.
+    </div>
+    <div class="note">
+      Each flag needs a <code>whenOn</code> and a <code>whenOff</code> sentence written about
+      <b>users</b>, matching the console convention — the admin settings screen shows both and marks
+      the live one.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s11">
+  <div class="sec-head"><span class="num">11</span><h2>Every event, documented</h2><span class="rule"></span></div>
+  <p class="lede">
+    You asked for the full list. These are additions to <code>analytics.events.ts</code>; the
+    existing <code>decide_*</code> events are untouched so the two flows stay comparable.
+    <b>Every event carries <code>surface: 'ask' | 'tap'</code></b> — that single property is what
+    makes "which flow are people using" answerable.
+  </p>
+
+  <div class="card">
+    <h3>Session and navigation</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_entry_clicked</code></td><td><code>from_stage</code></td><td>How many choose chat over tapping.</td></tr>
+        <tr><td><code>ask_session_started</code></td><td><code>is_signed_in</code>, <code>resumed</code></td><td>Denominator for everything below.</td></tr>
+        <tr><td><code>ask_step_answered</code></td><td><code>step</code>, <code>method</code>&nbsp;(<code>tap|text|voice</code>), <code>ms_on_step</code></td><td><b>The core event.</b> Input-method mix per step.</td></tr>
+        <tr><td><code>ask_step_revisited</code></td><td><code>step</code>, <code>from_step</code></td><td>Whether scroll-back-to-edit is actually used.</td></tr>
+        <tr><td><code>ask_abandoned</code></td><td><code>last_step</code>, <code>ms_in_session</code></td><td>Where chat loses people versus the wizard.</td></tr>
+        <tr><td><code>ask_session_completed</code></td><td><code>ms_total</code>, <code>steps_revisited</code>, <code>methods_used</code></td><td><b>Time-to-verdict, the rollout gate.</b></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:18px">Panel and composer</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_panel_expanded</code></td><td><code>step</code>, <code>trigger</code></td><td>Is the full panel needed, or are dock tiles enough?</td></tr>
+        <tr><td><code>ask_panel_search</code></td><td><code>query_length</code>, <code>result_count</code>, <code>matched</code></td><td>Catalogue gaps. <b>Never the query text</b> — that is a free-text field a stranger typed.</td></tr>
+        <tr><td><code>ask_text_sent</code></td><td><code>char_count</code>, <code>step</code></td><td>Typing volume. Length only, never content.</td></tr>
+        <tr><td><code>ask_message_failed</code></td><td><code>step</code>, <code>error_code</code>, <code>retried</code></td><td>Whether optimistic sends are actually landing.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:18px">Voice</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_mic_clicked</code></td><td><code>step</code></td><td>Intent to speak.</td></tr>
+        <tr><td><code>ask_mic_permission</code></td><td><code>outcome</code>&nbsp;(<code>granted|denied|dismissed</code>)</td><td><b>The first funnel cliff.</b> A high denial rate kills voice regardless of accuracy.</td></tr>
+        <tr><td><code>ask_recording_started</code></td><td><code>step</code></td><td>Reached the recorder.</td></tr>
+        <tr><td><code>ask_recording_stopped</code></td><td><code>duration_ms</code>, <code>reason</code>&nbsp;(<code>done|silence|max|cancelled</code>)</td><td>Is 30s right? Is auto-stop firing early?</td></tr>
+        <tr><td><code>ask_recording_deleted</code></td><td><code>duration_ms</code></td><td>Re-record rate — a proxy for recorder confidence.</td></tr>
+        <tr><td><code>ask_voice_sent</code></td><td><code>duration_ms</code>, <code>bytes</code></td><td>Upload volume and cost base.</td></tr>
+        <tr><td><code>ask_upload_completed</code></td><td><code>bytes</code>, <code>duration_ms</code>, <code>ok</code></td><td><b>Direct-to-storage PUT health.</b> A slow upload on 3G is a different problem from a slow model.</td></tr>
+        <tr><td><code>ask_transcribed</code></td><td><code>provider</code>, <code>model</code>, <code>duration_ms</code>, <code>char_count</code>, <code>ok</code></td><td><b>Provider comparison.</b> The reason transcription is behind a registry.</td></tr>
+        <tr><td><code>ask_transcribe_failed</code></td><td><code>provider</code>, <code>error_code</code></td><td>Reliability per provider.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:18px">Parsing</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_parse_completed</code></td><td><code>source</code>&nbsp;(<code>text|voice</code>), <code>confidence</code>, <code>fields_filled</code>, <code>unmatched_count</code>, <code>duration_ms</code></td><td><b>The 85% kill criterion.</b></td></tr>
+        <tr><td><code>ask_parse_rejected</code></td><td><code>reason</code>&nbsp;(<code>envelope|low_confidence|empty</code>)</td><td>Separates a bad model reply from a vague sentence.</td></tr>
+        <tr><td><code>ask_parse_corrected</code></td><td><code>field</code>, <code>was_filled_by</code></td><td><b>The correction tax.</b> High correction means the parse is costing more than it saves.</td></tr>
+        <tr><td><code>ask_parse_accepted</code></td><td><code>fields_kept</code></td><td>The positive half of the same ratio.</td></tr>
+        <tr><td><code>ask_notes_extracted</code></td><td><code>note_count</code>, <code>source</code></td><td>How often speaking carries constraints a tile cannot. The argument for voice existing.</td></tr>
+        <tr><td><code>ask_note_dismissed</code></td><td><code>source</code></td><td>Misheard constraints. High dismissal means notes are noise.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:18px">The async pipeline</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_turn_queued</code></td><td><code>turn_id</code>, <code>source</code></td><td>Work accepted. Start of the latency clock.</td></tr>
+        <tr><td><code>ask_stream_opened</code></td><td><code>transport</code>&nbsp;(<code>sse|poll</code>)</td><td><b>How many clients fall back to polling.</b> If SSE fails behind common proxies, this is where it shows.</td></tr>
+        <tr><td><code>ask_stream_dropped</code></td><td><code>after_ms</code>, <code>had_result</code></td><td>Connection stability; whether the fallback caught it.</td></tr>
+        <tr><td><code>ask_turn_settled</code></td><td><code>turn_id</code>, <code>total_ms</code>, <code>transcribe_ms</code>, <code>parse_ms</code>, <code>ok</code></td><td><b>End-to-end voice latency, split by stage.</b> Says whether upload, Whisper or the parse is the bottleneck.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:18px">Verdict and save</h3>
+    <table>
+      <thead><tr><th style="width:27%">Event</th><th style="width:33%">Properties</th><th>Answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>ask_summary_shown</code></td><td><code>pool_size</code>, <code>provenance</code>, <code>is_empty</code></td><td>Verdict quality, chat-side.</td></tr>
+        <tr><td><code>ask_suggestions_opened</code></td><td><code>ms_after_summary</code></td><td><b>Does the summary bubble actually get tapped?</b> If not, the handoff is wrong.</td></tr>
+        <tr><td><code>ask_bookmark_clicked</code></td><td><code>meal_id</code>, <code>is_signed_in</code></td><td>Save intent, both audiences.</td></tr>
+        <tr><td><code>ask_bookmark_blocked</code></td><td><code>meal_id</code></td><td>Guests hitting the signup wall.</td></tr>
+        <tr><td><code>ask_bookmark_saved</code></td><td><code>meal_id</code>, <code>after_signup</code></td><td>Whether the held intent survives registration.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note bad">
+      <b>Never recorded:</b> raw transcripts, raw audio, the text of a search query, or any free
+      text a person typed. Lengths, counts, confidences and outcomes only. The decide log's existing
+      stance — salted IP hashes, no identity — holds here without exception.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s12">
+  <div class="sec-head"><span class="num">12</span><h2>The dashboard</h2><span class="rule"></span></div>
+  <p class="lede">A new <code>/admin/ask</code> page, built from the same parts as the redesigned main dashboard — attention band first, then four figures, then the detail.</p>
+
+  <div class="card">
+    <div class="grid g2">
+      <div>
+        <h4 style="margin-top:0">The four figures</h4>
+        <ul class="clean">
+          <li><b>Sessions</b>, split ask versus tap — the "which flow are people using" number.</li>
+          <li><b>Median time-to-verdict</b>, both flows side by side. <b>This is the gate.</b> If chat is slower, it does not roll out however good it feels.</li>
+          <li><b>Input mix</b> — tap / text / voice as a proportion bar.</li>
+          <li><b>Parse accuracy</b>, as accepted ÷ (accepted + corrected).</li>
+        </ul>
+        <h4>Alerts, derived not collected</h4>
+        <ul class="clean">
+          <li>Parse accuracy below <b>85%</b> → critical, naming the flag to switch.</li>
+          <li>Mic denial above <b>40%</b> → caution; voice is dead at the permission step.</li>
+          <li>Transcription p95 above <b>5s</b> → caution, named by provider.</li>
+          <li>Chat time-to-verdict more than <b>20%</b> above tap → critical.</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="margin-top:0">Panels</h4>
+        <ul class="clean">
+          <li><b>Funnel by step</b>, ask versus tap, so the drop-off difference is visible rather than inferred.</li>
+          <li><b>Input method per step</b> — where people actually choose to talk.</li>
+          <li><b>Transcription by provider</b>: calls, p50/p95, failure rate, cost. The table that justifies the registry.</li>
+          <li><b>Parse quality</b>: confidence distribution, most-corrected field, top unmatched phrases.</li>
+          <li><b>Voice funnel</b>: mic clicked → granted → recorded → sent → transcribed → parsed → accepted. Six places to lose someone, each worth seeing.</li>
+          <li><b>Recent sessions</b>, clickable to a detail view, matching the decide dashboard.</li>
+        </ul>
+        <div class="note good">
+          Server-side truth for the two numbers that decide the feature's fate — time-to-verdict and
+          parse accuracy — comes from a new <code>ask_sessions</code> collection rather than the
+          browser, because an ad blocker must not be able to hide a regression.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s12b">
+  <div class="sec-head"><span class="num">12b</span><h2>Motion</h2><span class="rule"></span></div>
+  <p class="lede">
+    The thing that will make this feel expensive. Every value below is specified so it can be
+    built and reviewed rather than improvised — and all of it collapses to an opacity swap under
+    <code>prefers-reduced-motion</code>.
+  </p>
+
+  <div class="grid g3">
+    <div class="card">
+      <h3>The thread</h3>
+      <ul class="clean" style="font-size:13px">
+        <li><b>Bubble enter</b> — 220ms, <code>cubic-bezier(.22,1,.36,1)</code>. Rises 10px, fades in, and scales <code>.96 → 1</code> from its own anchored corner so it grows <i>out of</i> its side rather than floating in.</li>
+        <li><b>Stagger</b> — when the pot posts a reaction and a question together, the second is delayed 90ms. Simultaneous arrival reads as a dump; 90ms reads as a thought.</li>
+        <li><b>Typing dots</b> — three dots, 1.2s loop, 160ms phase offset, translating 2px. Only while a request is genuinely in flight.</li>
+        <li><b>Scroll</b> — <code>scrollIntoView({behavior:'smooth', block:'end'})</code> on the newest <i>pot</i> message, not the raw bottom, so the question stays in view rather than the dock.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>The dock</h3>
+      <ul class="clean" style="font-size:13px">
+        <li><b>Step change</b> — outgoing tiles fade and drop 8px over 140ms; incoming rise 8px over 200ms with a <b>35ms per-tile stagger</b> across the grid. The staircase is the whole effect.</li>
+        <li><b>Tile select</b> — 120ms press to <code>scale(.95)</code>, release overshoots to <code>1.03</code> then settles. Drop edge snaps on instantly; a shadow that fades in reads as lag.</li>
+        <li><b>Panel expand</b> — 240ms <code>cubic-bezier(.32,.72,0,1)</code> on <code>transform</code> and <code>height</code> only, scrim fading 0 → .55 on the same curve. Drag-to-dismiss past 40% with velocity carry.</li>
+        <li><b>Chip commit</b> — a selected ingredient flies from its tile to the cook bubble on a 300ms arc using FLIP. Expensive-feeling, cheap to build, and it explains where the pick went.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Voice and verdict</h3>
+      <ul class="clean" style="font-size:13px">
+        <li><b>Mic open</b> — the modal scales <code>.92 → 1</code> over 260ms while the scrim fades; the mic glyph pulses a 2px sky ring at 1.4s.</li>
+        <li><b>Waveform</b> — 24 bars driven by real <code>AnalyserNode</code> RMS at 60fps, each eased toward its target so it breathes rather than jitters. Silence settles to a flat line, which is how you can see it has stopped hearing you.</li>
+        <li><b>Transcript arrival</b> — words fade in <b>3 at a time</b> as the stream delivers them, 40ms apart. This is the payoff of streaming the raw text rather than waiting for the parse.</li>
+        <li><b>Summary bubble</b> — grape border draws itself clockwise over 400ms (<code>stroke-dashoffset</code>), then the button fades up. The provenance mark earns a moment.</li>
+        <li><b>Deck open</b> — the summary card scales up into the full-screen deck via <code>View Transitions</code> where supported, cross-fade where not.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <b>Two rules that override everything above.</b> Animate <code>transform</code> and
+    <code>opacity</code> only — never <code>height</code>, <code>top</code> or <code>width</code> on
+    a per-frame path, with the single audited exception of the panel's expand. And no animation may
+    delay an answer: motion decorates state that has already changed, it never gates it.
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s13">
+  <div class="sec-head"><span class="num">13</span><h2>Build order</h2><span class="rule"></span></div>
+  <p class="lede">Six stages. Each ships on its own and each is measurable, so we can stop after any one without having built half a thing.</p>
+
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:7%">#</th><th style="width:22%">Stage</th><th style="width:42%">What lands</th><th>Gate to pass</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>0</b></td>
+          <td><b>New dock steps</b><br><span class="tag t-new">built fresh</span></td>
+          <td>Four new step components written for a dock: kitchen, mood, weight, time. Illustrations from the existing set, koboyo glyphs as fallback, blade radii, drop edges. <b>v1 is not touched.</b></td>
+          <td>Each renders standalone in Storybook-style isolation; v1 tests still green <i>because nothing in v1 changed</i>.</td>
+        </tr>
+        <tr>
+          <td><b>1</b></td>
+          <td><b>The shell</b></td>
+          <td>Route, transcript renderer, three bubble kinds, dock, header meter, the entry button. Tap-only. Flags added, <code>ask_chat</code> on.</td>
+          <td>Reaches a verdict by tapping, with the tap flow untouched.</td>
+        </tr>
+        <tr>
+          <td><b>2</b></td>
+          <td><b>Panel and handoff</b></td>
+          <td>Expanding bottom panel, the summary bubble, the v1 deck mounted from chat, bookmark with the guest prompt. Reactions copy file.</td>
+          <td>A complete tap-only conversation, end to end.</td>
+        </tr>
+        <tr>
+          <td><b>3</b></td>
+          <td><b>Edit and animate</b></td>
+          <td>Scroll back, tap a bubble, change an answer. Optimistic sends, enter transitions, reduced-motion paths.</td>
+          <td><b>Time-to-verdict flat or better than tap.</b> If it is worse, stop here.</td>
+        </tr>
+        <tr>
+          <td><b>4</b></td>
+          <td><b>Free text</b></td>
+          <td><code>POST /ask/turn</code>, the turn job, the stream, the chip confirmation, the notes rail, <code>ask_free_text</code>.</td>
+          <td>Parse accuracy ≥ 85% on the chip set.</td>
+        </tr>
+        <tr>
+          <td><b>5</b></td>
+          <td><b>Voice</b></td>
+          <td>Recorder, waveform, permission path, presigned upload, the transcription job, the provider registry.</td>
+          <td>Mic grant rate &gt; 60%; transcription p95 &lt; 5s.</td>
+        </tr>
+        <tr>
+          <td><b>6</b></td>
+          <td><b>Dashboard</b></td>
+          <td><code>/admin/ask</code>, <code>ask_sessions</code>, the alerts.</td>
+          <td>Ships <b>alongside stage 1</b>, not last — see the note.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note warn">
+      <b>Stage 6 is listed last but starts first.</b> Every gate above is a number, and a gate with
+      no instrument is a guess. The events and the session collection land with stage 1; the
+      <i>page</i> can follow.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── -->
+<section id="s14">
+  <div class="sec-head"><span class="num">14</span><h2>What I would push back on</h2><span class="rule"></span></div>
+  <p class="lede">Three of these are worth naming before the build rather than after.</p>
+
+  <div class="grid g3">
+    <div class="card">
+      <h3>Chat can be slower</h3>
+      <p style="font-size:13.5px;color:var(--ink-2)">
+        Transcripts invite reading; wizards invite tapping. If median time-to-verdict rises, the
+        product is worse at its one job no matter how good it feels.
+      </p>
+      <div class="note warn" style="margin-bottom:0">
+        <b>Mitigation:</b> auto-advance on tap removes three Continue presses, so taps should
+        actually go <i>down</i>. Gate stage 3 on the number, not on sentiment.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Voice may die at permission</h3>
+      <p style="font-size:13.5px;color:var(--ink-2)">
+        Mic grant rates on mobile web are frequently under half. Accuracy is irrelevant if most
+        people never get past the browser prompt.
+      </p>
+      <div class="note warn" style="margin-bottom:0">
+        <b>Mitigation:</b> never auto-prompt. The mic is tapped deliberately, a denial is a
+        one-time inline note, and <code>ask_mic_permission</code> measures the cliff before we
+        invest further.
+      </div>
+    </div>
+    <div class="card">
+      <h3>A bad parse is worse than none</h3>
+      <p style="font-size:13.5px;color:var(--ink-2)">
+        Filling four answers wrongly costs more than asking four questions — the person must now
+        find and undo our mistakes.
+      </p>
+      <div class="note warn" style="margin-bottom:0">
+        <b>Mitigation:</b> nulls stay null, every fill is shown as an editable chip, and below 0.5
+        confidence we do not fill at all. The 85% bar is agreed <i>now</i>, not argued after launch.
+      </div>
+    </div>
+  </div>
+
+  <div class="card quiet">
+    <h3>Open questions for you</h3>
+    <ul class="clean">
+      <li><b>"Nothing, decide for me"</b> — I have kept it on the kitchen step for this flow, because a conversation that cannot accept "nothing" is a bad conversation. It stays removed from the v1 tap flow, where you cut it. Confirm that split is intended.</li>
+      <li><b>Resuming a thread</b> — signed-in cooks could land on their last transcript rather than a cold start. Real retention upside, but it needs <code>decide_history</code> and it is not in the stages above. Add as stage 7?</li>
+      <li><b>Desktop</b> — the panel becomes a centred modal. Is <code>/ask</code> a priority on desktop at all, or mobile-first?</li>
+    </ul>
+  </div>
+</section>
+
+<div class="foot">
+  <span>KinniJije · Ask KinniJije · implementation plan</span>
+  <span>backend/docs/v2/ask-kinnijije-plan.html · 2026-10-01 · tokens from design.html</span>
+</div>
+
+</div>
+</body>
+</html>

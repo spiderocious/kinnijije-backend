@@ -35,6 +35,10 @@ export const ID_PREFIXES = {
   permissionGroup: 'grp',
   /** One saved decision, owned by a signed-in cook. */
   decideHistory: 'dhist',
+  /** One Ask conversation. Doubles as the caller's identity — see ask.model.ts. */
+  askSession: 'asks',
+  /** One question answered inside a conversation. */
+  askTurn: 'askt',
   /** One outbound request to Chowdeck, kept for the console. */
   chowdeckCall: 'cdc',
   /** One cached Chowdeck search, per place and query. */

@@ -1,0 +1,1639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SKY KITCHEN — light only. Tokens lifted verbatim from docs/v2/design.html.
+   THE BLADE: one sharp corner, three round. Pills and circles are the only
+   two exceptions in the whole system.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --white:#fff; --paper:#f7fafc; --paper-2:#eef4f8; --paper-3:#e7eef4;
+  --skeleton:#dbe6ef; --line:#e3ecf2; --line-2:#cfdde7;
+  --scrim:rgba(19,36,48,.46);
+  --ink:#132430; --ink-2:#3a5567; --ink-3:#6e8798; --ink-4:#9cb0bd;
+  --sky-50:#f2fafe; --sky-100:#e4f4fe; --sky-200:#c6e9fc; --sky-300:#a8dcf7;
+  --sky-400:#6bc8f4; --sky-500:#38b6f0; --sky-600:#1798d6; --sky-700:#127bae;
+  --sky-800:#0e5f87; --sky-900:#0b4e71;
+  --sky:var(--sky-500); --sky-deep:var(--sky-600); --sky-press:var(--sky-700);
+  --sky-soft:var(--sky-100); --sky-edge:var(--sky-300); --sky-on:var(--sky-900);
+  --neutral:#6e8798; --neutral-soft:#eef4f8; --neutral-onsoft:#3a5567; --neutral-border:#cfdde7;
+  --info:#2f5d6e; --info-soft:#e4eef2; --info-onsoft:#1d3d49; --info-border:#b4cfd9;
+  --success:#2fbf8f; --success-soft:#e2f7f0; --success-onsoft:#10604a; --success-border:#a9e5d2;
+  --caution:#f2a93b; --caution-soft:#fef3e0; --caution-onsoft:#7a4e08; --caution-border:#f6d9a6;
+  --critical:#f0605d; --critical-soft:#fdebeb; --critical-onsoft:#8c1f1d; --critical-border:#f8c2c1;
+  --grape:#8b7cf6; --grape-soft:#efecfe; --grape-onsoft:#3f2e9e; --grape-border:#cfc6fb;
+  --dish-fill:#ffe0b0; --dish-line:#8a4b1e;
+  --greens-fill:#cbefd2; --greens-line:#2c6b45;
+  --berry-fill:#f9d2e4; --berry-line:#8e3560;
+  --blade-xs:10px 3px 10px 3px; --blade-sm:16px 5px 16px 5px;
+  --blade:20px 6px 20px 6px; --blade-lg:24px 6px 24px 6px; --blade-xl:28px 8px 28px 8px;
+  --r-pill:999px;
+  --bw-hair:1.5px; --bw:2px; --bw-bold:2.5px;
+  --drop-sm:2px 3px 0 var(--ink); --drop:3px 4px 0 var(--ink); --drop-lg:4px 5px 0 var(--ink);
+  --drop-sky:3px 4px 0 var(--sky-press);
+  --shadow-pop:0 8px 24px rgba(19,36,48,.14);
+  --shadow-modal:0 18px 50px rgba(19,36,48,.22);
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --ease:cubic-bezier(.34,1.4,.5,1);
+  --ease-out:cubic-bezier(.22,.8,.3,1);
+  --t-press:130ms; --t-fast:180ms; --t-base:260ms; --t-slow:380ms;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper-2);color:var(--ink-2);font-family:var(--sans);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5{font-family:var(--display);color:var(--ink);letter-spacing:-.015em;line-height:1.1;margin:0}
+p{margin:.6em 0}
+svg{display:inline-block;vertical-align:middle}
+code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);border:1.5px solid var(--line);padding:1px 5px;border-radius:6px 2px 6px 2px;color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--sky)}
+
+/* ── Doc chrome ─────────────────────────────────────────────────────── */
+.wrap{max-width:1320px;margin:0 auto;padding:30px 20px 90px}
+.docmast{border-bottom:var(--bw) solid var(--ink);padding-bottom:26px;margin-bottom:34px}
+.mastrow{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.logomark{width:44px;height:44px;flex:none;background:var(--sky);color:#fff;border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);display:grid;place-items:center}
+.brandname{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.docmast h1{font-size:clamp(30px,4.4vw,46px);letter-spacing:-.03em}
+.docmast .deck{font-size:clamp(15.5px,1.9vw,19px);max-width:70ch;margin-top:15px;color:var(--ink-2)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--r-pill);border:var(--bw-hair) solid var(--neutral-border);background:var(--white);color:var(--ink-2);white-space:nowrap}
+.chip.sky{background:var(--sky-soft);border-color:var(--sky-edge);color:var(--sky-on)}
+.chip.grape{background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.chip.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.chip.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.chip.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+
+section{margin:0 0 76px}
+.sechead{display:flex;align-items:center;gap:11px;margin-bottom:9px;flex-wrap:wrap}
+.secnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep);border:var(--bw-hair) solid var(--sky-edge);background:var(--sky-soft);padding:3px 9px;border-radius:6px 2px 6px 2px}
+section h2{font-size:clamp(23px,2.9vw,33px);letter-spacing:-.025em}
+.lede{font-size:16px;max-width:76ch;margin:12px 0 30px;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-3);max-width:72ch;margin-top:12px}
+.sublede{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink);margin:36px 0 12px;letter-spacing:-.015em}
+
+.card{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);padding:22px}
+.card.soft{background:var(--paper);border:var(--bw-hair) solid var(--line-2);box-shadow:none}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+ul.clean{list-style:none;padding:0;margin:.5em 0}
+ul.clean li{position:relative;padding-left:21px;margin:.45em 0;font-size:13.5px}
+ul.clean li::before{content:'';position:absolute;left:4px;top:.62em;width:7px;height:7px;background:var(--sky);border-radius:50% 0 50% 50%}
+
+.tablewrap{border:var(--bw) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop);overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--paper-2);text-align:left;padding:10px 13px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);border-bottom:var(--bw) solid var(--ink);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:var(--bw-hair) solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--paper)}
+td strong{color:var(--ink)}
+.scroll{overflow-x:auto}
+
+.appnote{background:var(--sky-soft);border:var(--bw-hair) solid var(--sky-edge);border-left:5px solid var(--sky);border-radius:var(--blade-xs);padding:11px 13px;font-size:12.5px;color:var(--sky-on)}
+.appnote.grape{border-left-color:var(--grape);background:var(--grape-soft);border-color:var(--grape-border);color:var(--grape-onsoft)}
+.appnote.ok{border-left-color:var(--success);background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.appnote.warn{border-left-color:var(--caution);background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.appnote.crit{border-left-color:var(--critical);background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+
+.framecap{display:flex;gap:10px;margin:0 auto 13px;max-width:372px;align-items:flex-start}
+.framecap .n{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-4);flex:none;padding-top:2px}
+.framecap .t{font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)}
+.framecap .d{font-size:12.5px;color:var(--ink-3)}
+
+.rack{display:grid;grid-template-columns:repeat(auto-fit,minmax(324px,1fr));gap:36px;align-items:start}
+.phone{width:100%;max-width:372px;margin:0 auto;background:var(--paper);border:var(--bw-bold) solid var(--ink);border-radius:34px 10px 34px 10px;box-shadow:var(--drop-lg);overflow:hidden;position:relative}
+.phone .notch{height:26px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;justify-content:center;gap:5px}
+.phone .notch i{display:block;width:34px;height:4px;border-radius:999px;background:var(--line-2)}
+.screen{padding:0;min-height:640px;display:flex;flex-direction:column;background:var(--paper)}
+
+.btn{appearance:none;border:var(--bw) solid var(--ink);cursor:pointer;font-family:var(--sans);font-weight:800;font-size:14.5px;min-height:46px;padding:0 20px;border-radius:var(--blade-xs);background:var(--sky);color:#fff;box-shadow:var(--drop-sm);display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;transition:transform var(--t-press) var(--ease)}
+.btn:hover{background:var(--sky-deep)}
+.btn:active{transform:translate(2px,3px);box-shadow:none}
+.btn.lg{min-height:54px;font-size:16.5px;border-radius:var(--blade-sm);box-shadow:var(--drop)}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:none;border-color:var(--line-2)}
+.btn.ghost:hover{background:var(--paper-2);border-color:var(--ink)}
+.btn.quiet{background:transparent;color:var(--ink-3);border-color:transparent;box-shadow:none;font-weight:700;min-height:38px}
+.btn.sm{min-height:36px;font-size:12.5px;padding:0 13px}
+.btn.auto{width:auto}
+.label{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.pill{appearance:none;display:inline-flex;align-items:center;gap:6px;background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--r-pill);padding:8px 14px;font-weight:800;font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:all var(--t-fast) var(--ease-out);font-family:var(--sans)}
+.pill:hover{border-color:var(--ink)}
+.pill.on{background:var(--sky);border-color:var(--ink);color:#fff;box-shadow:var(--drop-sm)}
+.pill.sm{padding:5px 11px;font-size:11.5px}
+.field{display:flex;align-items:center;gap:9px;background:var(--white);border:var(--bw) solid var(--line-2);border-radius:var(--blade-xs);padding:10px 12px}
+.field input{border:0;outline:none;background:transparent;font-family:var(--sans);font-size:14px;color:var(--ink);width:100%}
+
+.appbar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);flex:none}
+.appbar .ttl{font-family:var(--display);font-weight:800;font-size:17px;color:var(--ink)}
+.appbar .act{margin-left:auto;display:flex;gap:6px}
+.iconbtn{appearance:none;width:32px;height:32px;flex:none;display:grid;place-items:center;cursor:pointer;background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);color:var(--ink-2);transition:all var(--t-fast) var(--ease-out)}
+.iconbtn:hover{border-color:var(--ink);background:var(--paper-2)}
+.body{flex:1;overflow:hidden;padding:14px;display:flex;flex-direction:column;gap:12px}
+.dock{flex:none;background:var(--white);border-top:var(--bw) solid var(--ink);padding:12px 14px 13px;display:flex;flex-direction:column;gap:8px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-SPECIFIC COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── The goal setter: a slider that is honest about being a rough dial ── */
+.dial{background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);padding:11px 12px}
+.dial .dh{display:flex;align-items:baseline;gap:7px;margin-bottom:9px}
+.dial .dn{font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink)}
+.dial .dv{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--sky-deep)}
+.track{height:7px;background:var(--skeleton);border-radius:999px;position:relative}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--sky);border-radius:999px}
+.track .knob{position:absolute;top:50%;width:19px;height:19px;transform:translate(-50%,-50%);background:var(--white);border:var(--bw) solid var(--ink);border-radius:50%;box-shadow:var(--drop-sm)}
+.dial .dcap{font-size:11px;color:var(--ink-4);margin-top:8px;font-weight:700}
+
+/* ── The day slide ──────────────────────────────────────────────────── */
+.dayhead{display:flex;align-items:center;gap:9px}
+.daynum{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink-4)}
+.dayname{font-family:var(--display);font-weight:800;font-size:21px;color:var(--ink);letter-spacing:-.02em}
+.daydots{display:flex;gap:4px;margin-left:auto}
+.daydots i{width:6px;height:6px;border-radius:50%;background:var(--line-2)}
+.daydots i.on{background:var(--sky);width:17px;border-radius:999px}
+
+.slot{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);overflow:hidden}
+.slot .sh{display:flex;align-items:center;gap:7px;padding:7px 11px;background:var(--paper-2);border-bottom:var(--bw-hair) solid var(--line)}
+.slot .sname{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.slot .stime{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600}
+.slot .sb{padding:10px 11px;display:flex;gap:10px;align-items:flex-start}
+.slot .sart{width:46px;height:46px;flex:none;background:var(--sky-soft);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);display:grid;place-items:center}
+.slot .sd{font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink);line-height:1.15}
+.slot .sm{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+.slot .sf{display:flex;gap:5px;padding:0 11px 10px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:var(--r-pill);padding:3px 8px;font-size:10px;font-weight:700;color:var(--ink-2)}
+.tag.ok{background:var(--success-soft);border-color:var(--success-border);color:var(--success-onsoft)}
+.tag.warn{background:var(--caution-soft);border-color:var(--caution-border);color:var(--caution-onsoft)}
+.tag.crit{background:var(--critical-soft);border-color:var(--critical-border);color:var(--critical-onsoft)}
+.slot.swap{border-style:dashed;box-shadow:none;background:var(--paper)}
+
+/* ── The runway: the feature nobody else has ───────────────────────── */
+.runway{background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop-sm);overflow:hidden}
+.rwhead{padding:10px 12px;border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;gap:8px}
+.rwrow{display:grid;grid-template-columns:76px 1fr;gap:9px;align-items:center;padding:7px 12px;border-bottom:var(--bw-hair) solid var(--line)}
+.rwrow:last-child{border-bottom:0}
+.rwname{font-size:11.5px;font-weight:800;color:var(--ink);line-height:1.2}
+.rwname span{display:block;font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--ink-4)}
+.bar{height:19px;background:var(--paper-2);border:var(--bw-hair) solid var(--line-2);border-radius:4px 1px 4px 1px;position:relative;overflow:hidden}
+.bar .seg{position:absolute;top:0;bottom:0;left:0;background:var(--success);opacity:.85}
+.bar .seg.low{background:var(--caution)}
+.bar .seg.out{background:var(--critical)}
+.bar .mk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.bar .lbl{position:absolute;right:5px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--ink)}
+.rwaxis{display:grid;grid-template-columns:76px 1fr;gap:9px;padding:4px 12px 9px}
+.rwaxis .ax{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--ink-4);font-weight:600}
+
+/* ── The shopping list with a real total ───────────────────────────── */
+.buyrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:var(--bw-hair) solid var(--line)}
+.buyrow:last-child{border-bottom:0}
+.cbox{width:19px;height:19px;flex:none;border:var(--bw) solid var(--ink);border-radius:5px 2px 5px 2px;background:var(--white)}
+.cbox.on{background:var(--sky);display:grid;place-items:center}
+.buyrow .bn{font-size:13px;font-weight:700;color:var(--ink)}
+.buyrow .bq{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);font-weight:600}
+.buyrow .bp{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-2)}
+
+.tabbar{display:flex;flex:none;background:var(--white);border-top:var(--bw) solid var(--ink)}
+.tabbar button{flex:1;appearance:none;background:none;border:0;cursor:pointer;padding:9px 0 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--sans);font-size:9.5px;font-weight:800;color:var(--ink-4);letter-spacing:.03em;position:relative}
+.tabbar button.on{color:var(--sky-deep)}
+.tabbar button.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--sky);border-radius:0 0 3px 3px}
+
+.anno{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.anno .row{display:flex;gap:9px;align-items:flex-start;font-size:12.5px}
+.anno .k{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--ink);border-radius:50%;width:17px;height:17px;flex:none;display:grid;place-items:center;margin-top:2px}
+.anno .v{color:var(--ink-2)}
+.anno .v b{color:var(--ink)}
+
+footer{margin-top:88px;padding-top:24px;border-top:var(--bw) solid var(--ink);font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ── Number panel keys ────────────────────────────────────────────────
+   A keypad is the most tempting place in the system to reach for a rounded
+   rectangle. It is not an exception: the blade holds. */
+.key{
+  appearance:none;cursor:pointer;font-family:var(--display);font-weight:800;font-size:21px;
+  color:var(--ink);background:var(--white);border:var(--bw) solid var(--ink);
+  border-radius:var(--blade-xs);box-shadow:var(--drop-sm);min-height:50px;
+  display:grid;place-items:center;transition:transform var(--t-press) var(--ease);
+}
+.key:hover{background:var(--sky-soft)}
+.key:active{transform:translate(2px,3px);box-shadow:none}
+.key.ghost{background:var(--paper-2);color:var(--ink-3);font-size:15px;box-shadow:none;border-color:var(--line-2)}
+.key.ghost:hover{border-color:var(--ink);color:var(--ink)}
+.key.sm{min-height:38px;font-size:16px}
+
+/* The "+" option that opens the panel. Same pill shape as its siblings so it
+   reads as one of them — a custom value joins the row, the plus never moves. */
+.pill.plus{padding:7px 11px;color:var(--sky-deep);border-color:var(--sky-edge);background:var(--sky-50)}
+.pill.plus:hover{border-color:var(--sky-deep);background:var(--sky-soft)}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ── Summary hub ─────────────────────────────────────────────────────── */
+.sumhead .sumline{font-family:var(--display);font-weight:800;font-size:20px;color:var(--ink);letter-spacing:-.022em;line-height:1.18;margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.stats .st{background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);padding:9px 10px}
+.stats .sv{font-family:var(--display);font-weight:800;font-size:19px;color:var(--ink);line-height:1}
+.stats .sl{font-size:10px;font-weight:700;color:var(--ink-4);letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
+
+/* A tappable problem row. This is the entry to the runway. */
+.rowcard{
+  appearance:none;width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;
+  background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);
+  box-shadow:var(--drop-sm);padding:10px 11px;font-family:var(--sans);
+  transition:transform var(--t-press) var(--ease);
+}
+.rowcard:active{transform:translate(2px,3px);box-shadow:none}
+.rowcard.warn{background:var(--caution-soft);border-color:var(--caution-onsoft)}
+.rowcard.crit{background:var(--critical-soft);border-color:var(--critical-onsoft)}
+.rc-ic{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--blade-xs);border:var(--bw-hair) solid var(--ink)}
+.rc-ic.warn{background:var(--caution);color:#fff}
+.rc-ic.crit{background:var(--critical);color:#fff}
+.rc-tx{flex:1;min-width:0}
+.rc-t{font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.2}
+.rc-d{font-size:11.5px;color:var(--ink-2);margin-top:1px}
+.rc-ch{margin-left:auto;color:var(--ink-3);flex:none}
+
+/* Weather line. Deliberately quiet — it nudges the order, never the dish. */
+.wk{display:flex;align-items:flex-start;gap:8px;background:var(--sky-50);border:var(--bw-hair) solid var(--sky-edge);border-radius:var(--blade-xs);padding:9px 11px;font-size:12px;color:var(--sky-on)}
+.wk svg{color:var(--sky-deep);flex:none;margin-top:1px}
+
+/* The reminder switch, on by default. */
+.remind{display:flex;align-items:center;gap:10px;background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-xs);box-shadow:var(--drop-sm);padding:10px 11px}
+.rd-tx{flex:1;min-width:0}
+.rd-t{font-family:var(--display);font-weight:800;font-size:13px;color:var(--ink);line-height:1.2}
+.rd-d{font-size:11px;color:var(--ink-3);margin-top:1px}
+.sw{width:42px;height:24px;flex:none;border:var(--bw) solid var(--ink);border-radius:999px;background:var(--skeleton);position:relative;cursor:pointer;margin-left:auto;transition:background var(--t-fast) var(--ease-out)}
+.sw i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--white);border:var(--bw-hair) solid var(--ink);transition:left var(--t-fast) var(--ease)}
+.sw.on{background:var(--success)}
+.sw.on i{left:21px}
+
+/* ── Day picker in the title bar ─────────────────────────────────────── */
+.daypick{
+  appearance:none;cursor:pointer;display:flex;align-items:center;gap:5px;background:none;border:0;
+  font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink);padding:3px 0;
+}
+.daypick svg{color:var(--ink-3)}
+.daypick:hover{color:var(--sky-deep)}
+
+/* Jump list rows */
+.jrow{
+  appearance:none;width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px;
+  background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:8px 10px;font-family:var(--sans);transition:all var(--t-fast) var(--ease-out);
+}
+.jrow:hover{border-color:var(--ink)}
+.jrow.on{background:var(--sky-soft);border-color:var(--sky);box-shadow:var(--drop-sm)}
+.jd{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink-4);width:30px;flex:none}
+.jd em{display:block;font-style:normal;font-family:var(--display);font-size:15px;font-weight:800;color:var(--ink)}
+.jm{font-size:11.5px;font-weight:700;color:var(--ink-2);flex:1;line-height:1.3}
+
+/* Slot menu trigger + add-a-meal */
+.slotmenu{appearance:none;margin-left:auto;width:24px;height:24px;display:grid;place-items:center;cursor:pointer;background:none;border:0;color:var(--ink-3);border-radius:4px}
+.slotmenu:hover{color:var(--ink);background:var(--white)}
+.addslot{
+  appearance:none;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:none;border:var(--bw-hair) dashed var(--line-2);border-radius:var(--blade-xs);
+  padding:11px;font-family:var(--sans);font-weight:800;font-size:12.5px;color:var(--ink-3);
+}
+.addslot:hover{border-color:var(--ink);color:var(--ink);background:var(--white)}
+
+/* Candidate rows in the swap sheet */
+.cand{
+  appearance:none;width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px;
+  background:var(--white);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);
+  padding:8px 10px;font-family:var(--sans);transition:all var(--t-fast) var(--ease-out);
+}
+.cand:hover{border-color:var(--ink);box-shadow:var(--drop-sm)}
+.cart{width:34px;height:34px;flex:none;background:var(--sky-soft);border:var(--bw-hair) solid var(--line-2);border-radius:var(--blade-xs);display:grid;place-items:center}
+.ctx{flex:1}
+.cn{display:block;font-family:var(--display);font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.15}
+.cd{display:block;font-size:11px;color:var(--ink-3);margin-top:1px}
+
+/* Email slot rows */
+.mailslot{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:var(--bw-hair) solid var(--line)}
+.mailslot:last-of-type{border-bottom:0}
+.ms-n{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);width:48px;flex:none}
+.ms-d{font-family:var(--display);font-weight:800;font-size:13px;color:var(--ink);flex:1}
+.ms-t{font-family:var(--mono);font-size:10px;color:var(--ink-4);font-weight:600;flex:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="docmast">
+  <div class="mastrow">
+    <div class="logomark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brandname">KinniJije</div>
+      <div class="eyebrow">Product · The Plan · Proposal</div>
+    </div>
+  </div>
+  <h1>The Plan</h1>
+  <p class="deck">
+    A multi-day meal timetable generated from the kitchen somebody already has — and the
+    part no other meal planner does: <strong>the runway.</strong> Which ingredient runs out on
+    which day, what spoils before you reach it, and what it costs to fix. Plus a morning
+    reminder that carries tomorrow's shopping a day early, and a reusable number panel for
+    every numeric input in the product.
+  </p>
+  <div class="chiprow">
+    <span class="chip warn">Proposal — not approved</span>
+    <span class="chip ok">Runway is buildable today</span>
+    <span class="chip crit">Macros are excluded by the PRD</span>
+    <span class="chip sky">Catalogue carries cost + shelf life</span>
+    <span class="chip ok">Plan UI already built, unwired</span>
+    <span class="chip grape">Number panel is a shared component</span>
+  </div>
+</header>
+
+<!-- ═══════════════════ 01 THE SPLIT ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">01</span><h2>This is two features, and they cost very different amounts</h2></div>
+  <p class="lede">
+    I went looking for the data before designing the screens, and the answer splits the brief
+    cleanly in half. One half is a strong, differentiated feature we can build next sprint. The
+    other half cannot be built honestly today at all. Worth separating now rather than
+    discovering it mid-build.
+  </p>
+
+  <div class="grid g2">
+    <div class="card" style="border-color:var(--success)">
+      <span class="chip ok" style="margin-bottom:11px">Buildable now · the real idea</span>
+      <h3 style="font-size:20px">The runway</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        "Your rice runs out Thursday. The fish spoils before you reach Friday. Buy two things
+        and the week holds." Everything this needs <strong>already exists</strong>:
+      </p>
+      <ul class="clean" style="margin-top:9px">
+        <li><code>StockItemModel</code> holds <code>quantity</code>, <code>unit</code>, <code>storage</code>, <code>addedAt</code></li>
+        <li>Recipe ingredients carry <code>quantity</code> and <code>unit</code> per line, plus <code>serves</code> on the meal</li>
+        <li>The catalogue has <code>shelfLifeDays</code> <strong>and</strong> <code>costNgn</code> for 417 items</li>
+        <li>A real unit system with <strong>families that refuse to cross-convert</strong></li>
+      </ul>
+      <p style="font-size:13.5px;margin-top:11px">
+        That is a deterministic simulation: walk the plan day by day, subtract what each meal
+        uses, flag the day each line hits zero or spoils. <strong>No AI needed, fully
+        provable, and genuinely nobody else does it</strong> — every other planner assumes an
+        empty kitchen and hands you a full shopping list.
+      </p>
+    </div>
+
+    <div class="card" style="border-color:var(--critical)">
+      <span class="chip crit" style="margin-bottom:11px">Not buildable · needs data first</span>
+      <h3 style="font-size:20px">Calories and macros</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        Calorie targets, protein intake, weight loss/gain, muscle growth, fat avoidance.
+        <strong>There is no nutrition data anywhere in the product</strong> — not on a meal, not
+        on a catalogue ingredient, not in seed data. But it is worse than a gap:
+      </p>
+      <div class="appnote crit" style="margin-top:11px;margin-bottom:11px">
+        <strong>The PRD already excludes this, on the record.</strong> From
+        <code>ui/insights/insights-more.tsx</code>: <em>"Not calories, not macros — the PRD
+        explicitly excludes both… a product that cannot see what went into the pot has no
+        business reporting a gram figure."</em> There is a <code>NutritionBalance</code>
+        component, and it deliberately shows only rough category shares — grains, protein,
+        greens, other — never grams.
+      </div>
+      <p style="font-size:13.5px">
+        So building macro targets is not filling a gap, it is <strong>reversing a documented
+        decision</strong> somebody made deliberately and wrote down. That needs to be an explicit
+        call, not a side effect of a timetable sprint.
+      </p>
+      <p style="font-size:13.5px">
+        And the reasoning holds. For Nigerian food — where portion sizes are genuinely
+        under-documented, and a congo of rice is an approximation by design — a confidently wrong
+        2,100 kcal is a number somebody will trust and act on. See §07.
+      </p>
+    </div>
+  </div>
+
+  <div class="appnote" style="margin-top:22px;max-width:none">
+    <strong>My recommendation:</strong> build the runway first and ship it without macros. It is
+    the differentiated half, it needs no new data, and it stands on its own as a reason to use
+    the product weekly. Then add nutrition as a second, deliberate project with real data behind
+    it — §07 sets out the cheapest honest path.
+  </div>
+</section>
+
+<!-- ═══════════════════ 02 WHAT EXISTS ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">02</span><h2>What the codebase gives us</h2></div>
+  <p class="lede">
+    The foundation here is unusually good — better than I expected before looking. Four things
+    in particular are worth calling out because they shape the design.
+  </p>
+  <div class="grid g4">
+    <div class="card soft">
+      <h3 style="font-size:17px">Units that refuse to lie</h3>
+      <p style="font-size:13px;margin-top:8px">
+        <code>shared/catalogue/units.ts</code> defines unit <strong>families</strong> — weight,
+        volume, count, bundle — and two units in different families <em>never</em> convert. "A
+        bag" of rice has <code>inBase: null</code> because it has no defined weight.
+      </p>
+      <p class="note" style="margin-top:8px">
+        The runway inherits this honesty: where it cannot convert, it says so rather than
+        inventing a number. That is a feature, not a limitation.
+      </p>
+    </div>
+    <div class="card soft">
+      <h3 style="font-size:17px">Cost and shelf life, per item</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Every catalogue item has <code>costNgn</code> and <code>shelfLifeDays</code>. That means
+        the shopping list can carry <strong>a naira total</strong>, and the plan can route around
+        spoilage — not just depletion.
+      </p>
+      <p class="note" style="margin-top:8px">
+        The data file labels both as deliberate estimates "never presented as a price the cook
+        will actually pay." The UI must honour that wording — see frame 06.
+      </p>
+    </div>
+    <div class="card soft" style="border-color:var(--success)">
+      <h3 style="font-size:17px">The UI is already built</h3>
+      <p style="font-size:13px;margin-top:8px">
+        <code>@ui/planning</code> already ships <strong><code>DayColumn</code>,
+        <code>MealSlot</code>, <code>PlannedMeal</code>, <code>PortionScaler</code> and
+        <code>PlanSummary</code></strong> — plus a <code>WeekPlanScene</code> demo registered as
+        "Seven slots, designed empty-first."
+      </p>
+      <p style="font-size:13px">
+        Somebody designed this surface already and never wired it to a feature. <code>DayColumn</code>'s
+        own comment: <em>"A day is a column, not a slot… a real week has more than one meal in a
+        day."</em>
+      </p>
+      <p class="note" style="margin-top:8px">
+        <strong>This cuts stage 2 materially.</strong> The frames below should be reconciled
+        against those components before any new ones are written — and <code>DecideShell</code> +
+        <code>use-swipe.ts</code> give the day-by-day flow for free.
+      </p>
+    </div>
+    <div class="card soft">
+      <h3 style="font-size:17px">"Your week" is the other half</h3>
+      <p style="font-size:13px;margin-top:8px">
+        The existing week screen is <strong>retrospective</strong> — what you cooked, with an AI
+        reading underneath. Its header states the house rule plainly:
+      </p>
+      <p style="font-size:13px;font-style:italic;color:var(--ink);margin-top:7px">
+        "Every number here is computed in code. The AI reading sits underneath as an
+        interpretation — never as the source of a figure."
+      </p>
+      <p class="note" style="margin-top:8px">
+        The Plan is its forward-looking twin, and follows the identical rule. Natural pairing:
+        <em>Your week</em> looks back, <em>The Plan</em> looks forward.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 03 THE NUMBER PANEL ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">03</span><h2>The number panel</h2></div>
+  <p class="lede">
+    A shared component, invoked from code, for every numeric input in the product — not just this
+    feature. Full-screen keypad on mobile as a bottom sheet, centred modal on desktop. It exists
+    because a tiny stepper and a native keyboard are both bad ways to enter "how many people am I
+    cooking for" or "₦12,000".
+  </p>
+
+  <div class="grid g2" style="margin-bottom:30px">
+    <div class="card soft">
+      <h3 style="font-size:17px">The API</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Imperative, promise-returning, so a caller awaits a value instead of managing modal state.
+        It slots into the existing <code>DrawerService</code>, whose store already treats edges as
+        sheets and the centre as the canonical modal — so the responsive behaviour is inherited,
+        not reinvented.
+      </p>
+      <div style="background:var(--ink);border-radius:var(--blade-xs);padding:12px;margin-top:11px;overflow-x:auto">
+<pre style="margin:0;font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--sky-200)">const n = <span style="color:var(--caution)">await</span> NumberPanel.ask({
+  title: <span style="color:var(--success-border)">'Cooking for'</span>,
+  hint: <span style="color:var(--success-border)">'How many plates per meal'</span>,
+  value: 2,
+  min: 1, max: 20,
+  format: <span style="color:var(--success-border)">'integer'</span>,
+  unit: <span style="color:var(--success-border)">'people'</span>,
+})
+<span style="color:var(--ink-4)">// null when dismissed</span>
+
+<span style="color:var(--ink-4)">// currency variant</span>
+<span style="color:var(--caution)">await</span> NumberPanel.ask({
+  title: <span style="color:var(--success-border)">'Shopping budget'</span>,
+  value: 12000,
+  min: 0, max: 200000,
+  step: 500,
+  format: <span style="color:var(--success-border)">'currency'</span>,
+  currency: <span style="color:var(--success-border)">'NGN'</span>,
+})</pre>
+      </div>
+    </div>
+    <div class="card soft">
+      <h3 style="font-size:17px">Rules</h3>
+      <ul class="clean" style="margin-top:8px">
+        <li><strong>Blade on every key.</strong> A keypad is the most tempting place in the product to reach for rounded rectangles. It is not an exception.</li>
+        <li><strong>Validation is live, never punitive.</strong> Out-of-range shows the limit and disables Done; it does not clear what was typed.</li>
+        <li><strong>Currency formats as you type</strong> — grouping separators inserted, symbol fixed to the left, and <code>tabular-nums</code> so digits do not shift.</li>
+        <li><strong>Done is always reachable by thumb</strong> on mobile — bottom of the sheet, full width.</li>
+        <li><strong>Dismissing returns null</strong>, and the caller keeps its previous value. Cancelling is never destructive.</li>
+        <li><strong>A real <code>&lt;input&gt;</code> underneath</strong> for hardware keyboards and screen readers; the keypad is an enhancement, not the only path.</li>
+      </ul>
+      <div class="appnote" style="margin-top:11px">
+        <strong>Why not the OS keyboard?</strong> A numeric keyboard on Android still shows letters
+        on many devices, resizes the viewport, and gives us no control over range or currency
+        formatting. This is one of the few places a custom control genuinely beats the native one.
+      </div>
+    </div>
+  </div>
+
+  <div class="rack">
+    <div>
+      <div class="framecap"><span class="n">NP·1</span><div><span class="t">Integer</span><div class="d">Bottom sheet on mobile. Min and max stated, never guessed at.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="justify-content:flex-end;background:var(--scrim)">
+          <div style="background:var(--white);border-top:var(--bw-bold) solid var(--ink);border-radius:24px 6px 0 0;padding:16px 14px 14px">
+            <div style="width:40px;height:4px;background:var(--line-2);border-radius:999px;margin:0 auto 14px"></div>
+            <div style="text-align:center;margin-bottom:4px">
+              <div style="font-family:var(--display);font-weight:800;font-size:18px;color:var(--ink)">Cooking for</div>
+              <div style="font-size:12px;color:var(--ink-3)">How many plates per meal</div>
+            </div>
+            <div style="text-align:center;padding:14px 0 10px">
+              <span class="tnum" style="font-family:var(--display);font-weight:800;font-size:46px;color:var(--ink);letter-spacing:-.03em">5</span>
+              <span style="font-size:14px;font-weight:700;color:var(--ink-3);margin-left:5px">people</span>
+            </div>
+            <div style="display:flex;justify-content:center;gap:6px;margin-bottom:13px">
+              <span class="tag">min 1</span><span class="tag">max 20</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">
+              <button class="key">1</button><button class="key">2</button><button class="key">3</button>
+              <button class="key">4</button><button class="key">5</button><button class="key">6</button>
+              <button class="key">7</button><button class="key">8</button><button class="key">9</button>
+              <button class="key ghost" aria-label="Clear">C</button>
+              <button class="key">0</button>
+              <button class="key ghost" aria-label="Delete">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 5H9l-6 7 6 7h12V5Z"/><path d="M17 9l-5 6M12 9l5 6"/></svg>
+              </button>
+            </div>
+            <button class="btn lg" style="margin-top:12px">Done</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The value is the biggest thing on screen.</b> You are editing one number — it should dominate.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Limits shown as chips</b>, so a rejection is never a surprise.</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="framecap"><span class="n">NP·2</span><div><span class="t">Currency</span><div class="d">Formats live. Step keys for the amounts people actually use.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="justify-content:flex-end;background:var(--scrim)">
+          <div style="background:var(--white);border-top:var(--bw-bold) solid var(--ink);border-radius:24px 6px 0 0;padding:16px 14px 14px">
+            <div style="width:40px;height:4px;background:var(--line-2);border-radius:999px;margin:0 auto 14px"></div>
+            <div style="text-align:center;margin-bottom:4px">
+              <div style="font-family:var(--display);font-weight:800;font-size:18px;color:var(--ink)">Shopping budget</div>
+              <div style="font-size:12px;color:var(--ink-3)">For the whole week</div>
+            </div>
+            <div style="text-align:center;padding:14px 0 10px">
+              <span class="tnum" style="font-family:var(--display);font-weight:800;font-size:40px;color:var(--ink);letter-spacing:-.03em">₦12,000</span>
+            </div>
+            <div style="display:flex;justify-content:center;gap:6px;margin-bottom:13px">
+              <button class="pill sm">+₦500</button>
+              <button class="pill sm">+₦1,000</button>
+              <button class="pill sm">+₦5,000</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">
+              <button class="key">1</button><button class="key">2</button><button class="key">3</button>
+              <button class="key">4</button><button class="key">5</button><button class="key">6</button>
+              <button class="key">7</button><button class="key">8</button><button class="key">9</button>
+              <button class="key ghost">000</button>
+              <button class="key">0</button>
+              <button class="key ghost" aria-label="Delete">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 5H9l-6 7 6 7h12V5Z"/><path d="M17 9l-5 6M12 9l5 6"/></svg>
+              </button>
+            </div>
+            <button class="btn lg" style="margin-top:12px">Done</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>No decimal key for naira.</b> Kobo is not a thing anybody budgets in; the panel should not offer a precision nobody wants.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>A <code>000</code> key</b> beats three taps. Step pills handle the rest.</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="framecap"><span class="n">NP·3</span><div><span class="t">Desktop</span><div class="d">Centred modal. Same component, same keys.</div></div></div>
+      <div style="max-width:372px;margin:0 auto;background:var(--paper-3);border:var(--bw-bold) solid var(--ink);border-radius:var(--blade);box-shadow:var(--drop-lg);padding:0;overflow:hidden">
+        <div style="height:24px;background:var(--white);border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;gap:5px;padding:0 10px">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--critical)"></span>
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--caution)"></span>
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--success)"></span>
+        </div>
+        <div style="padding:30px 20px;background:var(--scrim);display:grid;place-items:center">
+          <div style="width:252px;background:var(--white);border:var(--bw-bold) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--shadow-modal);padding:15px">
+            <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:9px">
+              <div>
+                <div style="font-family:var(--display);font-weight:800;font-size:15px;color:var(--ink)">How many days</div>
+                <div style="font-size:11px;color:var(--ink-3)">Up to 21</div>
+              </div>
+              <button class="iconbtn" style="margin-left:auto;width:26px;height:26px" aria-label="Close">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              </button>
+            </div>
+            <div style="text-align:center;padding:6px 0 11px">
+              <span class="tnum" style="font-family:var(--display);font-weight:800;font-size:34px;color:var(--ink)">10</span>
+              <span style="font-size:12px;font-weight:700;color:var(--ink-3);margin-left:4px">days</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+              <button class="key sm">1</button><button class="key sm">2</button><button class="key sm">3</button>
+              <button class="key sm">4</button><button class="key sm">5</button><button class="key sm">6</button>
+              <button class="key sm">7</button><button class="key sm">8</button><button class="key sm">9</button>
+              <button class="key sm ghost">C</button><button class="key sm">0</button>
+              <button class="key sm ghost" aria-label="Delete">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 5H9l-6 7 6 7h12V5Z"/></svg>
+              </button>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              <button class="btn ghost sm" style="flex:1">Cancel</button>
+              <button class="btn sm" style="flex:1">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Cancel is explicit on desktop</b>, where there is no sheet to swipe away. Escape and backdrop click do the same thing.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The keypad stays</b> even with a hardware keyboard present — it is the affordance that says "this is a bounded number", and typing still works.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 04 THE SCREENS ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">04</span><h2>The flow</h2></div>
+  <p class="lede">
+    Seven frames in order: configure → summary → day by day → jump → edit a day → runway → the
+    reminder. The summary is the hub; everything else is reached from it.
+  </p>
+
+  <div class="rack">
+
+    <!-- 01 CONFIGURE -->
+    <div>
+      <div class="framecap"><span class="n">01</span><div><span class="t">Configure</span><div class="d">Every option set has a <b>+</b> that opens the number panel.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <button class="iconbtn" aria-label="Back"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="ttl">Plan your meals</div>
+          </div>
+          <div class="body">
+            <div class="appnote ok">
+              <strong>Nothing here is required.</strong> Tap generate and we use sensible defaults.
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">How many days</div>
+              <div class="opts">
+                <button class="pill sm">3</button>
+                <button class="pill sm on">7</button>
+                <button class="pill sm">14</button>
+                <button class="pill sm">10</button>
+                <button class="pill sm plus" aria-label="Enter another number">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+              <div class="note" style="margin-top:6px;font-size:11px">10 was entered on the panel and joined the row. The <b>+</b> never moves.</div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Starting</div>
+              <div class="opts">
+                <button class="pill sm on">Today</button>
+                <button class="pill sm">Tomorrow</button>
+                <button class="pill sm">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                  Pick a date
+                </button>
+              </div>
+              <div class="note" style="margin-top:6px;font-size:11px">A date picker, not the number panel — a date is not a quantity.</div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Which meals</div>
+              <div class="opts">
+                <button class="pill sm">Breakfast</button>
+                <button class="pill sm on">Lunch</button>
+                <button class="pill sm on">Dinner</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Cooking for</div>
+              <div class="opts">
+                <button class="pill sm">1</button>
+                <button class="pill sm on">2</button>
+                <button class="pill sm">4</button>
+                <button class="pill sm">6</button>
+                <button class="pill sm plus" aria-label="Enter another number">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Shopping budget</div>
+              <div class="opts">
+                <button class="pill sm">Nothing</button>
+                <button class="pill sm">₦5,000</button>
+                <button class="pill sm on">₦12,000</button>
+                <button class="pill sm plus" aria-label="Enter an amount">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Weeknight effort</div>
+              <div class="opts">
+                <button class="pill sm">Under 20 min</button>
+                <button class="pill sm on">Under 40</button>
+                <button class="pill sm">Anything</button>
+                <button class="pill sm plus" aria-label="Enter minutes">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="label" style="margin-bottom:7px">Repeats</div>
+              <div class="opts">
+                <button class="pill sm">Never repeat</button>
+                <button class="pill sm on">Leftovers are fine</button>
+              </div>
+            </div>
+          </div>
+          <div class="dock">
+            <button class="btn lg">Generate</button>
+            <button class="btn quiet">Health goals — coming later</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>One pattern, every numeric row:</b> common presets, then a <b>+</b> pill in the same shape. Tapping it opens the number panel; a submitted value <b>joins the row as a selected pill</b> and the <b>+</b> stays put.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Custom values persist</b> for that session's edits, so going back to configure does not lose the 10 you typed.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Start date is its own control.</b> Today and Tomorrow cover almost everything; the calendar handles the rest. It also sets which real weather we can read — see the weather note below.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>Sliders are gone.</b> Budget and effort are now presets plus the panel, which is both more precise and less fiddly than dragging.</span></div>
+      </div>
+    </div>
+
+    <!-- 02 SUMMARY -->
+    <div>
+      <div class="framecap"><span class="n">02</span><div><span class="t">The summary</span><div class="d">The hub. Reached after generating, and returned to from everywhere.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <div class="ttl">Your 7 days</div>
+            <div class="act"><button class="iconbtn" aria-label="Regenerate"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div>
+          </div>
+          <div class="body">
+            <div class="sumhead">
+              <div class="label">Mon 1 — Sun 7 Oct</div>
+              <div class="sumline">14 meals, <span style="color:var(--sky-deep)">all from your kitchen</span> bar two things.</div>
+            </div>
+
+            <div class="stats">
+              <div class="st"><div class="sv tnum">14</div><div class="sl">meals</div></div>
+              <div class="st"><div class="sv tnum">5</div><div class="sl">cook-ups</div></div>
+              <div class="st"><div class="sv tnum">₦3,400</div><div class="sl">to buy</div></div>
+            </div>
+
+            <!-- the two things that lead to the runway -->
+            <button class="rowcard warn">
+              <div class="rc-ic warn">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+              </div>
+              <div class="rc-tx">
+                <div class="rc-t">2 things run out</div>
+                <div class="rc-d">Rice by Thursday, ugu by Wednesday</div>
+              </div>
+              <svg class="rc-ch" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <button class="rowcard crit">
+              <div class="rc-ic crit">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+              </div>
+              <div class="rc-tx">
+                <div class="rc-t">1 thing spoils first</div>
+                <div class="rc-d">Panla — planned for Tuesday to catch it</div>
+              </div>
+              <svg class="rc-ch" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <div class="wk">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M16 13a4 4 0 1 1-8 0"/><path d="M12 3v2M5 7l1.4 1.4M19 7l-1.4 1.4"/><path d="M4 17h16"/></svg>
+              <span><strong>29°C, rain Thursday in Lagos.</strong> Soups sit on the wet days, grills on the dry ones.</span>
+            </div>
+
+            <div class="remind">
+              <div class="rd-tx">
+                <div class="rd-t">Remind me each morning</div>
+                <div class="rd-d">What to cook, and what to pick up. 7am.</div>
+              </div>
+              <span class="sw on" role="switch" aria-checked="true" tabindex="0"><i></i></span>
+            </div>
+
+            <div class="appnote grape" style="font-size:11.5px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+              Dishes and order chosen in code. The one-line reasons are written by the model.
+            </div>
+          </div>
+          <div class="dock">
+            <button class="btn lg">View details</button>
+            <button class="btn quiet">Edit</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>This is the hub, not a list.</b> One sentence of outcome, three numbers, and the two problems — each tappable into the runway. The day-by-day list lives one level down.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The warning rows ARE the entry to the runway.</b> "2 things run out" is the headline; the chart is the detail behind it, which is the right order.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>The reminder is on by default</b> and switchable right here, before saving — not buried in settings. It is a commitment the cook is making, so it belongs next to the plan.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>Two buttons only:</b> <em>View details</em> into the swipeable days, <em>Edit</em> back to configure. Everything else on this screen is a link, not a button.</span></div>
+      </div>
+    </div>
+
+    <!-- 03 DAY BY DAY -->
+    <div>
+      <div class="framecap"><span class="n">03</span><div><span class="t">Day by day</span><div class="d">Swipe. The header is a button that opens the jump list.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <button class="iconbtn" aria-label="Back to summary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button class="daypick">
+              <span>Tuesday 2 Oct</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="act"><button class="iconbtn" aria-label="Regenerate this day"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button></div>
+          </div>
+          <div class="body">
+            <div class="dayhead">
+              <div>
+                <div class="daynum">Day 2 of 7</div>
+                <div class="dayname">Tuesday</div>
+              </div>
+              <div class="daydots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+
+            <div class="wk">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 15a4 4 0 0 1 4-4 5 5 0 0 1 9.5-1A3.5 3.5 0 0 1 18 15H4Z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/></svg>
+              <span><strong>Rain, 26°C.</strong> Pepper soup suits it.</span>
+            </div>
+
+            <div class="appnote warn" style="font-size:11.5px">
+              <strong>Cook the panla today.</strong> Bought Saturday; fish does not keep past four days.
+            </div>
+
+            <div class="slot">
+              <div class="sh">
+                <span class="sname">Lunch</span><span class="stime">20 min</span>
+                <button class="slotmenu" aria-label="Edit this meal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <div class="sb">
+                <div class="sart"><svg width="30" height="30" viewBox="0 0 40 40" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="24" rx="12" ry="7" fill="var(--dish-fill)"/><path d="M9 20c3 2 8 3 11 3s8-1 11-3"/></svg></div>
+                <div>
+                  <div class="sd">Garri &amp; Leftover Stew</div>
+                  <div class="sm">Monday's stew stretches one more plate.</div>
+                </div>
+              </div>
+              <div class="sf"><span class="tag ok">all in stock</span><span class="tag">leftover</span></div>
+            </div>
+
+            <div class="slot">
+              <div class="sh">
+                <span class="sname">Dinner</span><span class="stime">35 min</span>
+                <button class="slotmenu" aria-label="Edit this meal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+              <div class="sb">
+                <div class="sart"><svg width="30" height="30" viewBox="0 0 40 40" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M8 22c4-6 12-8 18-5 4 2 6 5 6 5s-2 3-6 5c-6 3-14 1-18-5Z" fill="var(--sky-200)"/><circle cx="14" cy="21" r="1.3" fill="currentColor"/></svg></div>
+                <div>
+                  <div class="sd">Panla Pepper Soup</div>
+                  <div class="sm">Last good day for the fish, and it is raining.</div>
+                </div>
+              </div>
+              <div class="sf"><span class="tag warn">cook today</span><span class="tag ok">all in stock</span></div>
+            </div>
+
+            <button class="addslot">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add a meal to Tuesday
+            </button>
+          </div>
+          <div class="dock">
+            <div style="display:flex;gap:7px">
+              <button class="btn ghost sm" style="flex:none;width:44px" aria-label="Monday"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <button class="btn sm" style="flex:1">Cook the panla</button>
+              <button class="btn ghost sm" style="flex:none;width:44px" aria-label="Wednesday"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>The title bar is the jump control.</b> Tapping "Tuesday 2 Oct" opens the day list (frame 04) — discoverable without a second icon competing for the corner.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Per-slot menu</b> for swap, replace, remove. Per-day regenerate is the top-right icon. Two scopes, two controls, never one button doing both.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Weather is per day and stated plainly</b>, and it shows up in the dish reason — "and it is raining". Honest about being a nudge, never the deciding factor.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>"Add a meal" exists</b> because a real day sometimes has three. The day is a column, not two fixed slots.</span></div>
+      </div>
+    </div>
+
+    <!-- 04 JUMP -->
+    <div>
+      <div class="framecap"><span class="n">04</span><div><span class="t">Jump to a day</span><div class="d">From the title bar. The whole plan at a glance.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="justify-content:flex-end;background:var(--scrim)">
+          <div style="background:var(--white);border-top:var(--bw-bold) solid var(--ink);border-radius:24px 6px 0 0;padding:15px 14px 14px;max-height:88%;overflow:hidden">
+            <div style="width:40px;height:4px;background:var(--line-2);border-radius:999px;margin:0 auto 13px"></div>
+            <div style="font-family:var(--display);font-weight:800;font-size:16px;color:var(--ink);margin-bottom:11px">Jump to a day</div>
+
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <button class="jrow">
+                <span class="jd">Mon<em>1</em></span>
+                <span class="jm">Jollof Rice · Garri &amp; Stew</span>
+                <span class="tag ok">ok</span>
+              </button>
+              <button class="jrow on">
+                <span class="jd">Tue<em>2</em></span>
+                <span class="jm">Garri &amp; Leftover · Panla Soup</span>
+                <span class="tag warn">fish</span>
+              </button>
+              <button class="jrow">
+                <span class="jd">Wed<em>3</em></span>
+                <span class="jm">Beans &amp; Plantain · Yam</span>
+                <span class="tag crit">ugu out</span>
+              </button>
+              <button class="jrow">
+                <span class="jd">Thu<em>4</em></span>
+                <span class="jm">Efo Riro · Rice</span>
+                <span class="tag crit">rice out</span>
+              </button>
+              <button class="jrow">
+                <span class="jd">Fri<em>5</em></span>
+                <span class="jm">Yam &amp; Egg Sauce · Beans</span>
+                <span class="tag ok">ok</span>
+              </button>
+              <button class="jrow">
+                <span class="jd">Sat<em>6</em></span>
+                <span class="jm">Ofada &amp; Ayamase</span>
+                <span class="tag">more time</span>
+              </button>
+              <button class="jrow">
+                <span class="jd">Sun<em>7</em></span>
+                <span class="jm">Rice &amp; Stew · Leftovers</span>
+                <span class="tag ok">ok</span>
+              </button>
+            </div>
+            <button class="btn ghost" style="margin-top:12px">Back to summary</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Every day shows its problem tag</b>, so this doubles as the plan's health check — you can see Thursday is the trouble without opening it.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>Current day is marked, not hidden.</b> Tapping it just closes the sheet.</span></div>
+      </div>
+    </div>
+
+    <!-- 05 EDIT A MEAL -->
+    <div>
+      <div class="framecap"><span class="n">05</span><div><span class="t">Swap a meal</span><div class="d">From the slot menu. Real candidates from the matcher.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="justify-content:flex-end;background:var(--scrim)">
+          <div style="background:var(--white);border-top:var(--bw-bold) solid var(--ink);border-radius:24px 6px 0 0;padding:15px 14px 14px">
+            <div style="width:40px;height:4px;background:var(--line-2);border-radius:999px;margin:0 auto 13px"></div>
+            <div style="margin-bottom:11px">
+              <div style="font-family:var(--display);font-weight:800;font-size:16px;color:var(--ink)">Tuesday dinner</div>
+              <div style="font-size:12px;color:var(--ink-3)">Currently Panla Pepper Soup</div>
+            </div>
+
+            <div class="field" style="margin-bottom:10px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input placeholder="Search a dish" aria-label="Search for a meal">
+            </div>
+
+            <div class="label" style="margin-bottom:7px">Fits your kitchen</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <button class="cand">
+                <span class="cart"><svg width="22" height="22" viewBox="0 0 40 40" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="22" r="11" fill="var(--greens-fill)"/><path d="M20 11c-4 4-5 8-5 11s2 6 5 6 5-3 5-6-1-7-5-11Z"/></svg></span>
+                <span class="ctx"><span class="cn">Efo Riro</span><span class="cd">45 min · have it all</span></span>
+                <span class="tag ok">92%</span>
+              </button>
+              <button class="cand">
+                <span class="cart"><svg width="22" height="22" viewBox="0 0 40 40" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><ellipse cx="20" cy="26" rx="13" ry="8" fill="var(--dish-fill)"/><path d="M12 22c2-4 6-5 8-5s6 1 8 5"/></svg></span>
+                <span class="ctx"><span class="cn">Fried Rice</span><span class="cd">40 min · need 1 thing</span></span>
+                <span class="tag warn">74%</span>
+              </button>
+              <button class="cand">
+                <span class="cart"><svg width="22" height="22" viewBox="0 0 40 40" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M14 12h12l-2 20H16L14 12Z" fill="var(--dish-fill)"/><path d="M12 12h16"/></svg></span>
+                <span class="ctx"><span class="cn">Yam &amp; Egg Sauce</span><span class="cd">25 min · have it all</span></span>
+                <span class="tag ok">88%</span>
+              </button>
+            </div>
+
+            <div class="appnote warn" style="margin-top:11px;font-size:11.5px">
+              Swapping off the panla means it spoils unused. We will move it to Wednesday if you want.
+            </div>
+
+            <div style="display:flex;gap:7px;margin-top:11px">
+              <button class="btn ghost sm" style="flex:1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 7h14M10 11v6M14 11v6"/><path d="M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>
+                Remove
+              </button>
+              <button class="btn sm" style="flex:1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+                Surprise me
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Candidates come from the existing matcher</b>, ranked against the kitchen <em>as it will be on Tuesday</em> — not as it is today. That is the runway doing work inside the editor.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The consequence is stated before the swap</b>, with the fix offered. This is the honest version of a destructive action.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Remove is a real option.</b> Some days you are not cooking, and a plan that cannot express that gets abandoned.</span></div>
+      </div>
+    </div>
+
+    <!-- 06 RUNWAY -->
+    <div>
+      <div class="framecap"><span class="n">06</span><div><span class="t">What runs out</span><div class="d">Reached from the summary's warning rows.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen">
+          <div class="appbar">
+            <button class="iconbtn" aria-label="Back to summary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="ttl">What runs out when</div>
+          </div>
+          <div class="body">
+            <div class="appnote warn">
+              <strong>The week breaks on Thursday.</strong> Rice and ugu run out before Friday.
+              Everything else holds.
+            </div>
+
+            <div class="runway">
+              <div class="rwhead"><span class="label">Your kitchen, day by day</span></div>
+              <div class="rwrow">
+                <div class="rwname">Rice<span>2 congo</span></div>
+                <div class="bar">
+                  <span class="seg" style="width:52%"></span>
+                  <span class="seg low" style="left:52%;width:16%"></span>
+                  <span class="seg out" style="left:68%;width:32%"></span>
+                  <span class="mk" style="left:68%"></span>
+                  <span class="lbl">out Thu</span>
+                </div>
+              </div>
+              <div class="rwrow">
+                <div class="rwname">Ugu<span>1 bundle</span></div>
+                <div class="bar">
+                  <span class="seg" style="width:30%"></span>
+                  <span class="seg out" style="left:30%;width:70%"></span>
+                  <span class="mk" style="left:30%"></span>
+                  <span class="lbl">out Wed</span>
+                </div>
+              </div>
+              <div class="rwrow">
+                <div class="rwname">Panla<span>4 pieces</span></div>
+                <div class="bar">
+                  <span class="seg" style="width:22%"></span>
+                  <span class="seg low" style="left:22%;width:14%"></span>
+                  <span class="lbl" style="color:var(--caution-onsoft)">spoils Wed</span>
+                </div>
+              </div>
+              <div class="rwrow">
+                <div class="rwname">Tomatoes<span>8 pieces</span></div>
+                <div class="bar">
+                  <span class="seg" style="width:74%"></span>
+                  <span class="seg low" style="left:74%;width:26%"></span>
+                  <span class="lbl">tight Sun</span>
+                </div>
+              </div>
+              <div class="rwrow">
+                <div class="rwname">Garri<span>1 derica</span></div>
+                <div class="bar"><span class="seg" style="width:100%"></span><span class="lbl" style="color:#fff">holds</span></div>
+              </div>
+              <div class="rwrow">
+                <div class="rwname">Palm oil<span>1 bottle</span></div>
+                <div class="bar" style="background:repeating-linear-gradient(45deg,var(--paper-2),var(--paper-2) 4px,var(--paper-3) 4px,var(--paper-3) 8px)">
+                  <span class="lbl" style="color:var(--ink-3)">can't measure</span>
+                </div>
+              </div>
+              <div class="rwaxis">
+                <div></div>
+                <div class="ax"><span>Mon</span><span>Wed</span><span>Fri</span><span>Sun</span></div>
+              </div>
+            </div>
+
+            <div class="card soft" style="padding:12px">
+              <div class="label" style="margin-bottom:4px">To finish the week</div>
+              <div class="buyrow">
+                <span class="cbox on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg></span>
+                <div><div class="bn">Rice</div><div class="bq">2 congo · short from Thu</div></div>
+                <span class="bp">₦3,600</span>
+              </div>
+              <div class="buyrow">
+                <span class="cbox"></span>
+                <div><div class="bn">Ugu</div><div class="bq">1 bundle · short from Wed</div></div>
+                <span class="bp">₦700</span>
+              </div>
+            </div>
+
+            <div class="appnote" style="font-size:11.5px">
+              <strong>Palm oil is sold by the bottle</strong>, which has no fixed size — we will not
+              pretend to count it down. Prices are estimates, not market prices.
+            </div>
+          </div>
+          <div class="dock">
+            <button class="btn">Add ₦4,300 to my market list</button>
+            <button class="btn quiet">Or shorten the plan to Wednesday</button>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>Depletion and spoilage get different words.</b> Panla does not run out — it goes off while you still have it, which is worse.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>The hatched row is the honest one.</b> Palm oil's unit has <code>inBase: null</code>, so there is no truthful countdown. "Can't measure" beats a confident fiction.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>Two ways out, both real:</b> buy the gap, or shorten the plan to what the kitchen supports. Most apps refuse to offer the second.</span></div>
+      </div>
+    </div>
+
+    <!-- 07 THE EMAIL -->
+    <div>
+      <div class="framecap"><span class="n">07</span><div><span class="t">The morning reminder</span><div class="d">What the switch on the summary turns on.</div></div></div>
+      <div class="phone">
+        <div class="notch"><i></i></div>
+        <div class="screen" style="background:var(--paper-2);padding:14px">
+          <div style="background:var(--white);border:var(--bw) solid var(--ink);border-radius:var(--blade-sm);box-shadow:var(--drop);overflow:hidden">
+            <div style="padding:11px 13px;border-bottom:var(--bw-hair) solid var(--line);display:flex;align-items:center;gap:8px">
+              <div style="width:26px;height:26px;background:var(--sky);border:var(--bw-hair) solid var(--ink);border-radius:var(--blade-xs);display:grid;place-items:center;color:#fff">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 11h16v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-4Z"/></svg>
+              </div>
+              <div>
+                <div style="font-family:var(--display);font-weight:800;font-size:12.5px;color:var(--ink)">Day 2 of your plan</div>
+                <div style="font-family:var(--mono);font-size:9.5px;color:var(--ink-4);font-weight:600">Tuesday · 7:00</div>
+              </div>
+            </div>
+            <div style="padding:13px">
+              <p style="margin:0 0 11px;font-size:13px">
+                Rain in Lagos today, 26°C. <strong>Cook the panla</strong> — it will not keep past
+                tomorrow.
+              </p>
+
+              <div class="mailslot">
+                <span class="ms-n">Lunch</span>
+                <span class="ms-d">Garri &amp; Leftover Stew</span>
+                <span class="ms-t">20 min</span>
+              </div>
+              <div class="mailslot">
+                <span class="ms-n">Dinner</span>
+                <span class="ms-d">Panla Pepper Soup</span>
+                <span class="ms-t">35 min</span>
+              </div>
+
+              <div style="background:var(--caution-soft);border:var(--bw-hair) solid var(--caution-border);border-left:4px solid var(--caution);border-radius:var(--blade-xs);padding:9px 11px;margin-top:11px">
+                <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--caution-onsoft);margin-bottom:3px">Pick up today if you can</div>
+                <div style="font-size:12px;font-weight:700;color:var(--caution-onsoft)">Ugu — you run out tomorrow · ₦700</div>
+              </div>
+
+              <div style="margin-top:12px;display:flex;gap:7px">
+                <span class="btn sm" style="flex:1">Open today</span>
+                <span class="btn ghost sm" style="flex:none">Skip today</span>
+              </div>
+              <div style="font-size:9.5px;color:var(--ink-4);text-align:center;margin-top:10px">
+                One a day while your plan runs. Turn off any time.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="anno">
+        <div class="row"><span class="k">1</span><span class="v"><b>A new <code>PLAN_REMINDER</code> email kind</b> with <code>schedule: { hour: 7 }</code>, slotting into the existing <code>DEFAULT_SETTINGS</code> registry. Absence means enabled, which is exactly the on-by-default behaviour wanted.</span></div>
+        <div class="row"><span class="k">2</span><span class="v"><b>It carries the shopping nudge a day early</b>, which is the whole point — being told you are out of ugu on the morning you needed it is useless.</span></div>
+        <div class="row"><span class="k">3</span><span class="v"><b>"Skip today" is in the email.</b> One tap reflows the plan without opening the app, and it keeps the plan honest instead of quietly wrong.</span></div>
+        <div class="row"><span class="k">4</span><span class="v"><b>Stops when the plan ends.</b> No plan, no email — it is not another standing digest, and it must respect the existing per-kind frequency caps.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 class="sublede">Weather, honestly</h3>
+  <div class="card soft">
+    <p style="font-size:13.5px;margin:0">
+      <code>lib/weather</code> gives <code>summary</code>, <code>high</code>, <code>low</code> and
+      <code>rain</code> for <strong>one city, today</strong> — cached an hour, keyless Open-Meteo,
+      and degrading to <code>null</code> rather than failing. The rundown already uses it.
+    </p>
+    <p style="font-size:13.5px;margin:10px 0 0">
+      So a 7-day plan <strong>cannot have real weather for day 6</strong> without a forecast
+      endpoint. Three rules follow, and they are in the frames above:
+    </p>
+    <ul class="clean" style="margin-top:7px">
+      <li><strong>Weather nudges the order, never the dish.</strong> It swaps a soup and a grill between two days that both already fit the kitchen. It never adds a meal the kitchen cannot make.</li>
+      <li><strong>Only shown where it is real.</strong> Today and the near days get a weather line; later days simply omit it rather than showing a guess.</li>
+      <li><strong>The plan re-reads weather each morning</strong> in the reminder job, which is when it is both accurate and useful. A plan generated Monday should not claim to know Saturday.</li>
+    </ul>
+    <p class="note" style="margin-top:11px">
+      If we want per-day weather across a full fortnight, that is a forecast upgrade to
+      <code>lib/weather</code> — small, but it should be a deliberate ticket rather than assumed by
+      this design.
+    </p>
+  </div>
+</section>
+<!-- ═══════════════════ 05 MORE FEATURES ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">05</span><h2>More features around this</h2></div>
+  <p class="lede">
+    The brief asked for more ideas. These are the ones I would actually argue for — each is
+    computable from data we already hold, and each makes the plan harder to abandon. Ranked by
+    return against build cost, with the two I would cut at the bottom.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip sky">Build it</span><span class="chip ok">Cheap</span></div>
+      <h3 style="font-size:18px">1 · The plan heals itself</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        Plans break on contact with real life. You skip Tuesday, eat out Wednesday, burn the
+        rice. A plan that cannot absorb that is abandoned by Thursday — and then never
+        regenerated, because it has already proven unreliable.
+      </p>
+      <p style="font-size:13.5px">
+        So: <strong>"I didn't cook this"</strong> on every slot. The plan reflows, the runway
+        recomputes, and the ingredients you did not use roll forward as surplus. Skipping should
+        make the plan <em>better informed</em>, not broken.
+      </p>
+      <div class="appnote ok" style="margin-top:10px">
+        I would treat this as part of v1, not an enhancement. It is the difference between a
+        timetable and a wall chart.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip sky">Build it</span><span class="chip ok">Cheap</span></div>
+      <h3 style="font-size:18px">2 · Cook once, eat twice</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        A planner that ignores leftovers is lying about how people actually cook. A pot of stew
+        is three meals. Model a cooked dish as <strong>portions produced</strong> against
+        <code>serves</code>, and spend the remainder on later slots.
+      </p>
+      <p style="font-size:13.5px">
+        This is also the single biggest lever on the shopping total — it is how a week of 14
+        meals needs five cooking sessions instead of fourteen, which is both cheaper and closer
+        to the truth.
+      </p>
+      <div class="appnote ok" style="margin-top:10px">
+        Already half-expressed in the configure screen's "leftovers are fine" option.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip sky">Build it</span><span class="chip warn">Medium</span></div>
+      <h3 style="font-size:18px">3 · Prep clustering</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        If Monday and Thursday both want blended pepper, say so: <em>"Blend once on Sunday,
+        it covers three meals."</em> We already know every recipe's ingredient lines, so shared
+        prep is a set intersection across the week.
+      </p>
+      <p style="font-size:13.5px">
+        This is the feature that makes the plan feel like it was written by somebody who has
+        actually cooked — and it is a real time saving, not a UI flourish.
+      </p>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip sky">Build it</span><span class="chip warn">Medium</span></div>
+      <h3 style="font-size:18px">4 · Market day as the anchor</h3>
+      <p style="font-size:13.5px;margin-top:8px">
+        Nobody shops daily. Ask which day is market day and <strong>plan around it</strong>:
+        fresh things early in the cycle, hardy things at the end, and the shopping list
+        delivered the evening before rather than whenever it happens to be generated.
+      </p>
+      <p style="font-size:13.5px">
+        Ties the plan to a rhythm that already exists in the user's week instead of asking them
+        to adopt ours. It also gives the email digest an obvious, welcome send time.
+      </p>
+    </div>
+
+    <div class="card soft">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip grape">Later</span></div>
+      <h3 style="font-size:17px">5 · Use-it-up mode</h3>
+      <p style="font-size:13px;margin-top:8px">
+        A plan whose only goal is to clear the fridge before anything spoils, ordered purely by
+        expiry. The <code>use_it_up</code> notification preference already exists on the user —
+        this is the surface that preference implies but never had.
+      </p>
+    </div>
+
+    <div class="card soft">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip grape">Later</span></div>
+      <h3 style="font-size:17px">6 · Plan from a receipt</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Receipt extraction already exists. Shop first, photograph the receipt, get a week
+        planned from exactly what you bought. A strong moment — but it depends on extraction
+        accuracy, so it follows rather than leads.
+      </p>
+    </div>
+
+    <div class="card soft" style="border-color:var(--critical)">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip crit">I'd cut this</span></div>
+      <h3 style="font-size:17px">Streaks and plan adherence scores</h3>
+      <p style="font-size:13px;margin-top:8px">
+        Tempting and wrong. A "you followed 4 of 7 days" score punishes people for having a life,
+        and the failure mode is that they stop generating plans so they stop seeing the number.
+        Measure adherence <strong>internally</strong>; never show it as a grade.
+      </p>
+    </div>
+
+    <div class="card soft" style="border-color:var(--critical)">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip crit">I'd cut this</span></div>
+      <h3 style="font-size:17px">Sharing plans between users</h3>
+      <p style="font-size:13px;margin-top:8px">
+        A plan is only meaningful against <em>your</em> kitchen — shared, it becomes a generic
+        recipe list and loses the one thing that made it good. It also re-opens the kitchen
+        privacy question from the shelved feed proposal for no real gain.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 06 PLACEMENT ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">06</span><h2>Where it lives — guests and members</h2></div>
+  <p class="lede">
+    You asked specifically about this. The two audiences want different things from the same
+    engine, and the split follows a rule: <strong>a guest gets the demo, a member gets the
+    habit.</strong>
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="font-size:18px">Unregistered — on the marketing page</h3>
+      <div class="appnote warn" style="margin-bottom:11px">
+        <strong>Worth being precise:</strong> <code>/</code> is the <em>decide flow</em>, not a
+        landing page. Marketing lives at <code>/why</code>:
+        <code>SiteHero → KitchenConveyor → LiveMatch → TrustPlate → SitePricing → SiteFaq →
+        FinalHob</code>. So "put it on the landing page" means two different placements, and both
+        are worth doing.
+      </div>
+      <p style="font-size:13.5px">
+        <code>LiveMatch</code> on <code>/why</code> is a self-playing demo that types ingredients
+        and shows a match — the natural host.
+      </p>
+      <p style="font-size:13.5px">
+        <strong>I would add one section after <code>LiveMatch</code></strong> — call it
+        <em>ThreeDays</em> — that continues the same demo: the ingredients already on screen
+        become a three-day plan, with days four to seven blurred behind the account wall
+        with days 4–7 blurred. It follows the page's existing instinct: <strong>show it working,
+        do not describe it.</strong>
+      </p>
+      <p style="font-size:13.5px">
+        <strong>Two placements, in priority order:</strong>
+      </p>
+      <ul class="clean" style="margin-top:6px">
+        <li><strong>On <code>/</code>, after a guest's verdict</strong> — "Like that? See three days from the same kitchen." This is the higher-value one: they have already told us what they have, so the plan costs them nothing and the moment is warm.</li>
+        <li><strong>On <code>/why</code>, a new section after <code>LiveMatch</code></strong> — call it <em>ThreeDays</em>, continuing the same self-playing demo into a plan with days 4–7 blurred. Follows the page's existing instinct: show it working, do not describe it.</li>
+      </ul>
+      <p style="font-size:13.5px;margin-top:10px">Mechanics, all of which already exist:</p>
+      <ul class="clean" style="margin-top:4px">
+        <li><strong>Three days free</strong>, held in <code>sessionStorage</code> on the versioned draft pattern — a mismatched version is discarded, never migrated</li>
+        <li><strong>No runway for guests</strong> — it needs a persistent kitchen with quantities, so the gate is honest rather than arbitrary</li>
+        <li><code>optionalAuthenticate</code> with the two-limiter switch decide already uses: anonymous keyed by IP, members by identity</li>
+        <li><strong><code>carryOverDraft</code> already does the replay</strong> onto a new account, best-effort, keeping the draft on failure so a hiccup never looks like a failed signup</li>
+      </ul>
+      <div class="appnote" style="margin-top:11px">
+        <strong>Why not a dedicated <code>/plan</code> entry page?</strong> It would compete with
+        decide for the same cold traffic and split the funnel. The plan is a <em>second</em>
+        reason to stay, not a first reason to arrive — deciding one meal is far lower friction
+        than planning a week.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:18px">Registered — the forward half of "Your week"</h3>
+      <p style="font-size:13.5px;margin-top:9px">
+        The existing week screen is retrospective. The Plan is its twin, and the cleanest
+        framing for a member is <strong>one surface with two directions</strong>: what happened,
+        and what is coming.
+      </p>
+      <ul class="clean" style="margin-top:10px">
+        <li><strong>Entry from the existing "Your week" surface</strong> — a forward tab, not a sixth bottom tab. The mobile bar is full at five, and this does not earn a displacement on day one.</li>
+        <li><strong>Entry from the decide verdict:</strong> "Make this the start of a week." The best moment to plan is just after a decision landed well.</li>
+        <li><strong>Entry from the kitchen screen</strong> after a big stock-up, which is exactly when a week is worth planning.</li>
+        <li><strong>The email digest carries today's slot</strong> through the existing rundown, so the plan has a pulse without push notifications existing.</li>
+      </ul>
+      <div class="appnote ok" style="margin-top:11px">
+        <strong>One active plan at a time.</strong> Multiple overlapping plans make the runway
+        meaningless — two plans cannot both spend the same rice. Regenerating replaces.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 07 NUTRITION ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">07</span><h2>The honest path to nutrition</h2></div>
+  <p class="lede">
+    The brief put calories and macro targets at the centre. I have moved them to the end, and I
+    want to be clear about why rather than quietly dropping them.
+  </p>
+  <div class="card" style="border-color:var(--critical);margin-bottom:22px">
+    <h3 style="font-size:19px">Why not now</h3>
+    <p style="font-size:13.5px;margin-top:8px">
+      There is no macro data on any meal or ingredient. To ship calorie targets this quarter we
+      would have to <strong>ask a model to invent the numbers</strong>. A model will cheerfully
+      return "Jollof Rice, 640 kcal, 18 g protein" for a dish whose real values depend on how
+      much oil went in, whether it is a congo or a derica of rice, and how many people it is
+      actually feeding.
+    </p>
+    <p style="font-size:13.5px">
+      Those numbers would look authoritative, be wrong by a wide margin, and — because the
+      feature is framed around weight loss and muscle growth — <strong>be acted on.</strong>
+      That is the one place in this product where a confident guess does real harm, and it is
+      not a risk worth taking to hit a feature list.
+    </p>
+  </div>
+
+  <h3 class="sublede">What I would do instead, in order</h3>
+  <div class="grid g3">
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Step one · now</div>
+      <h3 style="font-size:16px">Ship the signpost</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        The disabled "Health goals — coming later" line on the configure screen. It is instrumented, so we
+        learn <strong>how many people tap it</strong> and whether this is actually wanted before
+        funding the data work.
+      </p>
+      <p class="note" style="margin-top:8px">Costs nothing. Answers the demand question honestly.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Step two</div>
+      <h3 style="font-size:16px">Shape, not numbers</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        We can say truthful things <em>without</em> macros: <em>"four of your seven dinners are
+        swallow"</em>, <em>"no fish or beans all week"</em>, <em>"three fried meals in a
+        row"</em>. That is derived from <code>tags</code> and ingredient groups we already have.
+      </p>
+      <p class="note" style="margin-top:8px">
+        Honest, useful, and likely most of the real value people want from "nutrition" anyway.
+      </p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Step three · the real fix</div>
+      <h3 style="font-size:16px">Nutrition per catalogue item</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        Per-100g macros on the <strong>catalogue items</strong>, not on recipes — then a meal's
+        macros compute from its ingredient quantities and scale with servings automatically.
+      </p>
+      <p class="note" style="margin-top:8px">
+        Sourced from a real food-composition table, operator-reviewed like recipe images already
+        are. A bounded, one-time data project — and the only version worth shipping. It also needs
+        gram-resolution of recipe units, which the <code>no_fixed_size</code> cases block.
+      </p>
+      <div class="appnote crit" style="margin-top:9px;font-size:11.5px">
+        This step <strong>reverses a written PRD decision</strong>. It needs a product owner to
+        say so out loud, not a ticket.
+      </div>
+    </div>
+  </div>
+  <div class="appnote warn" style="margin-top:20px;max-width:none">
+    <strong>Note on framing, whenever it does ship:</strong> "weight loss", "muscle growth" and
+    "fat avoidance" are health claims. I would keep the product's language to what the food
+    <em>is</em> — higher protein, lighter, more vegetables — and leave the medical framing alone.
+    Same instinct as the existing voice rule about never joking inside an error: the product
+    should not pretend to an authority it does not have.
+  </div>
+</section>
+
+<!-- ═══════════════════ 08 BUILD ═══════════════════ -->
+<section>
+  <div class="sechead"><span class="secnum">08</span><h2>How I would sequence it</h2></div>
+  <p class="lede">
+    The runway is the differentiator, so it goes first — and it is deterministic, which means it
+    can be unit-tested properly rather than eyeballed.
+  </p>
+  <div class="grid g4">
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 1 · ~1.5 weeks</div>
+      <h3 style="font-size:16px">The simulator</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        Id-first stock matching, serving scaling, then the pure function: stock + ordered meals →
+        per-ingredient runway with depletion and spoil dates. Heavy unit tests, including the
+        unconvertible-unit case. <strong>The number panel ships here too</strong> — it is shared
+        UI, not plan UI, and other screens want it.
+      </p>
+      <p class="note" style="margin-top:8px">Shippable alone: powers "you can cook 4 more meals before shopping" anywhere.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 2 · ~1.5 weeks</div>
+      <h3 style="font-size:16px">Generate and preview</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        Deterministic plan builder over the existing matcher, then wire <code>@ui/planning</code>
+        and <code>DecideShell</code> rather than building new components. One active plan per user.
+      </p>
+      <p class="note" style="margin-top:8px">Shorter than it looks because the plan UI already exists. Model writes per-slot prose only — never the structure.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 3 · ~1 week</div>
+      <h3 style="font-size:16px">Runway + list</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        The runway screen, the two-tier shopping list with the naira total, "I didn't cook this"
+        reflow, and the hand-off into the existing market list.
+      </p>
+      <p class="note" style="margin-top:8px">This is where the feature becomes differentiated rather than ordinary.</p>
+    </div>
+    <div class="card soft">
+      <div class="label" style="margin-bottom:7px">Stage 4 · ~1.5 weeks</div>
+      <h3 style="font-size:16px">Reminder + guest demo</h3>
+      <p style="font-size:12.5px;margin-top:8px">
+        The <code>PLAN_REMINDER</code> email kind, the "skip today" link, then the
+        <em>ThreeDays</em> section, the blur wall, draft-survives-signup and anonymous rate
+        limiting.
+      </p>
+      <p class="note" style="margin-top:8px">The reminder is what gives the plan a pulse; the guest demo is a conversion optimisation on something that must already be good.</p>
+    </div>
+  </div>
+
+  <h3 class="sublede">The one real engineering risk</h3>
+  <div class="card" style="border-color:var(--caution)">
+    <h3 style="font-size:17px"><code>consume()</code> matches stock by name, not <code>catalogueId</code></h3>
+    <p style="font-size:13.5px;margin-top:8px">
+      <code>stockService.consume</code> exists, converts units and clamps at zero — but it
+      resolves a recipe line to a stock row <strong>by name</strong>. That is tolerable for
+      decrementing after one meal. For a seven-day forward simulation the errors
+      <strong>compound</strong>: one unmatched spelling and the runway confidently tells somebody
+      their rice is fine when it is not.
+    </p>
+    <p style="font-size:13.5px">
+      Both sides already carry <code>catalogueId</code>, and <code>resolve(name)</code> exists in
+      the catalogue lookup. <strong>Hardening this to id-first matching with a name fallback is
+      the first task of stage 1</strong>, not a follow-up — the whole feature's credibility rests
+      on it.
+    </p>
+  </div>
+
+  <h3 class="sublede">Open questions</h3>
+  <div class="card soft">
+    <ul class="clean" style="margin:0">
+      <li><strong>How complete are recipe quantities across all published meals?</strong> The schema allows <code>quantity: null</code>, and pantry staples are null by design. The seeds look well-populated, but the share of nulls on real non-staple lines is the number that decides how good the runway can be. Worth counting before stage 1 is estimated.</li>
+      <li><strong>Serving scaling does not exist anywhere.</strong> <code>serves</code> is stored, <code>PortionScaler</code> is presentational only, and nothing multiplies ingredients by a target. The simulator needs this, and it is the second task of stage 1.</li>
+      <li><strong>A new <code>meal_plans</code> collection, or extend <code>decide_history</code>?</strong> I lean new: a plan is mutable and ongoing, while decide history is an immutable log.</li>
+      <li><strong>Can the rundown carry "today's slot"</strong> for users with an active plan, or does that need its own job?</li>
+    </ul>
+    <p class="note" style="margin-top:12px">
+      Everything else is settled: the AI layer's <code>withEnvelope</code> zod pattern takes a
+      <code>MealPlanSchema</code> directly, <code>lib/jobs</code> handles long generation with
+      progress, and the <code>'deterministic' | 'ai_framed'</code> provenance pattern is exactly
+      what plan generation should copy.
+    </p>
+  </div>
+
+  <div class="appnote" style="margin-top:22px;max-width:none">
+    <strong>My recommendation:</strong> build stages 1–3 and ship without any nutrition features
+    at all. The runway is the genuinely novel thing here — every other meal planner starts from an
+    empty kitchen, and ours is the only one that can tell you the day your rice runs out. That
+    alone is worth a weekly visit, and roughly four weeks of work given how much already exists.
+    Macros stay out until somebody decides, deliberately and on the record, to reverse the PRD
+    exclusion and fund the data behind it.
+  </div>
+</section>
+
+<footer>
+  <span>KinniJije · The Plan · Proposal</span>
+  <span class="tnum">2026-10-01 · tokens from docs/v2/design.html</span>
+</footer>
+</div>
+</body>
+</html>

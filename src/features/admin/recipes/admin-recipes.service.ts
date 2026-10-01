@@ -3,7 +3,9 @@ import { record } from '@lib/audit/index.js';
 import { isoOrNull } from '@lib/dates.js';
 import { logger } from '@lib/logger/index.js';
 import { fail, ok, type ServiceResult } from '@lib/service-result.js';
+import { CATALOGUE } from '@shared/catalogue/index.js';
 import { resolve as resolveIngredient } from '@shared/catalogue/lookup.js';
+import { UNITS } from '@shared/catalogue/units.js';
 import { ERROR_CODES } from '@shared/constants/error-codes.js';
 import { HTTP_STATUS } from '@shared/constants/http-status.js';
 import { MESSAGE_KEYS } from '@shared/messages/keys.js';
@@ -123,9 +125,39 @@ export class AdminRecipesService {
     });
   }
 
-  /** One recipe in. Returns the id and how much of it we could match. */
-  async create(input: RecipeInput, actorId: string): Promise<ServiceResult<{ id: string; matched: number; unmatched: string[] }>> {
-    const ingredients = input.ingredients.map((item) => {
+  /**
+   * What the recipe form needs to offer real choices rather than free text.
+   *
+   * The ingredient names matter most: an ingredient that does not resolve to
+   * the catalogue is invisible to matching, so the form shows — while somebody
+   * is still typing — whether a name will match, using this same list.
+   */
+  async formOptions(): Promise<ServiceResult<unknown>> {
+    const cuisines = await MealModel.distinct('cuisines').exec();
+
+    return ok({
+      ingredients: CATALOGUE.map((item) => ({
+        id: item.id,
+        name: item.name,
+        aliases: item.aliases,
+        default_unit: item.defaultUnit,
+      })),
+      units: Object.values(UNITS).map((unit) => ({ id: unit.id, label: unit.label, abbr: unit.abbr })),
+      // What recipes already use, so a new one joins an existing tag instead
+      // of inventing "Nigerian", "nigerian" and "naija" as three cuisines.
+      cuisines: [...new Set(cuisines.map((c) => c.trim().toLowerCase()).filter((c) => c.length > 0))].sort(),
+      difficulties: ['easy', 'medium', 'involved'],
+    });
+  }
+
+  /**
+   * Input ingredients → stored ones, resolved against the catalogue.
+   *
+   * Shared by create and update so the two can never disagree about what
+   * "matched" means.
+   */
+  private toIngredients(input: RecipeInput) {
+    return input.ingredients.map((item) => {
       const match = resolveIngredient(item.name);
       return {
         catalogueId: match?.id ?? null,
@@ -135,6 +167,107 @@ export class AdminRecipesService {
         optional: item.optional ?? false,
       };
     });
+  }
+
+  /**
+   * Steps, renumbered 1..n in the order they were sent.
+   *
+   * The ORDER is the truth, not the `index` a client typed: a form that lets
+   * somebody drag step 3 above step 2 should not also have to renumber them,
+   * and a gap or a duplicate index would break the cook screen.
+   */
+  private toSteps(input: RecipeInput) {
+    return input.steps.map((s, i) => ({
+      index: i + 1,
+      heading: s.heading,
+      description: s.description,
+      estMinutes: s.est_minutes,
+    }));
+  }
+
+  /**
+   * Replaces a recipe's content.
+   *
+   * THE SLUG DOES NOT CHANGE, even when the name does. It is the recipe's
+   * address — in links people have saved, and in every cached Chowdeck search
+   * keyed to it — and renaming "Jollof" to "Party Jollof" must not break them.
+   *
+   * Images, quality tier and variant links are left alone: the form does not
+   * edit them, so a save must not blank them.
+   */
+  async update(
+    mealId: string,
+    input: RecipeInput,
+  ): Promise<ServiceResult<{ id: string; matched: number; unmatched: string[] }>> {
+    const before = await MealModel.findById(mealId).exec();
+    if (before === null) {
+      return fail(ERROR_CODES.NOT_FOUND, MESSAGE_KEYS.meals.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+    }
+
+    const ingredients = this.toIngredients(input);
+    const steps = this.toSteps(input);
+
+    const next = {
+      name: input.name,
+      source: input.source ?? before.source,
+      status: input.status ?? before.status,
+      cuisines: input.cuisines ?? before.cuisines,
+      difficulty: input.difficulty,
+      cookTimeMinutes: input.cook_time_minutes,
+      serves: input.serves,
+      whatMakesItGood: input.what_makes_it_good,
+      description: input.description ?? input.what_makes_it_good,
+      ingredients,
+      steps,
+      ingredientKeys: ingredients.flatMap((i) => (i.catalogueId === null ? [] : [i.catalogueId])),
+      // Only when sent: the form has no icon picker, so absent means "keep".
+      ...(input.hero_icon !== undefined && { heroIcon: input.hero_icon }),
+    };
+
+    await MealModel.updateOne({ _id: mealId }, { $set: next }).exec();
+
+    // Scalars are diffed field by field; the two lists are summarised, since
+    // a full before/after of forty steps is unreadable in a trail.
+    const changes: { field: string; from: unknown; to: unknown }[] = [];
+    const scalar = (field: string, from: unknown, to: unknown): void => {
+      if (JSON.stringify(from) !== JSON.stringify(to)) changes.push({ field, from, to });
+    };
+    scalar('name', before.name, next.name);
+    scalar('status', before.status, next.status);
+    scalar('source', before.source, next.source);
+    scalar('difficulty', before.difficulty, next.difficulty);
+    scalar('cook_time_minutes', before.cookTimeMinutes, next.cookTimeMinutes);
+    scalar('serves', before.serves, next.serves);
+    scalar('cuisines', before.cuisines, next.cuisines);
+    scalar('what_makes_it_good', before.whatMakesItGood, next.whatMakesItGood);
+    scalar('description', before.description, next.description);
+    scalar(
+      'ingredients',
+      before.ingredients.map((i) => `${i.name}${i.optional ? ' (optional)' : ''}`),
+      ingredients.map((i) => `${i.name}${i.optional ? ' (optional)' : ''}`),
+    );
+    if (JSON.stringify(before.steps.map((s) => [s.heading, s.description, s.estMinutes])) !==
+        JSON.stringify(steps.map((s) => [s.heading, s.description, s.estMinutes]))) {
+      changes.push({ field: 'steps', from: `${String(before.steps.length)} steps`, to: `${String(steps.length)} steps` });
+    }
+
+    record({
+      action: 'recipes.updated',
+      resource: 'recipes',
+      resourceId: mealId,
+      changes,
+      meta: { name: next.name, slug: before.slug },
+    });
+
+    const unmatched = ingredients.filter((i) => i.catalogueId === null).map((i) => i.name);
+    logger.info('recipe updated', { meal_id: mealId, changed: changes.map((c) => c.field), unmatched: unmatched.length });
+
+    return ok({ id: mealId, matched: next.ingredientKeys.length, unmatched });
+  }
+
+  /** One recipe in. Returns the id and how much of it we could match. */
+  async create(input: RecipeInput, actorId: string): Promise<ServiceResult<{ id: string; matched: number; unmatched: string[] }>> {
+    const ingredients = this.toIngredients(input);
 
     const meal = await MealModel.create({
       slug: slugify(input.name),
@@ -148,12 +281,7 @@ export class AdminRecipesService {
       whatMakesItGood: input.what_makes_it_good,
       description: input.description ?? input.what_makes_it_good,
       ingredients,
-      steps: input.steps.map((s) => ({
-        index: s.index,
-        heading: s.heading,
-        description: s.description,
-        estMinutes: s.est_minutes,
-      })),
+      steps: this.toSteps(input),
       ingredientKeys: ingredients.flatMap((i) => (i.catalogueId === null ? [] : [i.catalogueId])),
       heroIcon: input.hero_icon ?? null,
       createdBy: actorId,
