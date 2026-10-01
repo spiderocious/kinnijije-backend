@@ -153,6 +153,27 @@ function buildPopular(): DecideOptionsView['kitchen'][number] | null {
   return items.length === 0 ? null : { id: 'popular', label: 'Popular', items };
 }
 
+/**
+ * No ingredient may appear twice WITHIN a group.
+ *
+ * Across groups is fine and deliberate — "Popular" repeats rice so somebody
+ * browsing Grains still finds it there, and the clients de-duplicate when they
+ * search. Twice in the SAME group is always a catalogue fault, and shipping it
+ * means two identical tiles a cook cannot choose between.
+ *
+ * Thrown at module load rather than logged: this is built once at boot from a
+ * static file, so a bad catalogue should fail the deploy, not the request.
+ */
+function assertNoDuplicates(group: { label: string; items: { id: string }[] }): void {
+  const seen = new Set<string>();
+  for (const item of group.items) {
+    if (seen.has(item.id)) {
+      throw new Error(`Duplicate ingredient "${item.id}" in group "${group.label}"`);
+    }
+    seen.add(item.id);
+  }
+}
+
 function buildKitchen(): DecideOptionsView['kitchen'] {
   const ordered = [...ALL_GROUPS].sort((a, b) => {
     const ai = GROUP_ORDER.indexOf(a.id);
@@ -170,9 +191,12 @@ function buildKitchen(): DecideOptionsView['kitchen'] {
     }))
     .filter((group) => group.items.length > 0);
 
+  for (const group of groups) assertNoDuplicates(group);
+
   // Popular leads. Its items also stay in their own groups below: somebody
   // browsing "Grains" should still find rice there.
   const popular = buildPopular();
+  if (popular !== null) assertNoDuplicates(popular);
   return popular === null ? groups : [popular, ...groups];
 }
 

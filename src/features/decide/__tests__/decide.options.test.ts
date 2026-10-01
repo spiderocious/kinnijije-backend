@@ -77,3 +77,51 @@ describe('decideOptions', () => {
     }
   });
 });
+
+/**
+ * Two identical Salt tiles.
+ *
+ * "Popular" repeats items that also live in their own group, which is
+ * deliberate — browsing Grains should still find rice. But a cook searching
+ * "salt" got the same tile twice, with nothing to choose between them.
+ *
+ * Across groups stays legal; the clients de-duplicate when they search.
+ * WITHIN a group it is always a catalogue fault.
+ */
+describe('no duplicate ingredients', () => {
+  const view = decideOptions();
+
+  it('never lists the same ingredient twice in one group', () => {
+    for (const group of view.kitchen) {
+      const ids = group.items.map((item) => item.id);
+      assert.equal(
+        new Set(ids).size,
+        ids.length,
+        `"${group.label}" repeats an ingredient`,
+      );
+    }
+  });
+
+  it('never lists the same LABEL twice in one group', () => {
+    // Ids can differ while the words a cook reads are identical, which is the
+    // same confusion wearing a different hat.
+    for (const group of view.kitchen) {
+      const labels = group.items.map((item) => item.label.toLowerCase());
+      assert.equal(
+        new Set(labels).size,
+        labels.length,
+        `"${group.label}" repeats a label`,
+      );
+    }
+  });
+
+  it('keeps every catalogue id reachable exactly once outside Popular', () => {
+    // Popular is the one group allowed to repeat. Everything else partitions
+    // the catalogue, so a cook browsing can reach each ingredient once.
+    const outside = view.kitchen
+      .filter((group) => group.id !== 'popular')
+      .flatMap((group) => group.items.map((item) => item.id));
+
+    assert.equal(new Set(outside).size, outside.length);
+  });
+});
